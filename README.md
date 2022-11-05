@@ -102,13 +102,12 @@ amount (wPtoken) = amount * 10^(Ide-Pde) / x (wItoken) = amount * 10^(Ide-Pde) *
 - To display in contract the price of IDO token (x), which is set by user and with meaning 1 IDO token = x Purchase token. Developer need to calculate some value and store in contract, which is called **rate** and **decimal** variable.
 
 ```
-- dex = {the number digit of decimal part of 1/x}, ratex = 1/x*10^(dex)
-(with 1/x is irrational number, dex = 18)
+- dex = {the number digit of decimal part of 1/x}, ratex = 1/x*10^(dex) (with 1/x is irrational number, dex = 18)
 
 - If Ide < Pde, rate = ratex, de = dex+Pde-Ide **OR** if Ide >= Pde, rate = ratex*10^(Ide-Pde), de = dex
+```
 
 - In contract, we use formula: **amount (wPtoken) can buy => amount * rate / 10 ^(de) (wItoken)**
-```
 
 **Example:**
 
