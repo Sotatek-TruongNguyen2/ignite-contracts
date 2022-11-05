@@ -97,21 +97,41 @@ amount (wPtoken) = amount * 10^(Ide-Pde) / x (wItoken) = amount * 10^(Ide-Pde) *
 
 - **Summary, if Ide < Pde, rate = ratex, de = dex+Pde-Ide and if Ide >= Pde, rate = ratex*10^(Ide-Pde), de = dex**
 
-### Conclude and example:
+## Conclude and example:
 
 - To display in contract the price of IDO token (x), which is set by user and with meaning 1 IDO token = x Purchase token. Developer need to calculate some value and store in contract, which is called **rate** and **decimal** variable.
 
-- dex = {the number digit of decimal part of 1/x}, ratex = 1/x*10^(dex) 
+```
+- dex = {the number digit of decimal part of 1/x}, ratex = 1/x*10^(dex)
 (with 1/x is irrational number, dex = 18)
 
 - If Ide < Pde, rate = ratex, de = dex+Pde-Ide **OR** if Ide >= Pde, rate = ratex*10^(Ide-Pde), de = dex
 
-Example:
+- In contract, we use formula: **amount (wPtoken) can buy => amount * rate / 10 ^(de) (wItoken)**
+```
+
+**Example:**
 
 - x = 0.08, Ide = 18, Pde = 6 >> 1/x = 12.5 >> dex = 1 >> ratex = 125 >> rate = 125*10^12 >> de = 1
 
+Normal: amount = 90 Purchase Token >> can buy 90/0.08 = 1125 IDO Token
+
+Formula: amount = 90 * 10^6 (wPtoken) >> can buy 90 * 10^6 * 125 * 10^12 / 10 ^1 = 1125 * 10^18 (wItoken)
+
 - x = 0.028, Ide = 6, Pde = 8 >> 1/x = 35.7142857143... >> dex = 18 >> ratex = 35_714285_714285_714285 >> rate = 35_714285_714285_714285 >> de = 20
+
+Normal: amount = 90 Purchase Token >> can buy 90/0.028 = 3214.285714 IDO Token
+
+Formula: amount = 90 * 10^8 (wPtoken) >> can buy 90 * 10^8 * 35_714285_714285_714285 / 10 ^ 20 = 3214285714 (wItoken)
 
 - x = 10, Ide = 10, Pde = 18 >> 1/x = 0.1 >> dex = 1 >> ratex = 1 >> rate = 1 >> dex = 9
 
+Normal: amount = 90 Purchase Token >> can buy 90/10 = 9 IDO Token
+
+Formula: amount = 90 * 10^18 (wPtoken) >> can buy 90 * 10^18 * 1 / 10 ^ 9 = 9*10^10 (wItoken)
+
 - x = 55, Ide = 8, Pde = 6 >> 1/x = 0.01818181818... >> dex = 18 >> ratex = 18181818181818181 >> rate = 1818181818181818100 >> de = 18
+
+Normal: amount = 90 Purchase Token >> can buy 90/55 = 1.636363 IDO Token
+
+Formula: amount = 90 * 10^6 (wPtoken) >> can buy 90 * 10^6 * 1818181818181818100 / 10 ^ 18 = 163636363 (wItoken)
