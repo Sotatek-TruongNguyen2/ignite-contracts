@@ -100,7 +100,7 @@ contract Pool is Pausable {
         communityDuration = _communityDuration;
         maxPurchaseAmountForNotKYCUser = _maxPurchaseAmountForNotKYCUser;
         maxPurchaseAmountForKYCUser = _maxPurchaseAmountForKYCUser;
-        maxPurchaseAmountForWhale = totalRaiseAmount.div(2);
+        maxPurchaseAmountForWhale = totalRaiseAmount.mul(_whaleProportion).div(10000);
         offeredCurrency.rate = _rate;
         offeredCurrency.decimal = _decimal;
     }
@@ -207,6 +207,14 @@ contract Pool is Pausable {
             10**offeredCurrency.decimal
         );
         IDOToken.safeTransfer(buyer, IDOTokenAmount);
+    }
+
+    function setOfferedCurrencyRate(uint _rate) public{
+        offeredCurrency.rate = _rate;
+    }
+
+    function setOfferedCurrencyDecimal(uint _decimal) public {
+        offeredCurrency.decimal = _decimal;
     }
 
     function isInWhaleSession() public view returns (bool) {
