@@ -62,47 +62,74 @@ contract Pool is Pausable {
         _;
     }
 
-    function initialize(
-        address _superAdmin,
-        address _IDOToken,
-        address _purchaseToken,
-        address _feeRecipient,
-        address _purchaseTokenRecipient,
-        address _redeemIDOTokenRecipient,
-        uint _participationFeePercentage,
-        uint _totalRaiseAmount,
-        uint _whaleProportion,
-        uint _whaleOpenTime,
-        uint _whaleDuration,
-        uint _communityOpenTime,
-        uint _communityDuration,
-        uint _maxPurchaseAmountForNotKYCUser,
-        uint _maxPurchaseAmountForKYCUser,
-        uint _rate,
-        uint _decimal
-    ) public {
-        if (_whaleOpenTime + _whaleDuration > _communityOpenTime) {
-            revert OverlapOpenTime();
+    function initialize(address[6] memory addresses, uint[11] memory numbers)
+        public
+    // function initialize(
+    //     address _superAdmin,
+    //     address _IDOToken,
+    //     address _purchaseToken,
+    //     address _feeRecipient,
+    //     address _purchaseTokenRecipient,
+    //     address _redeemIDOTokenRecipient,
+    //     uint _participationFeePercentage,
+    //     uint _totalRaiseAmount,
+    //     uint _whaleProportion,
+    //     uint _whaleOpenTime,
+    //     uint _whaleDuration,
+    //     uint _communityOpenTime,
+    //     uint _communityDuration,
+    //     uint _maxPurchaseAmountForNotKYCUser,
+    //     uint _maxPurchaseAmountForKYCUser,
+    //     uint _rate,
+    //     uint _decimal
+    {
+        {
+            address _superAdmin = addresses[0];
+            address _IDOToken = addresses[1];
+            address _purchaseToken = addresses[2];
+            address _feeRecipient = addresses[3];
+            address _purchaseTokenRecipient = addresses[4];
+            address _redeemIDOTokenRecipient = addresses[5];
+            superAdmin = _superAdmin;
+            IDOToken = IERC20(_IDOToken);
+            purchaseToken = IERC20(_purchaseToken);
+            feeRecipient = _feeRecipient;
+            purchaseTokenRecipient = _purchaseTokenRecipient;
+            redeemIDOTokenRecipient = _redeemIDOTokenRecipient;
+            setAdmin(_superAdmin);
         }
-        superAdmin = _superAdmin;
-        IDOToken = IERC20(_IDOToken);
-        purchaseToken = IERC20(_purchaseToken);
-        feeRecipient = _feeRecipient;
-        purchaseTokenRecipient = _purchaseTokenRecipient;
-        redeemIDOTokenRecipient = _redeemIDOTokenRecipient;
-        participationFeePercentage = _participationFeePercentage;
-        totalRaiseAmount = _totalRaiseAmount;
-        whaleProportion = _whaleProportion;
-        setAdmin(_superAdmin);
-        whaleOpenTime = _whaleOpenTime;
-        whaleDuration = _whaleDuration;
-        communityOpenTime = _communityOpenTime;
-        communityDuration = _communityDuration;
-        maxPurchaseAmountForNotKYCUser = _maxPurchaseAmountForNotKYCUser;
-        maxPurchaseAmountForKYCUser = _maxPurchaseAmountForKYCUser;
-        maxPurchaseAmountForWhale = totalRaiseAmount.mul(_whaleProportion).div(10000);
-        offeredCurrency.rate = _rate;
-        offeredCurrency.decimal = _decimal;
+        {
+            uint _participationFeePercentage = numbers[0];
+            uint _totalRaiseAmount = numbers[1];
+            uint _whaleProportion = numbers[2];
+            uint _whaleOpenTime = numbers[3];
+            uint _whaleDuration = numbers[4];
+            uint _communityOpenTime = numbers[5];
+            uint _communityDuration = numbers[6];
+            uint _maxPurchaseAmountForNotKYCUser = numbers[7];
+            uint _maxPurchaseAmountForKYCUser = numbers[8];
+            uint _rate = numbers[9];
+            uint _decimal = numbers[10];
+
+            if (_whaleOpenTime + _whaleDuration > _communityOpenTime) {
+                revert OverlapOpenTime();
+            }
+
+            participationFeePercentage = _participationFeePercentage;
+            totalRaiseAmount = _totalRaiseAmount;
+            whaleProportion = _whaleProportion;
+            whaleOpenTime = _whaleOpenTime;
+            whaleDuration = _whaleDuration;
+            communityOpenTime = _communityOpenTime;
+            communityDuration = _communityDuration;
+            maxPurchaseAmountForNotKYCUser = _maxPurchaseAmountForNotKYCUser;
+            maxPurchaseAmountForKYCUser = _maxPurchaseAmountForKYCUser;
+            maxPurchaseAmountForWhale = totalRaiseAmount
+                .mul(_whaleProportion)
+                .div(10000);
+            offeredCurrency.rate = _rate;
+            offeredCurrency.decimal = _decimal;
+        }
     }
 
     // function setParticipationFeePercentage(uint _participationFeePercentage) public {
@@ -187,7 +214,6 @@ contract Pool is Pausable {
     }
 
     function _buyIDOToken(address buyer, uint _purchaseAmount) public {
-
         // _purchaseAmount do not include participantFee
         // calculate participantion fee and transfer to fee recipient
         uint participationFee = _purchaseAmount
@@ -209,7 +235,7 @@ contract Pool is Pausable {
         IDOToken.safeTransfer(buyer, IDOTokenAmount);
     }
 
-    function setOfferedCurrencyRate(uint _rate) public{
+    function setOfferedCurrencyRate(uint _rate) public {
         offeredCurrency.rate = _rate;
     }
 
