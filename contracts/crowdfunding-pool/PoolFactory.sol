@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.9;
 
-import "./Pool.sol";
 import "../interfaces/IPool.sol";
-import "../libraries/Initializable.sol";
+import "../utils/Initializable.sol";
+import "../utils/AccessControl.sol";
+import "../libraries/Clones.sol";
 
-contract PoolFactory is Initializable {
-    address masterAdmin;
-    address newMasterAdmin;
+contract PoolFactory is Initializable, AccessControl {
+    // keccak256("MASTER_ADMIN_ROLE")
+    bytes32 public constant MASTER_ADMIN_ROLE =
+        0xf83591f6d256ac9a12084d6de9c89a3e1fd09d594aa1184c76eef05bae103fc3;
+
+    address public poolImplementationAddress;
+    address public masterAdmin;
+    address public grantedMasterAdmin;
+
     // Array of created Pools Address
     address[] public allPools;
+
     // Mapping from User token. From tokens to array of created Pools for token
     mapping(address => mapping(address => address[])) public getPools;
 
@@ -19,10 +27,14 @@ contract PoolFactory is Initializable {
         address indexed pool,
         uint256 poolId
     );
-    event GrantMasterAdminRole(address newMasterAdmin);
-    event AcceptMasterAdminRole(
+    event GrantMasterAdminRole(address grantedMasterAdmin);
+    event ClaimMasterAdminRole(
         address indexed oldMasterAdmin,
-        address indexed newMasterAdmin
+        address indexed grantedMasterAdmin
+    );
+    event UpdatePoolImplementation(
+        address indexed oldPoolImplementation,
+        address indexed newPoolImplementation
     );
 
     error NotMasterAdmin();
@@ -30,16 +42,40 @@ contract PoolFactory is Initializable {
     error ZeroAddress();
     error ZeroAmount();
     error ZeroOfferedRate();
+    error NotValidWhaleProportion();
 
-    modifier onlyMasterAdmin() {
-        if (msg.sender != masterAdmin) {
-            revert NotMasterAdmin();
+    function _validAddress(address _address) internal pure {
+        if (_address == address(0)) {
+            revert ZeroAddress();
         }
-        _;
     }
 
-    function initialize(address _masterAdmin) external initializer {
+    function _validAmount(uint _amount) internal pure {
+        if (_amount == 0) {
+            revert ZeroAmount();
+        }
+    }
+
+    function initialize(
+        address _masterAdmin,
+        address _poolImplementationAddress
+    ) external initializer {
         masterAdmin = _masterAdmin;
+        poolImplementationAddress = _poolImplementationAddress;
+        _setupRole(MASTER_ADMIN_ROLE, _masterAdmin);
+    }
+
+    function setPoolImplementation(address _poolImplementationAddress)
+        external
+        onlyRole(MASTER_ADMIN_ROLE)
+    {
+        _validAddress(_poolImplementationAddress);
+        address oldPoolImplementation = poolImplementationAddress;
+        poolImplementationAddress = _poolImplementationAddress;
+        emit UpdatePoolImplementation(
+            oldPoolImplementation,
+            _poolImplementationAddress
+        );
     }
 
     /**
@@ -81,23 +117,23 @@ contract PoolFactory is Initializable {
 
     function grantMasterAdminRole(address _newMasterAdmin)
         external
-        onlyMasterAdmin
+        onlyRole(MASTER_ADMIN_ROLE)
     {
-        if (_newMasterAdmin == address(0)) {
-            revert ZeroAddress();
-        }
-        newMasterAdmin = _newMasterAdmin;
+        _validAddress(_newMasterAdmin);
+        grantedMasterAdmin = _newMasterAdmin;
         emit GrantMasterAdminRole(_newMasterAdmin);
     }
 
-    function acceptMasterAdminRole() external {
-        if (msg.sender != newMasterAdmin) {
+    function claimMasterAdminRole() external {
+        if (msg.sender != grantedMasterAdmin) {
             revert NotGrantedMasterAdmin();
         }
-        address oldMasterAdmin = masterAdmin;
-        masterAdmin = msg.sender;
-        newMasterAdmin = address(0);
-        emit AcceptMasterAdminRole(oldMasterAdmin, masterAdmin);
+        _revokeRole(MASTER_ADMIN_ROLE, masterAdmin);
+        _grantRole(MASTER_ADMIN_ROLE, grantedMasterAdmin);
+        emit ClaimMasterAdminRole(masterAdmin, grantedMasterAdmin);
+
+        masterAdmin = grantedMasterAdmin;
+        grantedMasterAdmin = address(0);
     }
 
     function registerPool(address[5] memory addresses, uint[11] memory numbers)
@@ -105,41 +141,33 @@ contract PoolFactory is Initializable {
         returns (address pool)
     {
         address _IDOToken = addresses[0];
-        if (_IDOToken == address(0)) {
-            revert ZeroAddress();
-        }
+        _validAddress(_IDOToken);
         {
             address _purchaseToken = addresses[1];
-            if (_purchaseToken == address(0)) {
-                revert ZeroAddress();
-            }
+            _validAddress(_purchaseToken);
+
             address _feeRecipient = addresses[2];
-            if (_feeRecipient == address(0)) {
-                revert ZeroAddress();
-            }
+            _validAddress(_feeRecipient);
+
             address _purchaseTokenRecipient = addresses[3];
-            if (_purchaseTokenRecipient == address(0)) {
-                revert ZeroAddress();
-            }
+            _validAddress(_purchaseTokenRecipient);
+
             address _redeemIDOTokenRecipient = addresses[4];
-            if (_redeemIDOTokenRecipient == address(0)) {
-                revert ZeroAddress();
-            }
+            _validAddress(_redeemIDOTokenRecipient);
         }
         {
             // uint _participationFeePercentage = numbers[0];
             uint _totalRaiseAmount = numbers[1];
-            if (_totalRaiseAmount == 0) {
-                revert ZeroAmount();
+            _validAmount(_totalRaiseAmount);
+            uint _whaleProportion = numbers[2];
+            if(_whaleProportion > 10000){
+                revert NotValidWhaleProportion();
             }
-            // uint _whaleProportion = numbers[2];
             // uint _whaleOpenTime = numbers[3];
             // uint _whaleDuration = numbers[4];
             // uint _communityOpenTime = numbers[5];
             uint _communityDuration = numbers[6];
-            if (_communityDuration == 0) {
-                revert ZeroAmount();
-            }
+            _validAmount(_communityDuration);
             // uint _maxPurchaseAmountForNotKYCUser = numbers[7];
             // uint _maxPurchaseAmountForKYCUser = numbers[8];
             uint _rate = numbers[9];
@@ -148,7 +176,6 @@ contract PoolFactory is Initializable {
             }
             // uint _decimal = numbers[10];
         }
-        bytes memory bytecode = type(Pool).creationCode;
         uint256 tokenIndex = getCreatedPoolsLengthByToken(
             msg.sender,
             _IDOToken
@@ -156,15 +183,15 @@ contract PoolFactory is Initializable {
         bytes32 salt = keccak256(
             abi.encodePacked(msg.sender, _IDOToken, tokenIndex)
         );
-        assembly {
-            pool := create2(0, add(bytecode, 32), mload(bytecode), salt)
-        }
+        pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
+
         address[6] memory _addresses;
         for (uint i = 0; i < addresses.length; ++i) {
             _addresses[i] = addresses[i];
         }
         _addresses[5] = masterAdmin;
         IPool(pool).initilize(_addresses, numbers);
+
         getPools[msg.sender][_IDOToken].push(pool);
         allPools.push(pool);
 

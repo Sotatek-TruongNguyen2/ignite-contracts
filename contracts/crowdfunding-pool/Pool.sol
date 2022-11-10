@@ -1,40 +1,50 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../libraries/Pausable.sol";
-import "../libraries/ReentrancyGuard.sol";
-import "../libraries/SafeMath.sol";
+import "../utils/Pausable.sol";
+import "../utils/ReentrancyGuard.sol";
 import "../extensions/IgnitionList.sol";
+import "../utils/AccessControl.sol";
+import "../libraries/SafeCast.sol";
 
-contract Pool is Pausable, ReentrancyGuard, IgnitionList {
+contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     using SafeERC20 for IERC20;
-    using SafeMath for uint;
+    using SafeCast for uint;
 
     struct OfferedCurrency {
         uint rate;
         uint decimal;
     }
 
+    // keccak256("SUPER_ADMIN_ROLE")
+    bytes32 public constant SUPER_ADMIN_ROLE =
+        0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689;
+
+    // keccak256("ADMIN_ROLE")
+    bytes32 public constant ADMIN_ROLE =
+        0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775;
+
+    uint16 constant PERCENTAGE_DENOMINATOR = 10000;
+
     IERC20 public IDOToken;
     IERC20 public purchaseToken;
     OfferedCurrency public offeredCurrency;
     address public superAdmin;
-    address public newSuperAdmin;
-    mapping(address => bool) public admin;
+    address public grantedSuperAdmin;
     uint public maxPurchaseAmountForNotKYCUser;
     uint public maxPurchaseAmountForKYCUser;
     uint public maxPurchaseAmountForAllWhales;
-    uint public participationFeePercentage;
+    uint16 public participationFeePercentage;
+    uint16 public whaleProportion;
     uint public totalRaiseAmount;
-    uint public whaleProportion;
     address public feeRecipient;
     address public purchaseTokenRecipient;
     address public redeemIDOTokenRecipient;
-    uint public whaleOpenTime;
-    uint public whaleDuration;
-    uint public communityOpenTime;
-    uint public communityDuration;
+    uint64 public whaleOpenTime;
+    uint64 public whaleDuration;
+    uint64 public communityOpenTime;
+    uint64 public communityDuration;
     uint public purchasedAmount;
 
     event PoolCreated(
@@ -44,40 +54,38 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
         uint maxPurchaseAmountForNotKYCUser,
         uint maxPurchaseAmountForKYCUser,
         uint maxPurchaseAmountForAllWhales,
-        uint participationFeePercentage,
+        uint16 participationFeePercentage,
+        uint16 whaleProportion,
         uint totalRaiseAmount,
-        uint whaleProportion,
-        uint whaleOpenTime,
-        uint whaleDuration,
-        uint communityOpenTime,
-        uint communityDuration
+        uint64 whaleOpenTime,
+        uint64 whaleDuration,
+        uint64 communityOpenTime,
+        uint64 communityDuration
     );
     event BuyToken(
         address indexed buyer,
-        address pool,
-        address IDOToken,
+        address indexed pool,
+        address indexed IDOToken,
         uint purchaseAmount
     );
-    event RedeemIDOToken(address wallet, uint amount);
+    event RedeemIDOToken(address indexed wallet, uint amount);
     event UpdateAdmin(address indexed admin, bool status);
-    event GrantSuperAdminRole(address indexed newSuperAdmin);
-    event AcceptSuperAdminRole(
+    event GrantSuperAdminRole(address indexed grantedSuperAdmin);
+    event ClaimSuperAdminRole(
         address indexed oldSuperAdmin,
-        address indexed newSuperAdmin
+        address indexed grantedSuperAdmin
     );
     event UpdateRoot(bytes32 root);
     event UpdateFeeRecipient(address indexed feeRecipient);
-    event UpdateOpenPoolStatus(address pool, bool status);
+    event UpdateOpenPoolStatus(address indexed pool, bool status);
     event UpdateOfferedCurrencyRate(uint rate);
     event UpdateOfferedCurrencyDecimal(uint decimal);
     event RedeemIDOToken(
-        address redeemIDOTokenRecipient,
-        address IDOToken,
+        address indexed redeemIDOTokenRecipient,
+        address indexed IDOToken,
         uint redeemAmount
     );
 
-    error NotAnAdmin(address caller);
-    error NotSuperAdmin(address _superAdmin, address caller);
     error OverlapOpenTime(
         uint whaleOpenTime,
         uint whaleDuration,
@@ -103,20 +111,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
         uint amount
     );
     error ZeroAmount();
-
-    modifier onlyAdmin() {
-        if (admin[msg.sender] == false) {
-            revert NotAnAdmin(msg.sender);
-        }
-        _;
-    }
-
-    modifier onlySuperAdmin() {
-        if (msg.sender != superAdmin) {
-            revert NotSuperAdmin(superAdmin, msg.sender);
-        }
-        _;
-    }
+    error NotValidSignature();
 
     function initialize(address[6] memory addresses, uint[11] memory numbers)
         external
@@ -147,7 +142,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
             feeRecipient = _feeRecipient;
             purchaseTokenRecipient = _purchaseTokenRecipient;
             redeemIDOTokenRecipient = _redeemIDOTokenRecipient;
-            admin[_superAdmin] = true;
+            _setupRole(SUPER_ADMIN_ROLE, _superAdmin);
+            _setupRole(ADMIN_ROLE, _superAdmin);
+            _setRoleAdmin(ADMIN_ROLE, SUPER_ADMIN_ROLE);
         }
         {
             uint _participationFeePercentage = numbers[0];
@@ -162,18 +159,20 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
             uint _rate = numbers[9];
             uint _decimal = numbers[10];
 
-            participationFeePercentage = _participationFeePercentage;
+            participationFeePercentage = SafeCast.toUint16(
+                _participationFeePercentage
+            );
             totalRaiseAmount = _totalRaiseAmount;
-            whaleProportion = _whaleProportion;
-            whaleOpenTime = _whaleOpenTime;
-            whaleDuration = _whaleDuration;
-            communityOpenTime = _communityOpenTime;
-            communityDuration = _communityDuration;
+            whaleProportion = SafeCast.toUint16(_whaleProportion);
+            whaleOpenTime = SafeCast.toUint64(_whaleOpenTime);
+            whaleDuration = SafeCast.toUint64(_whaleDuration);
+            communityOpenTime = SafeCast.toUint64(_communityOpenTime);
+            communityDuration = SafeCast.toUint64(_communityDuration);
             maxPurchaseAmountForNotKYCUser = _maxPurchaseAmountForNotKYCUser;
             maxPurchaseAmountForKYCUser = _maxPurchaseAmountForKYCUser;
-            maxPurchaseAmountForAllWhales = totalRaiseAmount
-                .mul(_whaleProportion)
-                .div(10000);
+            maxPurchaseAmountForAllWhales =
+                (totalRaiseAmount * _whaleProportion) /
+                PERCENTAGE_DENOMINATOR;
             offeredCurrency.rate = _rate;
             offeredCurrency.decimal = _decimal;
         }
@@ -185,8 +184,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
             maxPurchaseAmountForKYCUser,
             maxPurchaseAmountForAllWhales,
             participationFeePercentage,
-            totalRaiseAmount,
             whaleProportion,
+            totalRaiseAmount,
             whaleOpenTime,
             whaleDuration,
             communityOpenTime,
@@ -194,64 +193,202 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
         );
     }
 
-    function addAdmin(address _admin) external onlySuperAdmin {
-        if (_admin == address(0)) {
+    function _validAddress(address _address) internal pure {
+        if (_address == address(0)) {
             revert ZeroAddress();
         }
-        admin[_admin] = true;
+    }
+
+    function _validAmount(uint _amount) internal pure {
+        if (_amount == 0) {
+            revert ZeroAmount();
+        }
+    }
+
+    function _validSignature(bytes memory _signature) internal pure {
+        if (_signature.length != 65) {
+            revert NotValidSignature();
+        }
+    }
+
+    function grantAdminRole(address _admin) external {
+        _validAddress(_admin);
+        grantRole(ADMIN_ROLE, _admin);
         emit UpdateAdmin(_admin, true);
     }
 
-    function removeAdmin(address _admin) external onlySuperAdmin {
-        if (_admin == address(0)) {
-            revert ZeroAddress();
-        }
-        admin[_admin] = false;
+    function revokeAdminRole(address _admin) external {
+        _validAddress(_admin);
+        revokeRole(ADMIN_ROLE, _admin);
         emit UpdateAdmin(_admin, false);
     }
 
     function grantSuperAdminRole(address _newSuperAdmin)
         external
-        onlySuperAdmin
+        onlyRole(SUPER_ADMIN_ROLE)
     {
-        if (_newSuperAdmin == address(0)) {
-            revert ZeroAddress();
-        }
-        newSuperAdmin = _newSuperAdmin;
+        _validAddress(_newSuperAdmin);
+        grantedSuperAdmin = _newSuperAdmin;
         emit GrantSuperAdminRole(_newSuperAdmin);
     }
 
-    function acceptSuperAdminRole() external {
-        if (msg.sender != newSuperAdmin) {
+    function claimSuperAdminRole() external {
+        if (msg.sender != grantedSuperAdmin) {
             revert NotGrantedSuperAdmin();
         }
-        address oldSuperAdmin = superAdmin;
-        superAdmin = newSuperAdmin;
-        newSuperAdmin = address(0);
-        emit AcceptSuperAdminRole(oldSuperAdmin, superAdmin);
+        _revokeRole(SUPER_ADMIN_ROLE, superAdmin);
+        _grantRole(SUPER_ADMIN_ROLE, msg.sender);
+
+        emit ClaimSuperAdminRole(superAdmin, grantedSuperAdmin);
+        superAdmin = grantedSuperAdmin;
+        grantedSuperAdmin = address(0);
     }
 
-    function setRoot(bytes32 _root) external onlyAdmin {
+    function setRoot(bytes32 _root) external onlyRole(ADMIN_ROLE) {
         root = _root;
         emit UpdateRoot(root);
     }
 
-    function setFeeRecipient(address _feeRecipient) external onlyAdmin {
-        if (_feeRecipient == address(0)) {
-            revert ZeroAddress();
-        }
+    function setFeeRecipient(address _feeRecipient)
+        external
+        onlyRole(ADMIN_ROLE)
+    {
+        _validAddress(_feeRecipient);
         feeRecipient = _feeRecipient;
         emit UpdateFeeRecipient(_feeRecipient);
     }
 
-    function closePool() external onlyAdmin {
+    function pausePool() external onlyRole(ADMIN_ROLE) {
         _pause();
         emit UpdateOpenPoolStatus(address(this), false);
     }
 
-    function openPool() external onlyAdmin {
+    function unpausePool() external onlyRole(ADMIN_ROLE) {
         _unpause();
         emit UpdateOpenPoolStatus(address(this), true);
+    }
+
+    function _splitSignature(bytes memory _signature)
+        internal
+        pure
+        returns (
+            bytes32 r,
+            bytes32 s,
+            uint8 v
+        )
+    {
+        _validSignature(_signature);
+        assembly {
+            r := mload(add(_signature, 0x20))
+            s := mload(add(_signature, 0x40))
+            v := byte(0, mload(add(_signature, 0x60)))
+        }
+    }
+
+    // Used only for USDC and DAI
+    function buyTokenWithPermit(
+        bytes32[] memory proof,
+        uint _purchaseAmount,
+        uint _deadline,
+        bytes memory _signature
+    ) external whenNotPaused nonReentrant {
+        _preValidatePurchase(_purchaseAmount);
+
+        if (purchasedAmount + _purchaseAmount > totalRaiseAmount) {
+            revert ExceedTotalRaiseAmount(msg.sender, _purchaseAmount);
+        }
+        if (_validWhaleSession()) {
+            if (
+                purchasedAmount + _purchaseAmount >
+                maxPurchaseAmountForAllWhales
+            ) {
+                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
+            }
+            if (
+                _verifyUser(msg.sender, maxPurchaseAmountForAllWhales, proof) ==
+                false
+            ) {
+                revert NotInList(msg.sender);
+            }
+
+            (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
+            IERC20Permit(address(purchaseToken)).permit(
+                msg.sender,
+                address(this),
+                _purchaseAmount,
+                _deadline,
+                v,
+                r,
+                s
+            );
+            // buy IDO Token
+            _internalBuyToken(msg.sender, _purchaseAmount);
+            emit BuyToken(
+                msg.sender,
+                address(this),
+                address(IDOToken),
+                _purchaseAmount
+            );
+        } else if (_validCommunitySession()) {
+            if (_purchaseAmount > maxPurchaseAmountForKYCUser) {
+                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
+            }
+            if (_purchaseAmount > maxPurchaseAmountForNotKYCUser) {
+                if (
+                    _verifyUser(
+                        msg.sender,
+                        maxPurchaseAmountForKYCUser,
+                        proof
+                    ) == false
+                ) {
+                    revert NotInList(msg.sender);
+                }
+            } else {
+                if (
+                    _verifyUser(
+                        msg.sender,
+                        maxPurchaseAmountForNotKYCUser,
+                        proof
+                    ) == false
+                ) {
+                    revert NotInList(msg.sender);
+                }
+            }
+
+            (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
+            IERC20Permit(address(purchaseToken)).permit(
+                msg.sender,
+                address(this),
+                _purchaseAmount,
+                _deadline,
+                v,
+                r,
+                s
+            );
+
+            // buy IDO Token
+            _internalBuyToken(msg.sender, _purchaseAmount);
+            emit BuyToken(
+                msg.sender,
+                address(this),
+                address(IDOToken),
+                _purchaseAmount
+            );
+        } else {
+            revert OutOfTime(
+                whaleOpenTime,
+                whaleDuration,
+                communityOpenTime,
+                communityDuration,
+                block.timestamp,
+                msg.sender
+            );
+        }
+
+        if (purchasedAmount == totalRaiseAmount) {
+            _pause();
+            emit UpdateOpenPoolStatus(address(this), false);
+        }
     }
 
     function buyToken(bytes32[] memory proof, uint _purchaseAmount)
@@ -288,10 +425,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
                 _purchaseAmount
             );
         } else if (_validCommunitySession()) {
-            if (_purchaseAmount >= maxPurchaseAmountForKYCUser) {
+            if (_purchaseAmount > maxPurchaseAmountForKYCUser) {
                 revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
             }
-            if (_purchaseAmount >= maxPurchaseAmountForNotKYCUser) {
+            if (_purchaseAmount > maxPurchaseAmountForNotKYCUser) {
                 if (
                     _verifyUser(
                         msg.sender,
@@ -339,9 +476,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
     }
 
     function _preValidatePurchase(uint256 _purchaseAmount) internal pure {
-        if (_purchaseAmount == 0) {
-            revert ZeroAmount();
-        }
+        _validAmount(_purchaseAmount);
     }
 
     function _verifyAllowance(address _user, uint256 _purchaseAmount)
@@ -397,14 +532,16 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
     }
 
     function _updatePurchasingState(uint _purchaseAmount) internal {
-        purchasedAmount = purchasedAmount.add(_purchaseAmount);
+        purchasedAmount = purchasedAmount + _purchaseAmount;
     }
 
     function _calculateParticipantFee(
         uint _purchaseAmount,
         uint _participationFeePercentage
     ) internal pure returns (uint) {
-        return _purchaseAmount.mul(_participationFeePercentage).div(10000);
+        return
+            (_purchaseAmount * _participationFeePercentage) /
+            PERCENTAGE_DENOMINATOR;
     }
 
     function _getIDOTokenAmountByOfferedCurrency(uint _amount)
@@ -412,33 +549,35 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList {
         view
         returns (uint)
     {
-        return
-            _amount.mul(offeredCurrency.rate).div(10**offeredCurrency.decimal);
+        return (_amount * offeredCurrency.rate) / 10**offeredCurrency.decimal;
     }
 
-    function setOfferedCurrencyRate(uint _rate) external onlyAdmin {
+    function setOfferedCurrencyRate(uint _rate) external onlyRole(ADMIN_ROLE) {
         offeredCurrency.rate = _rate;
         emit UpdateOfferedCurrencyRate(_rate);
     }
 
-    function setOfferedCurrencyDecimal(uint _decimal) external onlyAdmin {
+    function setOfferedCurrencyDecimal(uint _decimal)
+        external
+        onlyRole(ADMIN_ROLE)
+    {
         offeredCurrency.decimal = _decimal;
         emit UpdateOfferedCurrencyDecimal(_decimal);
     }
 
     function _validWhaleSession() internal view returns (bool) {
         return
-            block.timestamp >= whaleOpenTime &&
+            block.timestamp > whaleOpenTime &&
             block.timestamp <= whaleOpenTime + whaleDuration;
     }
 
     function _validCommunitySession() internal view returns (bool) {
         return
-            block.timestamp >= communityOpenTime &&
+            block.timestamp > communityOpenTime &&
             block.timestamp <= communityOpenTime + communityDuration;
     }
 
-    function redeemIDOToken() external onlyAdmin {
+    function redeemIDOToken() external onlyRole(ADMIN_ROLE) {
         uint remainAmount = IDOToken.balanceOf(address(this));
         if (remainAmount > 0) {
             IDOToken.safeTransfer(redeemIDOTokenRecipient, remainAmount);
