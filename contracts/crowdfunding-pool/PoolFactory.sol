@@ -136,7 +136,7 @@ contract PoolFactory is Initializable, AccessControl {
         grantedMasterAdmin = address(0);
     }
 
-    function registerPool(address[5] memory addresses, uint[11] memory numbers)
+    function registerPool(address[4] memory addresses, uint[11] memory numbers)
         external
         returns (address pool)
     {
@@ -152,15 +152,13 @@ contract PoolFactory is Initializable, AccessControl {
             address _purchaseTokenRecipient = addresses[3];
             _validAddress(_purchaseTokenRecipient);
 
-            address _redeemIDOTokenRecipient = addresses[4];
-            _validAddress(_redeemIDOTokenRecipient);
         }
         {
             // uint _participationFeePercentage = numbers[0];
             uint _totalRaiseAmount = numbers[1];
             _validAmount(_totalRaiseAmount);
             uint _whaleProportion = numbers[2];
-            if(_whaleProportion > 10000){
+            if (_whaleProportion > 10000) {
                 revert NotValidWhaleProportion();
             }
             // uint _whaleOpenTime = numbers[3];
@@ -185,11 +183,11 @@ contract PoolFactory is Initializable, AccessControl {
         );
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
 
-        address[6] memory _addresses;
+        address[5] memory _addresses;
         for (uint i = 0; i < addresses.length; ++i) {
             _addresses[i] = addresses[i];
         }
-        _addresses[5] = masterAdmin;
+        _addresses[4] = masterAdmin;
         IPool(pool).initilize(_addresses, numbers);
 
         getPools[msg.sender][_IDOToken].push(pool);

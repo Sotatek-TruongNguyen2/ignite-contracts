@@ -40,12 +40,12 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     uint public totalRaiseAmount;
     address public feeRecipient;
     address public purchaseTokenRecipient;
-    address public redeemIDOTokenRecipient;
     uint64 public whaleOpenTime;
     uint64 public whaleDuration;
     uint64 public communityOpenTime;
     uint64 public communityDuration;
-    uint public purchasedAmount;
+    
+    uint public purchasedAmount = 0;
 
     event PoolCreated(
         address indexed IDOToken,
@@ -113,7 +113,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     error ZeroAmount();
     error NotValidSignature();
 
-    function initialize(address[6] memory addresses, uint[11] memory numbers)
+    function initialize(address[5] memory addresses, uint[11] memory numbers)
         external
     {
         {
@@ -133,15 +133,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
             address _purchaseToken = addresses[1];
             address _feeRecipient = addresses[2];
             address _purchaseTokenRecipient = addresses[3];
-            address _redeemIDOTokenRecipient = addresses[4];
-            address _superAdmin = addresses[5];
+            address _superAdmin = addresses[4];
 
             superAdmin = _superAdmin;
             IDOToken = IERC20(_IDOToken);
             purchaseToken = IERC20(_purchaseToken);
             feeRecipient = _feeRecipient;
             purchaseTokenRecipient = _purchaseTokenRecipient;
-            redeemIDOTokenRecipient = _redeemIDOTokenRecipient;
             _setupRole(SUPER_ADMIN_ROLE, _superAdmin);
             _setupRole(ADMIN_ROLE, _superAdmin);
             _setRoleAdmin(ADMIN_ROLE, SUPER_ADMIN_ROLE);
@@ -577,12 +575,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
             block.timestamp <= communityOpenTime + communityDuration;
     }
 
-    function redeemIDOToken() external onlyRole(ADMIN_ROLE) {
+    function redeemIDOToken(address _redeemIDOTokenRecipient)
+        external
+        onlyRole(ADMIN_ROLE)
+    {
         uint remainAmount = IDOToken.balanceOf(address(this));
         if (remainAmount > 0) {
-            IDOToken.safeTransfer(redeemIDOTokenRecipient, remainAmount);
+            IDOToken.safeTransfer(_redeemIDOTokenRecipient, remainAmount);
             emit RedeemIDOToken(
-                redeemIDOTokenRecipient,
+                _redeemIDOTokenRecipient,
                 address(IDOToken),
                 remainAmount
             );
