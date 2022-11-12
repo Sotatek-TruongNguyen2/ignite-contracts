@@ -25,7 +25,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     bytes32 public constant ADMIN_ROLE =
         0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775;
 
-    uint16 constant PERCENTAGE_DENOMINATOR = 10000;
+    uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
 
     IERC20 public IDOToken;
     IERC20 public purchaseToken;
@@ -44,8 +44,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     uint64 public whaleDuration;
     uint64 public communityOpenTime;
     uint64 public communityDuration;
-    
-    uint public purchasedAmount = 0;
+
+    // purchased amount
+    uint public purchasedAmount;
 
     event PoolCreated(
         address indexed IDOToken,
@@ -283,6 +284,37 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         }
     }
 
+    function _validWhale(bytes32[] memory proof, uint _purchaseAmount)
+        internal
+        view
+    {
+        if (purchasedAmount + _purchaseAmount > maxPurchaseAmountForAllWhales) {
+            revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
+        }
+        if (
+            _verifyUser(msg.sender, maxPurchaseAmountForAllWhales, proof) ==
+            false
+        ) {
+            revert NotInList(msg.sender);
+        }
+    }
+
+    function _validCommunityUser(bytes32[] memory proof, uint _purchaseAmount)
+        internal
+        view
+    {
+        if (_purchaseAmount > maxPurchaseAmountForKYCUser) {
+            revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
+        }
+        uint maxPurchaseAmount = _purchaseAmount >
+            maxPurchaseAmountForNotKYCUser
+            ? maxPurchaseAmountForKYCUser
+            : maxPurchaseAmountForNotKYCUser;
+        if (_verifyUser(msg.sender, maxPurchaseAmount, proof) == false) {
+            revert NotInList(msg.sender);
+        }
+    }
+
     // Used only for USDC and DAI
     function buyTokenWithPermit(
         bytes32[] memory proof,
@@ -292,23 +324,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     ) external whenNotPaused nonReentrant {
         _preValidatePurchase(_purchaseAmount);
 
-        if (purchasedAmount + _purchaseAmount > totalRaiseAmount) {
-            revert ExceedTotalRaiseAmount(msg.sender, _purchaseAmount);
-        }
         if (_validWhaleSession()) {
-            if (
-                purchasedAmount + _purchaseAmount >
-                maxPurchaseAmountForAllWhales
-            ) {
-                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
-            }
-            if (
-                _verifyUser(msg.sender, maxPurchaseAmountForAllWhales, proof) ==
-                false
-            ) {
-                revert NotInList(msg.sender);
-            }
-
+            _validWhale(proof, _purchaseAmount);
             (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
             IERC20Permit(address(purchaseToken)).permit(
                 msg.sender,
@@ -321,37 +338,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
             );
             // buy IDO Token
             _internalBuyToken(msg.sender, _purchaseAmount);
-            emit BuyToken(
-                msg.sender,
-                address(this),
-                address(IDOToken),
-                _purchaseAmount
-            );
+
         } else if (_validCommunitySession()) {
-            if (_purchaseAmount > maxPurchaseAmountForKYCUser) {
-                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
-            }
-            if (_purchaseAmount > maxPurchaseAmountForNotKYCUser) {
-                if (
-                    _verifyUser(
-                        msg.sender,
-                        maxPurchaseAmountForKYCUser,
-                        proof
-                    ) == false
-                ) {
-                    revert NotInList(msg.sender);
-                }
-            } else {
-                if (
-                    _verifyUser(
-                        msg.sender,
-                        maxPurchaseAmountForNotKYCUser,
-                        proof
-                    ) == false
-                ) {
-                    revert NotInList(msg.sender);
-                }
-            }
+            _validCommunityUser(proof, _purchaseAmount);
 
             (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
             IERC20Permit(address(purchaseToken)).permit(
@@ -366,12 +355,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
 
             // buy IDO Token
             _internalBuyToken(msg.sender, _purchaseAmount);
-            emit BuyToken(
-                msg.sender,
-                address(this),
-                address(IDOToken),
-                _purchaseAmount
-            );
+
         } else {
             revert OutOfTime(
                 whaleOpenTime,
@@ -381,11 +365,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
                 block.timestamp,
                 msg.sender
             );
-        }
-
-        if (purchasedAmount == totalRaiseAmount) {
-            _pause();
-            emit UpdateOpenPoolStatus(address(this), false);
         }
     }
 
@@ -397,65 +376,18 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _verifyAllowance(msg.sender, _purchaseAmount);
         _preValidatePurchase(_purchaseAmount);
 
-        if (purchasedAmount + _purchaseAmount > totalRaiseAmount) {
-            revert ExceedTotalRaiseAmount(msg.sender, _purchaseAmount);
-        }
         if (_validWhaleSession()) {
-            if (
-                purchasedAmount + _purchaseAmount >
-                maxPurchaseAmountForAllWhales
-            ) {
-                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
-            }
-            if (
-                _verifyUser(msg.sender, maxPurchaseAmountForAllWhales, proof) ==
-                false
-            ) {
-                revert NotInList(msg.sender);
-            }
+            _validWhale(proof, _purchaseAmount);
 
             // buy IDO Token
             _internalBuyToken(msg.sender, _purchaseAmount);
-            emit BuyToken(
-                msg.sender,
-                address(this),
-                address(IDOToken),
-                _purchaseAmount
-            );
+
         } else if (_validCommunitySession()) {
-            if (_purchaseAmount > maxPurchaseAmountForKYCUser) {
-                revert ExceedMaxPurchaseAmount(msg.sender, _purchaseAmount);
-            }
-            if (_purchaseAmount > maxPurchaseAmountForNotKYCUser) {
-                if (
-                    _verifyUser(
-                        msg.sender,
-                        maxPurchaseAmountForKYCUser,
-                        proof
-                    ) == false
-                ) {
-                    revert NotInList(msg.sender);
-                }
-            } else {
-                if (
-                    _verifyUser(
-                        msg.sender,
-                        maxPurchaseAmountForNotKYCUser,
-                        proof
-                    ) == false
-                ) {
-                    revert NotInList(msg.sender);
-                }
-            }
+            _validCommunityUser(proof, _purchaseAmount);
 
             // buy IDO Token
             _internalBuyToken(msg.sender, _purchaseAmount);
-            emit BuyToken(
-                msg.sender,
-                address(this),
-                address(IDOToken),
-                _purchaseAmount
-            );
+
         } else {
             revert OutOfTime(
                 whaleOpenTime,
@@ -466,15 +398,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
                 msg.sender
             );
         }
-
-        if (purchasedAmount == totalRaiseAmount) {
-            _pause();
-            emit UpdateOpenPoolStatus(address(this), false);
-        }
     }
 
-    function _preValidatePurchase(uint256 _purchaseAmount) internal pure {
+    function _preValidatePurchase(uint256 _purchaseAmount) internal view {
         _validAmount(_purchaseAmount);
+        if (purchasedAmount + _purchaseAmount > totalRaiseAmount) {
+            revert ExceedTotalRaiseAmount(msg.sender, _purchaseAmount);
+        }
     }
 
     function _verifyAllowance(address _user, uint256 _purchaseAmount)
@@ -510,6 +440,12 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _deliverIDOTokens(buyer, IDOTokenAmount);
 
         _updatePurchasingState(_purchaseAmount);
+        emit BuyToken(
+                msg.sender,
+                address(this),
+                address(IDOToken),
+                _purchaseAmount
+            );
     }
 
     function _deliverIDOTokens(address buyer, uint _tokenAmount) internal {

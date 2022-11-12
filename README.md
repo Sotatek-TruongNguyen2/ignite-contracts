@@ -1,3 +1,27 @@
+# Note when calling function to buy token:
+
+- If purchase token is USDC or DAI, we can use buyTokenWithPermit() function
+
+
+# Create Merkle tree:
+
+- Leaf = Address + Max purchase amount for this account
+
+- Type of leaf:
+
+  + {Whale, maxPurchaseAmountForAllWhales}
+
+  + {Whale, maxPurchaseAmountForKYCUser}
+
+  + {Whale, maxPurchaseAmountForNotKYCUser}
+
+  + {KYC User, maxPurchaseAmountForKYCUser}
+
+  + {KYC User, maxPurchaseAmountForNotKYCUser}
+  
+  + {Normal User, maxPurchaseAmountForNotKYCUser}
+
+
 # Calculate rate and decimal variable in Pool contract
 
 We have price of 1 IDO Token is x Purchase Token (like: USDT, USDC, BUSD,...)
