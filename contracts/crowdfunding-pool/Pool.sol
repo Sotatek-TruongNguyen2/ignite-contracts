@@ -37,8 +37,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     uint public maxPurchaseAmountForAllWhales;
     uint16 public participationFeePercentage;
     uint16 public whaleProportion;
-    uint public totalRaiseAmount;
     address public feeRecipient;
+    uint public totalRaiseAmount;
     address public purchaseTokenRecipient;
     uint64 public whaleOpenTime;
     uint64 public whaleDuration;
