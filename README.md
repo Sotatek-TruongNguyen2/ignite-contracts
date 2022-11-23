@@ -1,3 +1,11 @@
+# Library:
+
+- merkletreejs {MerkleTree}
+
+- ethers/lib/utils {keccak256}
+
+- ethers {ethers.utils.solidityKeccak256, ethers.utils.BigNumber}
+
 # Note when calling function to buy token:
 
 - If purchase token is USDC or DAI, we can use buyTokenWithPermit() function
