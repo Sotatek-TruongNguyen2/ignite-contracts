@@ -8,26 +8,24 @@
 
 # Note when calling function to buy token:
 
-- If purchase token is USDC or DAI, we can use buyTokenWithPermit() function
+- If purchase token is USDC or DAI, we can use buyTokenInGalaxyPoolWithPermit() or buyTokenInCrowdfundingPoolWithPermit() functions
 
 
 # Create Merkle tree:
 
-- Leaf = Address + Max purchase amount for this account
+- Leaf = {address + hash("Pool type") + max purchase KYC/notKYC amount + max purchase for each user per allocation}
 
 - Type of leaf:
 
-  + {Whale, maxPurchaseAmountForAllWhales}
+  + [address+WHALE+10_000+maxPurchaseBaseOnAllocation]
 
-  + {Whale, maxPurchaseAmountForKYCUser}
+  + [address+WHALE+10_000+0]
 
-  + {Whale, maxPurchaseAmountForNotKYCUser}
+  + [address+WHALE+1_000+maxPurchaseBaseOnAllocation]
 
-  + {KYC User, maxPurchaseAmountForKYCUser}
+  + [address+WHALE+1_000+0]
 
-  + {KYC User, maxPurchaseAmountForNotKYCUser}
-  
-  + {Normal User, maxPurchaseAmountForNotKYCUser}
+  + [address+NORMAL_USER+10_000+0]
 
 
 # Calculate rate and decimal variable in Pool contract
