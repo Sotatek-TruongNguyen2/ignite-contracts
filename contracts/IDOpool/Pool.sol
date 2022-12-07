@@ -34,11 +34,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     uint public maxPurchaseAmountForEarlyAccess;
     uint public maxPurchaseAmountForKYCUser;
     uint public maxPurchaseAmountForNotKYCUser;
-
-    uint16 public TGEPercentage = 20;
+    
+    uint64 public TGEDate;
+    uint16 public TGEPercentage;
     uint16 public participationFeePercentage;
     uint16 public galaxyPoolProportion;
     uint16 public earlyAccessProportion;
+    bool public TGEClaimable;
     uint public totalRaiseAmount;
 
     uint64 public whaleOpenTime;
@@ -50,31 +52,42 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     uint public purchasedAmountInEarlyAccess;
     uint public purchasedAmount;
 
-    mapping(address => uint) userPurchasedAmount;
+    mapping(address => uint) public userPurchasedAmount;
+    mapping(address => uint) public userIDOAirdropAmount;
+    mapping(address => uint) public userIDOTGEAmount;
 
     event UpdateRoot(bytes32 root);
+    event SetTGEClaimable(bool claimable);
+    event ExtendCommunityTime(uint64 _durationDelta);
+    event ClaimTGEAmount(address buyer, uint claimAmount);
     event UpdateFeeRecipient(address indexed feeRecipient);
     event UpdateOpenPoolStatus(address indexed pool, bool status);
-    event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
     event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint remainAmount);
+    event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
     event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
     event PoolCreated(address IDOToken, address purchaseToken, uint rate, uint decimal,uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser,
         uint16 participationFeePercentage, uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleDuration, uint64 communityDuration);
 
-    error ZeroAddress();
+    error NotAdmin();
     error ZeroAmount();
+    error ZeroAddress();
     error NotValidSignature();
-    error NotEnoughAllowance(address buyer, address purchaseToken, uint allowance, uint amount);
-    error ExceedTotalRaiseAmount(address buyer, uint purchaseAmount);
-    error ExceedMaxPurchaseAmountForGalaxyPool(address buyer, uint purchaseAmount);
-    error ExceedMaxPurchaseAmountForKYCUser(address buyer, uint purchaseAmount);
-    error ExceedMaxPurchaseAmountForNotKYCUser(address buyer, uint purchaseAmount);
-    error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint purchaseAmount);
-    error OutOfTime(uint whaleOpenTime, uint whaleDuration, uint communityOpenTime, uint communityDuration, uint timestamp, address buyer);
+    error NotYetTimeToClaimTGE();
+    error AlreadyEnableClaimTGE();
+    error AlreadyDisableClaimTGE();
+    error ClaimExceedMaxTGEAmount();
     error NotInWhaleList(address buyer);
+    error NotAllowedToClaimTGEIDOAmount();
+    error ExceedMaxPurchaseAmountForUser();
     error NotEnoughConditionToRedeemIDOToken();
     error NotEnoughConditionToRedeemPurchaseToken();
-    error NotAdmin();
+    error ExceedTotalRaiseAmount(address buyer, uint purchaseAmount);
+    error ExceedMaxPurchaseAmountForKYCUser(address buyer, uint purchaseAmount);
+    error ExceedMaxPurchaseAmountForGalaxyPool(address buyer, uint purchaseAmount);
+    error ExceedMaxPurchaseAmountForNotKYCUser(address buyer, uint purchaseAmount);
+    error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint purchaseAmount);
+    error NotEnoughAllowance(address buyer, address purchaseToken, uint allowance, uint amount);
+    error OutOfTime(uint whaleOpenTime, uint whaleDuration, uint communityOpenTime, uint communityDuration, uint timestamp, address buyer);
 
     modifier onlyAdmin {
         if(!poolFactory.hasAdminRole(_msgSender())){
@@ -83,7 +96,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _;
     }
 
-    function initialize(address[2] memory addrs, uint[12] memory uints) external {
+    function initialize(address[2] memory addrs, uint[13] memory uints) external {
         {
             poolFactory = IPoolFactory(_msgSender());
         }
@@ -100,17 +113,19 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
             maxPurchaseAmountForNotKYCUser = _maxPurchaseAmountForNotKYCUser;
         }
         {
-            uint _TGEPercentage = uints[2];
+            uint _TGEDate = uints[2];
+            uint _TGEPercentage = uints[3];
+            TGEDate = SafeCast.toUint64(_TGEDate);
             TGEPercentage = SafeCast.toUint16(_TGEPercentage);
         }
         {
-            uint _participationFeePercentage = uints[3];
+            uint _participationFeePercentage = uints[4];
             participationFeePercentage = SafeCast.toUint16(_participationFeePercentage);
         }
         {
-            uint _galaxyPoolProportion = uints[4];
-            uint _earlyAccessProportion = uints[5];
-            uint _totalRaiseAmount = uints[6];
+            uint _galaxyPoolProportion = uints[5];
+            uint _earlyAccessProportion = uints[6];
+            uint _totalRaiseAmount = uints[7];
             galaxyPoolProportion = SafeCast.toUint16(_galaxyPoolProportion);
             earlyAccessProportion = SafeCast.toUint16(_earlyAccessProportion);
             totalRaiseAmount = _totalRaiseAmount;
@@ -119,17 +134,17 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
             maxPurchaseAmountForEarlyAccess = _totalRaiseAmount * (PERCENTAGE_DENOMINATOR - _galaxyPoolProportion) * _earlyAccessProportion / PERCENTAGE_DENOMINATOR / PERCENTAGE_DENOMINATOR;
         }
         {
-            uint _whaleOpenTime = uints[7];
-            uint _whaleDuration = uints[8];
-            uint _communityDuration = uints[9];
+            uint _whaleOpenTime = uints[8];
+            uint _whaleDuration = uints[9];
+            uint _communityDuration = uints[10];
             whaleOpenTime = SafeCast.toUint64(_whaleOpenTime);
             whaleDuration = SafeCast.toUint64(_whaleDuration);
             communityDuration = SafeCast.toUint64(_communityDuration);
             communityOpenTime = SafeCast.toUint64(_whaleOpenTime + _whaleDuration);
         }
         {
-            uint _rate = uints[10];
-            uint _decimal = uints[11];
+            uint _rate = uints[11];
+            uint _decimal = uints[12];
             offeredCurrency.rate = _rate;
             offeredCurrency.decimal = _decimal;
         }
@@ -171,13 +186,18 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         emit UpdateOpenPoolStatus(address(this), true);
     }
 
-    function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount) public whenNotPaused nonReentrant {
+    function extendCommunityTime(uint64 _durationDelta) external onlyAdmin{
+        communityDuration += _durationDelta;
+        emit ExtendCommunityTime(_durationDelta);
+    }
+
+    function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) public whenNotPaused nonReentrant {
         if(!_validWhaleSession()) {
             revert OutOfTime(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
         }
         _verifyAllowance(_msgSender(), _purchaseAmount);
-        _preValidatePurchaseInGalaxyPool(_purchaseAmount);
-        _internalWhaleBuyToken(proof, _purchaseAmount, 0);
+        _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, 0);
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
@@ -185,39 +205,58 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
-            _internalWhaleBuyToken(proof, _purchaseAmount, participationFeePercentage);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, participationFeePercentage);
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
         }else if(_validCommunitySession()){
+            _preValidatePurchase(_purchaseAmount);
             _internalNormalUserBuyToken(proof, _purchaseAmount);
         }else{
             revert OutOfTime(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
         }
     }
 
-    function buyTokenInGalaxyPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
+    // Used only for USDC and DAI
+    function buyTokenInGalaxyPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
         IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _purchaseAmount, _deadline, v, r, s);
-        buyTokenInGalaxyPool(proof, _purchaseAmount);
+        if(!_validWhaleSession()) {
+            revert OutOfTime(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+        }
+        _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, 0);
+        _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
-    function buyTokenInCrowdfundingPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
+    // Used only for USDC and DAI
+    function buyTokenInCrowdfundingPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _allowance, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
+        
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
-        IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _purchaseAmount, _deadline, v, r, s);
-        buyTokenInCrowdfundingPool(proof, _purchaseAmount);
+        IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _allowance, _deadline, v, r, s);
+        _verifyAllowance(_msgSender(), _purchaseAmount);
+        if(_validWhaleSession()){
+            _preValidatePurchaseInEarlyAccess(_purchaseAmount);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, participationFeePercentage);
+            _updatePurchasingInEarlyAccessState(_purchaseAmount);
+        }else if(_validCommunitySession()){
+            _preValidatePurchase(_purchaseAmount);
+            _internalNormalUserBuyToken(proof, _purchaseAmount);
+        }else{
+            revert OutOfTime(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+        }
     }
 
     function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
-        if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, proof)){
+        if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, true);
         }else {
             _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, false);
         }
     }
     
-    function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _participationFeePercentage) internal {
-        if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForKYCUser, proof)){
+    function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _participationFeePercentage) internal {
+        if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForKYCUser, _maxPurchaseBaseOnAllocations, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, true);
-        }else if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForNotKYCUser, proof)){
+        }else if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForNotKYCUser, _maxPurchaseBaseOnAllocations, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, false);
         }else{
             revert NotInWhaleList(_msgSender());
@@ -257,9 +296,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
 
         uint IDOTokenAmount = _getIDOTokenAmountByOfferedCurrency(_purchaseAmount);
         uint TGEIDOTokenAmount = IDOTokenAmount * TGEPercentage / PERCENTAGE_DENOMINATOR;
+        uint airdropTokenAmount = IDOTokenAmount - TGEIDOTokenAmount;
 
-        _deliverTGEIDOTokens(buyer, TGEIDOTokenAmount);
-        _updatePurchasingState(_purchaseAmount);
+        _updatePurchasingState(_purchaseAmount, airdropTokenAmount, TGEIDOTokenAmount);
         emit BuyToken(_msgSender(), address(this), address(IDOToken), _purchaseAmount);
     }
 
@@ -271,9 +310,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         purchasedAmountInEarlyAccess += _purchaseAmount;
     }
 
-    function _updatePurchasingState(uint _purchaseAmount) internal {
+    function _updatePurchasingState(uint _purchaseAmount, uint _airdropTokenAmount, uint _TGEIDOTokenAmount) internal {
         purchasedAmount += _purchaseAmount;
         userPurchasedAmount[_msgSender()] += _purchaseAmount;
+        userIDOAirdropAmount[_msgSender()] += _airdropTokenAmount;
+        userIDOTGEAmount[_msgSender()] += _TGEIDOTokenAmount;
     }
 
     function _deliverTGEIDOTokens(address buyer, uint _TGEtokenAmount) internal {
@@ -300,17 +341,17 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         }
     }
 
-    function _preValidatePurchaseInGalaxyPool(uint _purchaseAmount) internal view{
+    function _preValidatePurchaseInGalaxyPool(uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) internal pure{
         _validAmount(_purchaseAmount);
-        if(purchasedAmountInGalaxyPool + _purchaseAmount > maxPurchaseAmountForGalaxyPool){
-            revert ExceedMaxPurchaseAmountForGalaxyPool(_msgSender(), _purchaseAmount);
+        if(_purchaseAmount > _maxPurchaseBaseOnAllocations){
+            revert ExceedMaxPurchaseAmountForUser();
         }
     }
 
     function _preValidatePurchaseInEarlyAccess(uint _purchaseAmount) internal view{
         _validAmount(_purchaseAmount);
         if(purchasedAmountInEarlyAccess + _purchaseAmount > maxPurchaseAmountForEarlyAccess){
-            revert ExceedMaxPurchaseAmountForGalaxyPool(_msgSender(), _purchaseAmount);
+            revert ExceedMaxPurchaseAmountForEarlyAccess(_msgSender(), _purchaseAmount);
         }
     }
 
@@ -326,6 +367,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     }
 
     function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
+        _validAddress(_redeemIDOTokenRecipient);
         if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
             uint remainAmount = IDOToken.balanceOf(address(this));
             if(remainAmount > 0){
@@ -338,6 +380,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
     }
 
     function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
+        _validAddress(_redeemPurchaseTokenRecipient);
         if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
             uint purchaseAmount = purchaseToken.balanceOf(address(this));
             if(purchaseAmount > 0){
@@ -347,5 +390,37 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         }else{
             revert NotEnoughConditionToRedeemPurchaseToken();
         }
+    }
+
+    function claimTGEIDOToken(uint _IDOClaimAmount) external {
+        if(TGEClaimable == false){
+            revert NotAllowedToClaimTGEIDOAmount();
+        }
+        if(block.timestamp < TGEDate){
+            revert NotYetTimeToClaimTGE();
+        }
+        uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
+        if(_IDOClaimAmount > IDOTGEAmount){
+            revert ClaimExceedMaxTGEAmount();
+        }
+        userIDOTGEAmount[_msgSender()] -= _IDOClaimAmount;
+        _deliverTGEIDOTokens(_msgSender(), _IDOClaimAmount);
+        emit ClaimTGEAmount(_msgSender(), _IDOClaimAmount);
+    }
+
+    function enableClaimTGEIDOToken() external onlyAdmin{
+        if(TGEClaimable == true){
+            revert AlreadyEnableClaimTGE();
+        }
+        TGEClaimable = true;
+        emit SetTGEClaimable(true);
+    }
+
+    function disableClaimTGEIDOToken() external onlyAdmin{
+        if(TGEClaimable == false){
+            revert AlreadyDisableClaimTGE();
+        }
+        TGEClaimable = false;
+        emit SetTGEClaimable(false);
     }
 }

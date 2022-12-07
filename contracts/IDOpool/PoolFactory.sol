@@ -108,6 +108,10 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token];
     }
 
+    function getRegisteredPoolsByToken(address _collaborator, address _token) public view returns (address[] memory) {
+        return getRegisteredPools[_collaborator][_token];
+    }
+
     /**
      * @notice Retrieve number of pools created for specific token
      * @param _creator Address of created pool user
@@ -118,7 +122,11 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token].length;
     }
 
-    function registerPoolAddress(address collaborator, address[2] memory addrs, uint[12] memory uints) external onlyRole(ADMIN) returns (address pool) {
+    function getRegisteredPoolsLengthByToken(address _collaborator, address _token) public view returns (uint256) {
+        return getRegisteredPools[_collaborator][_token].length;
+    }
+
+    function registerPoolAddress(address collaborator, address[2] memory addrs, uint[13] memory uints) external onlyRole(ADMIN) returns (address pool) {
         (address _IDOToken, uint poolIndex, uint poolHash, bytes32 salt) = _internalRegisterPool(collaborator, addrs, uints);
 
         pool = Clones.predictDeterministicAddress(poolImplementationAddress, salt);
@@ -129,7 +137,7 @@ contract PoolFactory is Initializable, AccessControl {
         emit PoolRegistered(_msgSender(), _IDOToken, pool);
     }
 
-    function createPool(address[2] memory addrs, uint[12] memory uints) external returns (address pool) {
+    function createPool(address[2] memory addrs, uint[13] memory uints) external returns (address pool) {
         (address _IDOToken, uint poolIndex, uint poolHash,bytes32 salt) = _internalRegisterPool(_msgSender(), addrs, uints);
         if(registerPools[_msgSender()][poolHash][poolIndex] == address(0)){
             revert NotRegisteredPool();
@@ -147,11 +155,11 @@ contract PoolFactory is Initializable, AccessControl {
         emit PoolCreated(_msgSender(), _IDOToken, pool, allPools.length - 1);
     }
 
-    function hashPoolInfo(address[2] memory addrs, uint[12] memory uints) public pure returns (uint){
+    function hashPoolInfo(address[2] memory addrs, uint[13] memory uints) public pure returns (uint){
         return uint256(keccak256(abi.encode(addrs, uints)));
     }
 
-    function _verifyPoolInfo(address[2] memory addrs, uint[12] memory uints) internal pure{
+    function _verifyPoolInfo(address[2] memory addrs, uint[13] memory uints) internal pure{
         address _IDOToken = addrs[0];
         _validAddress(_IDOToken);
         {
@@ -162,53 +170,48 @@ contract PoolFactory is Initializable, AccessControl {
             /*
             uint _maxPurchaseAmountForKYCUser = uints[0];
             uint _maxPurchaseAmountForNotKYCUser = uints[1];
-            uint _TGEPercentage = uints[2];
-            uint _participationFeePercentage = uints[3];
-            uint _galaxyPoolProportion = uints[4];
-            uint _earlyAccessProportion = uints[5];
-            uint _totalRaiseAmount = uints[6];
-            uint _whaleOpenTime = uints[7];
-            uint _whaleDuration = uints[8];
-            uint _communityDuration = uints[9];
-            uint _rate = uints[10];
-            uint _decimal = uints[11];
+            uint _TGEDate = uints[2];
+            uint _TGEPercentage = uints[3];
+            uint _participationFeePercentage = uints[4];
+            uint _galaxyPoolProportion = uints[5];
+            uint _earlyAccessProportion = uints[6];
+            uint _totalRaiseAmount = uints[7];
+            uint _whaleOpenTime = uints[8];
+            uint _whaleDuration = uints[9];
+            uint _communityDuration = uints[10];
+            uint _rate = uints[11];
+            uint _decimal = uints[12];
             */
 
-            uint _galaxyPoolProportion = uints[4];
+            uint _galaxyPoolProportion = uints[5];
             if(_galaxyPoolProportion > PERCENTAGE_DENOMINATOR){
                 revert NotValidGalaxyPoolProportion();
             }
 
-            uint _earlyAccessProportion = uints[5];
+            uint _earlyAccessProportion = uints[6];
             if(_earlyAccessProportion > PERCENTAGE_DENOMINATOR){
                 revert NotValidEarlyAccessProportion();
             }
 
-            uint _totalRaiseAmount = uints[6];
+            uint _totalRaiseAmount = uints[7];
             _validAmount(_totalRaiseAmount);
 
-            uint _communityDuration = uints[9];
+            uint _communityDuration = uints[10];
             _validAmount(_communityDuration);
 
-            uint _rate = uints[10];
+            uint _rate = uints[11];
             _validAmount(_rate);
-
         }
     }
 
-    function _internalRegisterPool(address collaborator, address[2] memory addrs, uint[12] memory uints) internal view returns(address _IDOToken, uint256 poolIndex, uint poolHash, bytes32 salt){
+    function _internalRegisterPool(address collaborator, address[2] memory addrs, uint[13] memory uints) internal view returns(address _IDOToken, uint256 poolIndex, uint poolHash, bytes32 salt){
         _verifyPoolInfo(addrs, uints);
         _IDOToken = addrs[0];
 
-        poolIndex = getCreatedPoolsLengthByToken(
-            _msgSender(),
-            _IDOToken
-        );
+        poolIndex = getCreatedPoolsLengthByToken(_msgSender(), _IDOToken);
 
         poolHash = hashPoolInfo(addrs, uints);
 
-        salt = keccak256(
-            abi.encodePacked(collaborator, poolHash, poolIndex)
-        );
+        salt = keccak256(abi.encodePacked(collaborator, poolHash, poolIndex));
     }
 }
