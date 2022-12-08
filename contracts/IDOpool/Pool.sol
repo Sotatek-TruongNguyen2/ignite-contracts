@@ -8,8 +8,9 @@ import "../extensions/IgnitionList.sol";
 import "../utils/AccessControl.sol";
 import "../libraries/SafeCast.sol";
 import "../interfaces/IPoolFactory.sol";
+import "../utils/Initializable.sol";
 
-contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
+contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initializable {
     using SafeERC20 for IERC20;
     using SafeCast for uint;
 
@@ -98,7 +99,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _;
     }
 
-    function initialize(address[2] memory addrs, uint[13] memory uints) external {
+    function initialize(address[2] memory addrs, uint[13] memory uints) external initializer{
         {
             poolFactory = IPoolFactory(_msgSender());
         }
@@ -226,7 +227,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         }
     }
 
-    // Used only for USDC and DAI
+    // Used only for USDC
     function buyTokenInGalaxyPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
         IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _purchaseAmount, _deadline, v, r, s);
@@ -238,7 +239,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl {
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
-    // Used only for USDC and DAI
+    // Used only for USDC
     function buyTokenInCrowdfundingPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _allowance, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
         
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);

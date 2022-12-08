@@ -8,8 +8,9 @@
 
 # Note when calling function to buy token:
 
-- If purchase token is USDC or DAI, we can use buyTokenInGalaxyPoolWithPermit() or buyTokenInCrowdfundingPoolWithPermit() functions
+- If purchase token is USDC, we can use buyTokenInGalaxyPoolWithPermit() or buyTokenInCrowdfundingPoolWithPermit() functions
 
+- DAI token also has permit function, but parameters of this is different from permit function of ERC20 token stardard of openzeppelin.
 
 # Create Merkle tree:
 

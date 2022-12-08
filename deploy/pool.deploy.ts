@@ -14,6 +14,6 @@ const deployPoolImplementation: DeployFunction = async (hre: HardhatRuntimeEnvir
     })
 }
 
-deployPoolImplementation.tags = ['POOL_IMPLEMENTATION']
+deployPoolImplementation.tags = ['POOL']
 
 export default deployPoolImplementation

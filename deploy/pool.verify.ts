@@ -15,7 +15,8 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30000)
         })
 
-        const poolImplementationAddr = (await deployments.get('Pool')).address
+        // const poolImplementationAddr = (await deployments.get('Pool')).address
+        const poolImplementationAddr = '0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD'
 
         console.log('----- START VERIFICATION -----');
 
@@ -29,8 +30,8 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
     }
 }
 
-verification.tags = ['VERIFICATION_POOL_IMPLEMENTATION']
-verification.dependencies = ['POOL_IMPLEMENTATION']
+verification.tags = ['VERIFICATION_POOL']
+// verification.dependencies = ['POOL']
 // verification.runAtTheEnd = true
 
 export default verification

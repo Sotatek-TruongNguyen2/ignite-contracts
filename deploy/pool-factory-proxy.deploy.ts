@@ -11,9 +11,16 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
         args: [],
         log: true,
         deterministicDeployment: false,
+        proxy: {
+            proxyContract: 'OpenZeppelinTransparentProxy',
+            execute:{
+                methodName: 'initialize',
+                args: ['0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD']
+            }
+        }
     })
 }
 
-deployPoolFactoryProxy.tags = ['POOL_FACTORY']
+deployPoolFactoryProxy.tags = ['POOL_FACTORY_PROXY']
 
 export default deployPoolFactoryProxy
