@@ -252,14 +252,6 @@ describe("Ignition Pool",()=>{
 
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
-                poolInfo4.IDOToken = zeroAddress;
-                await expect(poolFactory.connect(owner).registerPoolAddress(collaborator0.address, [poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
-                    poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
-            }
-            {
-                let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.purchaseToken = zeroAddress
                 await expect(poolFactory.connect(owner).registerPoolAddress(collaborator0.address, [poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
@@ -293,14 +285,6 @@ describe("Ignition Pool",()=>{
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.communityDuration = BigNumber.from(0)
-                await expect(poolFactory.connect(owner).registerPoolAddress(collaborator0.address, [poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
-                    poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
-            }
-            {
-                let poolInfo4 = jsonCopy(poolInfoList[4])
-                poolInfo4.rate = BigNumber.from(0)
                 await expect(poolFactory.connect(owner).registerPoolAddress(collaborator0.address, [poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
@@ -564,8 +548,8 @@ describe("Ignition Pool",()=>{
             const leafInfo0 = buyWhiteList[0]
             const proof0 = getProof(leafInfo0)
 
-            // revert OutOfTime (buy before whaleOpentime)
-            await expect(pool0.connect(investors[0]).buyTokenInGalaxyPool(proof0, 100000, leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0,"OutOfTime").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, investors[0].address)
+            // revert TimeOutToBuyToken (buy before whaleOpentime)
+            await expect(pool0.connect(investors[0]).buyTokenInGalaxyPool(proof0, 100000, leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0,"TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, investors[0].address)
                 
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
             await time.increaseTo(await pool0.whaleOpenTime())
@@ -648,7 +632,7 @@ describe("Ignition Pool",()=>{
             await time.increase(await pool0.whaleDuration())
             
             // revert buy out of time for whale 
-            await expect(pool0.connect(investors[1]).buyTokenInGalaxyPool(proof1, parseUnits('100',6), leafInfo1.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0,"OutOfTime").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
+            await expect(pool0.connect(investors[1]).buyTokenInGalaxyPool(proof1, parseUnits('100',6), leafInfo1.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0,"TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
 
             // get proof of investor 1 for community (not early access)
             const leaf10NU = buyWhiteList[10]
@@ -670,7 +654,7 @@ describe("Ignition Pool",()=>{
         
             await time.increaseTo((await pool0.whaleOpenTime()).add(await pool0.whaleDuration()).add(await pool0.communityDuration()))
             // revert buy because out of time
-            await expect(pool0.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('10',6))).to.be.revertedWithCustomError(pool0, "OutOfTime").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
+            await expect(pool0.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('10',6))).to.be.revertedWithCustomError(pool0, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
 
             // console.log(await pool0.userIDOTGEAmount(investors[0].address))
             // console.log(await pool0.userIDOTGEAmount(investors[1].address))
@@ -681,12 +665,12 @@ describe("Ignition Pool",()=>{
             // console.log(await pool0.userIDOTGEAmount(investors[6].address))
 
             await expect(pool0.connect(investors[0]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool0, "NotAllowedToClaimTGEIDOAmount")
-            await pool0.connect(admin1).enableClaimTGEIDOToken()
+            await pool0.connect(admin1).setClaimableTGEIDOToken(true)
             await expect(pool0.connect(investors[1]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToClaimTGE")
-            await pool0.connect(admin1).disableClaimTGEIDOToken()
+            await pool0.connect(admin1).setClaimableTGEIDOToken(false)
             
             await time.increaseTo(await pool0.TGEDate())
-            await pool0.connect(admin1).enableClaimTGEIDOToken();
+            await pool0.connect(admin1).setClaimableTGEIDOToken(true)
             const userIDOTGEAmount0 = await pool0.userIDOTGEAmount(investors[0].address);
             expect(await pool0.connect(investors[0]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.emit(pool0, "ClaimTGEAmount").withArgs(anyValue, anyValue)
             expect(await IDOTokens[0].balanceOf(investors[0].address)).to.be.equal(userIDOTGEAmount0)
@@ -716,6 +700,7 @@ describe("Ignition Pool",()=>{
             const {jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
                 poolInfoList, provider, zeroAddress, IDOTokens, purchaseTokens, PERCENTAGE_DENOMINATOR} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo1 = jsonCopy(poolInfoList[1])
+            poolInfo1.IDOToken = zeroAddress
             await poolFactory.connect(owner).registerPoolAddress(collaborator1.address,[poolInfo1.IDOToken, poolInfo1.purchaseToken],
                 [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.participationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
@@ -902,8 +887,9 @@ describe("Ignition Pool",()=>{
             return {signPermit, getProof, PERCENTAGE_DENOMINATOR, buyMerkleTree, buyWhiteList, buyRootHash, jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, poolInfoList, provider, zeroAddress, IDOTokens, purchaseTokens, pool1}
         }
         it("Should get info from pool after created", async()=>{
-            const {jsonCopy, pool1, poolInfoList} = await loadFixture(deployPool1Fixture)
+            const {zeroAddress, jsonCopy, pool1, poolInfoList} = await loadFixture(deployPool1Fixture)
             const poolInfo1 = jsonCopy(poolInfoList[1])
+            poolInfo1.IDOToken = zeroAddress
 
             expect(await pool1.IDOToken()).to.be.equal(poolInfo1.IDOToken)
             expect(await pool1.purchaseToken()).to.be.equal(poolInfo1.purchaseToken)
@@ -964,6 +950,12 @@ describe("Ignition Pool",()=>{
             // collaborator transfer IDO token to IDO pool
             await IDOTokens[1].connect(collaborator1).transfer(pool1.address, parseUnits('1000000', '28'))
 
+            // update IDOToken address
+            await pool1.connect(admin1).setIDOTokenAddress(poolInfoList[1].IDOToken)
+
+            // update rate and decimal
+            await pool1.connect(admin1).updateOfferedCurrencyRateAndDecimal(poolInfoList[1].rate, poolInfoList[1].decimal);
+
             // update root
             await pool1.connect(admin1).setRoot(buyRootHash)
 
@@ -971,10 +963,10 @@ describe("Ignition Pool",()=>{
             const leafInfo0 = buyWhiteList[0]
             const proof0 = getProof(leafInfo0)
 
-            // revert OutOfTime (buy before whaleOpentime)
+            // revert TimeOutToBuyToken (buy before whaleOpentime)
             const deadline0Revert = BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60)
             const signature0Revert = await signPermit(investors[0],purchaseToken1Name, purchaseToken1Addr, pool1.address, parseUnits('90', purchaseToken1Decimal), await purchaseTokens[1].nonces(investors[0].address), deadline0Revert)
-            await expect(pool1.connect(investors[0]).buyTokenInGalaxyPoolWithPermit(proof0, parseUnits('90', purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation, deadline0Revert, signature0Revert)).to.be.revertedWithCustomError(pool1, "OutOfTime").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, investors[0].address)
+            await expect(pool1.connect(investors[0]).buyTokenInGalaxyPoolWithPermit(proof0, parseUnits('90', purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation, deadline0Revert, signature0Revert)).to.be.revertedWithCustomError(pool1, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, investors[0].address)
             
             await time.increaseTo(await pool1.whaleOpenTime())
 
@@ -982,9 +974,11 @@ describe("Ignition Pool",()=>{
             await purchaseTokens[1].connect(investors[0]).approve(pool1.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
             expect(await pool1.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90',purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool1, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool1.purchasedAmount()).to.be.equal(Number(parseUnits('90',purchaseToken1Decimal)))
-            // expect(Number((await IDOTokens[1].balanceOf(investors[0].address)).div(parseUnits('1',18)))).to.be.equal(90/poolInfoList[1].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[1].TGEPercentage))
             expect(await pool1.userIDOTGEAmount(investors[0].address)).to.be.equal(parseUnits(((90*(10**6)/poolInfoList[1].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[1].TGEPercentage)).toFixed()).toString(),0))
             expect(await pool1.userPurchasedAmount(investors[0].address)).to.be.equal(Number(parseUnits('90',purchaseToken1Decimal)))
+
+            // revert update offered currency rate and decimal after pools open
+            await expect(pool1.connect(admin1).updateOfferedCurrencyRateAndDecimal(10, 20)).to.be.revertedWithCustomError(pool1, 'TimeOutToSetPoolStatus')
 
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
             const deadline0 = BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60)
@@ -1077,7 +1071,7 @@ describe("Ignition Pool",()=>{
             
             // revert buy out of time for whale 
             const signature0Revert0 = await signPermit(investors[1], purchaseToken1Name, purchaseToken1Addr, pool1.address, parseUnits('10',purchaseToken1Decimal), await purchaseTokens[1].nonces(investors[1].address), deadline0)
-            await expect(pool1.connect(investors[1]).buyTokenInGalaxyPoolWithPermit(proof1, parseUnits('10',purchaseToken1Decimal), leafInfo1.maxPurchaseBaseOnAllocation, deadline0, signature0Revert0)).to.be.revertedWithCustomError(pool1, 'OutOfTime')
+            await expect(pool1.connect(investors[1]).buyTokenInGalaxyPoolWithPermit(proof1, parseUnits('10',purchaseToken1Decimal), leafInfo1.maxPurchaseBaseOnAllocation, deadline0, signature0Revert0)).to.be.revertedWithCustomError(pool1, 'TimeOutToBuyToken')
             
             // get proof of investor 1 for community (not early access)
             const leaf10NU = buyWhiteList[10]
@@ -1130,7 +1124,7 @@ describe("Ignition Pool",()=>{
             // revert buy because out of time
             const signature12NU12 = await signPermit(investors[6], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance12NU, await purchaseTokens[1].nonces(investors[6].address), deadline0)
             await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12.substring(0,64))).to.be.revertedWithCustomError(pool1, 'NotValidSignature')
-            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12)).to.be.revertedWithCustomError(pool1, "OutOfTime")
+            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12)).to.be.revertedWithCustomError(pool1, "TimeOutToBuyToken")
 
             
             // console.log(await pool1.userIDOTGEAmount(investors[0].address))
@@ -1141,15 +1135,15 @@ describe("Ignition Pool",()=>{
             // console.log(await pool1.userIDOTGEAmount(investors[5].address))
             // console.log(await pool1.userIDOTGEAmount(investors[6].address))
 
-            await pool1.connect(admin1).enableClaimTGEIDOToken();
+            await pool1.connect(admin1).setClaimableTGEIDOToken(true);
             await expect(pool1.connect(investors[0]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToClaimTGE")
             await expect(pool1.connect(investors[1]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToClaimTGE")
-            await expect(pool1.connect(admin1).enableClaimTGEIDOToken()).to.be.revertedWithCustomError(pool1,"AlreadyEnableClaimTGE");
-            await pool1.connect(admin1).disableClaimTGEIDOToken();
+            await expect(pool1.connect(admin1).setClaimableTGEIDOToken(true)).to.be.revertedWithCustomError(pool1,"AlreadySetClaimableTGE").withArgs(true);
+            await pool1.connect(admin1).setClaimableTGEIDOToken(false);
 
             await time.increaseTo(await pool1.TGEDate())
-            await expect(pool1.connect(admin1).disableClaimTGEIDOToken()).to.be.revertedWithCustomError(pool1, 'AlreadyDisableClaimTGE')
-            await pool1.connect(admin1).enableClaimTGEIDOToken();
+            await expect(pool1.connect(admin1).setClaimableTGEIDOToken(false)).to.be.revertedWithCustomError(pool1, 'AlreadySetClaimableTGE').withArgs(false)
+            await pool1.connect(admin1).setClaimableTGEIDOToken(true);
 
             const userIDOTGEAmount0 = await pool1.userIDOTGEAmount(investors[0].address);
             expect(await pool1.connect(investors[0]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.emit(pool1, "ClaimTGEAmount").withArgs(anyValue, anyValue)

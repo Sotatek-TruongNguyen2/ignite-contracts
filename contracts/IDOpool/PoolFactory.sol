@@ -160,8 +160,7 @@ contract PoolFactory is Initializable, AccessControl {
     }
 
     function _verifyPoolInfo(address[2] memory addrs, uint[13] memory uints) internal pure{
-        address _IDOToken = addrs[0];
-        _validAddress(_IDOToken);
+        // address _IDOToken = addrs[0];
         {
             address _purchaseToken = addrs[1];
             _validAddress(_purchaseToken);
@@ -198,9 +197,6 @@ contract PoolFactory is Initializable, AccessControl {
 
             uint _communityDuration = uints[10];
             _validAmount(_communityDuration);
-
-            uint _rate = uints[11];
-            _validAmount(_rate);
         }
     }
 
