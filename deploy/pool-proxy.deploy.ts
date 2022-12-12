@@ -20,3 +20,5 @@ const deployPoolProxy: DeployFunction = async (hre: HardhatRuntimeEnvironment) =
 deployPoolProxy.tags = ['POOL_PROXY']
 
 export default deployPoolProxy
+
+// test

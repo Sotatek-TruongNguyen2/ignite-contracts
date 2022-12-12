@@ -6,6 +6,8 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
     const { deploy } = deployments
     const { deployer } = await getNamedAccounts()
 
+    const poolImplementationAddr = (await deployments.get('Pool')).address
+
     await deploy('PoolFactory', {
         from: deployer,
         args: [],
@@ -15,7 +17,8 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
             proxyContract: 'OpenZeppelinTransparentProxy',
             execute:{
                 methodName: 'initialize',
-                args: ['0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD']
+                args: [poolImplementationAddr]
+                // args: ['0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD']
             }
         }
     })

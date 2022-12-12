@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.9;
+pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../utils/Pausable.sol";
@@ -157,24 +157,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             maxPurchaseAmountForNotKYCUser, participationFeePercentage, galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleDuration, communityDuration);
     }
 
-    function _validAddress(address _address) internal pure {
-        if (_address == address(0)) {
-            revert ZeroAddress();
-        }
-    }
-
-    function _validAmount(uint _amount) internal pure {
-        if (_amount == 0) {
-            revert ZeroAmount();
-        }
-    }
-
-    function _validSignature(bytes memory _signature) internal pure {
-        if (_signature.length != 65) {
-            revert NotValidSignature();
-        }
-    }
-
     function setRoot(bytes32 _root) external onlyAdmin{
         root = _root;
         emit UpdateRoot(root);
@@ -250,14 +232,77 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
-    function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
-        if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
-            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, true);
-        }else {
-            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, false);
+    function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
+        _validAddress(address(IDOToken));
+        _validAddress(_redeemIDOTokenRecipient);
+        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
+            uint remainAmount = IDOToken.balanceOf(address(this));
+            if(remainAmount > 0){
+                IDOToken.safeTransfer(_redeemIDOTokenRecipient, remainAmount);
+                emit RedeemIDOToken(_redeemIDOTokenRecipient, address(IDOToken), remainAmount);
+            }
+        }else{
+            revert NotEnoughConditionToRedeemIDOToken();
         }
     }
-    
+
+    function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
+        _validAddress(_redeemPurchaseTokenRecipient);
+        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
+            uint purchaseAmount = purchaseToken.balanceOf(address(this));
+            if(purchaseAmount > 0){
+                purchaseToken.safeTransfer(_redeemPurchaseTokenRecipient, purchaseAmount);
+                emit RedeemPurchaseToken(_redeemPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
+            }
+        }else{
+            revert NotEnoughConditionToRedeemPurchaseToken();
+        }
+    }
+
+    function claimTGEIDOToken(uint _IDOClaimAmount) external {
+        _validAddress(address(IDOToken));
+        if(TGEClaimable == false){
+            revert NotAllowedToClaimTGEIDOAmount();
+        }
+        if(block.timestamp < TGEDate){
+            revert NotYetTimeToClaimTGE();
+        }
+        uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
+        if(_IDOClaimAmount > IDOTGEAmount){
+            revert ClaimExceedMaxTGEAmount();
+        }
+        userIDOTGEAmount[_msgSender()] -= _IDOClaimAmount;
+        _deliverTGEIDOTokens(_msgSender(), _IDOClaimAmount);
+        emit ClaimTGEAmount(_msgSender(), _IDOClaimAmount);
+    }
+
+    function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external onlyAdmin{
+        _validAddress(address(IDOToken));
+        if(TGEClaimable == _TGEClaimableStatus){
+            revert AlreadySetClaimableTGE(_TGEClaimableStatus);
+        }
+        TGEClaimable = _TGEClaimableStatus;
+        emit SetTGEClaimable(_TGEClaimableStatus);
+    }
+
+    function _validAddress(address _address) internal pure {
+        if (_address == address(0)) {
+            revert ZeroAddress();
+        }
+    }
+
+    function _validAmount(uint _amount) internal pure {
+        if (_amount == 0) {
+            revert ZeroAmount();
+        }
+    }
+
+    function _validSignature(bytes memory _signature) internal pure {
+        if (_signature.length != 65) {
+            revert NotValidSignature();
+        }
+    }
+
     function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _participationFeePercentage) internal {
         if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForKYCUser, _maxPurchaseBaseOnAllocations, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, true);
@@ -268,6 +313,14 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
+        if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
+            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, true);
+        }else {
+            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, false);
+        }
+    }
+    
     function _splitSignature(bytes memory _signature) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
         _validSignature(_signature);
         assembly {
@@ -277,13 +330,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
-    function _validCommunitySession() internal view returns (bool) {
-        return block.timestamp > communityOpenTime && block.timestamp <= communityOpenTime + communityDuration;
-    }    
-
     function _validWhaleSession() internal view returns(bool){
         return block.timestamp > whaleOpenTime && block.timestamp <= whaleOpenTime + whaleDuration;
     }
+
+    function _validCommunitySession() internal view returns (bool) {
+        return block.timestamp > communityOpenTime && block.timestamp <= communityOpenTime + communityDuration;
+    }    
 
     function _internalBuyToken(address buyer, uint _purchaseAmount, uint _participationFeePercentage, bool _KYCStatus) internal{
 
@@ -372,58 +425,4 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             revert ExceedTotalRaiseAmount(_msgSender(), _purchaseAmount);
         }
     }
-
-    function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
-        _validAddress(address(IDOToken));
-        _validAddress(_redeemIDOTokenRecipient);
-        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
-            uint remainAmount = IDOToken.balanceOf(address(this));
-            if(remainAmount > 0){
-                IDOToken.safeTransfer(_redeemIDOTokenRecipient, remainAmount);
-                emit RedeemIDOToken(_redeemIDOTokenRecipient, address(IDOToken), remainAmount);
-            }
-        }else{
-            revert NotEnoughConditionToRedeemIDOToken();
-        }
-    }
-
-    function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
-        _validAddress(_redeemPurchaseTokenRecipient);
-        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
-            uint purchaseAmount = purchaseToken.balanceOf(address(this));
-            if(purchaseAmount > 0){
-                purchaseToken.safeTransfer(_redeemPurchaseTokenRecipient, purchaseAmount);
-                emit RedeemPurchaseToken(_redeemPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
-            }
-        }else{
-            revert NotEnoughConditionToRedeemPurchaseToken();
-        }
-    }
-
-    function claimTGEIDOToken(uint _IDOClaimAmount) external {
-        _validAddress(address(IDOToken));
-        if(TGEClaimable == false){
-            revert NotAllowedToClaimTGEIDOAmount();
-        }
-        if(block.timestamp < TGEDate){
-            revert NotYetTimeToClaimTGE();
-        }
-        uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
-        if(_IDOClaimAmount > IDOTGEAmount){
-            revert ClaimExceedMaxTGEAmount();
-        }
-        userIDOTGEAmount[_msgSender()] -= _IDOClaimAmount;
-        _deliverTGEIDOTokens(_msgSender(), _IDOClaimAmount);
-        emit ClaimTGEAmount(_msgSender(), _IDOClaimAmount);
-    }
-
-    function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external onlyAdmin{
-        _validAddress(address(IDOToken));
-        if(TGEClaimable == _TGEClaimableStatus){
-            revert AlreadySetClaimableTGE(_TGEClaimableStatus);
-        }
-        TGEClaimable = _TGEClaimableStatus;
-        emit SetTGEClaimable(_TGEClaimableStatus);
-    }
-
 }
