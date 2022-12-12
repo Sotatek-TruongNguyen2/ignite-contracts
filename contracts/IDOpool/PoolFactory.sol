@@ -15,36 +15,22 @@ contract PoolFactory is Initializable, AccessControl {
 
     address public poolImplementationAddress;
 
-    struct PoolHashInfo{
-        address pool;
-        uint poolHash;
-    }
-
     // Array of created Pools Address
     address[] public allPools;
 
     // Mapping from user to (From token to array of created Pools for token)
     mapping(address => mapping(address => address[])) public getCreatedPools;
 
-    // Mapping from user to (From poolHash to (From pool index of user to pool address))
-    mapping(address => mapping(uint => mapping(uint => address))) public registerPools;
-
-    // Mapping from user to (From token to array of registered Pools for token)
-    mapping(address => mapping(address => address[])) public getRegisteredPools;
-
-    event PoolRegistered(address registeredBy, address indexed token, address indexed pool);
-    event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId);
-    event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
     error ZeroAmount();
     error ZeroAddress();
+    error AlreadyAdmin();
     error ZeroOfferedRate();
-    error NotRegisteredPool();
+    error AlreadyNotAdmin();
     error NotValidGalaxyPoolProportion();
     error NotValidEarlyAccessProportion();
-    error AlreadyAdmin();
-    error AlreadyNotAdmin();
+    event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId);
+    event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
 
-        
     function grantAdminRole(address _admin) external onlyRole(ADMIN){
         _validAddress(_admin);
         if(hasRole(ADMIN, _admin)){
@@ -63,7 +49,6 @@ contract PoolFactory is Initializable, AccessControl {
     function hasAdminRole(address _admin) external view returns(bool){
         return hasRole(ADMIN, _admin);
     }
-
 
     function _validAddress(address _address) internal pure {
         if (_address == address(0)) {
@@ -108,10 +93,6 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token];
     }
 
-    function getRegisteredPoolsByToken(address _collaborator, address _token) public view returns (address[] memory) {
-        return getRegisteredPools[_collaborator][_token];
-    }
-
     /**
      * @notice Retrieve number of pools created for specific token
      * @param _creator Address of created pool user
@@ -122,41 +103,18 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token].length;
     }
 
-    function getRegisteredPoolsLengthByToken(address _collaborator, address _token) public view returns (uint256) {
-        return getRegisteredPools[_collaborator][_token].length;
-    }
-
-    function registerPoolAddress(address collaborator, address[2] memory addrs, uint[13] memory uints) external onlyRole(ADMIN) returns (address pool) {
-        (address _IDOToken, uint poolIndex, uint poolHash, bytes32 salt) = _internalRegisterPool(collaborator, addrs, uints);
-
-        pool = Clones.predictDeterministicAddress(poolImplementationAddress, salt);
-
-        registerPools[collaborator][poolHash][poolIndex] = pool;
-        getRegisteredPools[collaborator][_IDOToken].push(pool);
-
-        emit PoolRegistered(_msgSender(), _IDOToken, pool);
-    }
-
     function createPool(address[2] memory addrs, uint[13] memory uints) external returns (address pool) {
-        (address _IDOToken, uint poolIndex, uint poolHash,bytes32 salt) = _internalRegisterPool(_msgSender(), addrs, uints);
-        if(registerPools[_msgSender()][poolHash][poolIndex] == address(0)){
-            revert NotRegisteredPool();
-        }
-
-        registerPools[_msgSender()][poolHash][poolIndex] == address(0);
-
+        _verifyPoolInfo(addrs, uints);
+        address _IDOToken = addrs[0];
+        uint256 tokenIndex = getCreatedPoolsLengthByToken(_msgSender(), _IDOToken);
+        bytes32 salt = keccak256(abi.encodePacked(_msgSender(), _IDOToken, tokenIndex));
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
-
         IPool(pool).initialize(addrs, uints);
-
         getCreatedPools[_msgSender()][_IDOToken].push(pool);
         allPools.push(pool);
 
         emit PoolCreated(_msgSender(), _IDOToken, pool, allPools.length - 1);
-    }
 
-    function hashPoolInfo(address[2] memory addrs, uint[13] memory uints) public pure returns (uint){
-        return uint256(keccak256(abi.encode(addrs, uints)));
     }
 
     function _verifyPoolInfo(address[2] memory addrs, uint[13] memory uints) internal pure{
@@ -195,19 +153,7 @@ contract PoolFactory is Initializable, AccessControl {
             uint _totalRaiseAmount = uints[7];
             _validAmount(_totalRaiseAmount);
 
-            uint _communityDuration = uints[10];
-            _validAmount(_communityDuration);
         }
     }
 
-    function _internalRegisterPool(address collaborator, address[2] memory addrs, uint[13] memory uints) internal view returns(address _IDOToken, uint256 poolIndex, uint poolHash, bytes32 salt){
-        _verifyPoolInfo(addrs, uints);
-        _IDOToken = addrs[0];
-
-        poolIndex = getCreatedPoolsLengthByToken(_msgSender(), _IDOToken);
-
-        poolHash = hashPoolInfo(addrs, uints);
-
-        salt = keccak256(abi.encodePacked(collaborator, poolHash, poolIndex));
-    }
 }

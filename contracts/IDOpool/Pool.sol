@@ -60,6 +60,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event UpdateRoot(bytes32 root);
     event SetTGEClaimable(bool claimable);
     event SetIDOTokenAddress(address IDOToken);
+    event ExtendWhaleTime(uint64 _durationDelta);
     event ExtendCommunityTime(uint64 _durationDelta);
     event ClaimTGEAmount(address buyer, uint claimAmount);
     event UpdateFeeRecipient(address indexed feeRecipient);
@@ -179,14 +180,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit UpdateRoot(root);
     }
 
-    function pausePool() external onlyAdmin {
+    function closePool() external onlyAdmin {
         _pause();
         emit UpdateOpenPoolStatus(address(this), false);
     }
 
-    function unpausePool() external onlyAdmin {
-        _unpause();
-        emit UpdateOpenPoolStatus(address(this), true);
+    function extendWhaleTime(uint64 _durationDelta) external onlyAdmin {
+        whaleDuration += _durationDelta;
+        communityOpenTime += _durationDelta;
+        emit ExtendWhaleTime(_durationDelta);
     }
 
     function extendCommunityTime(uint64 _durationDelta) external onlyAdmin{
@@ -194,16 +196,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit ExtendCommunityTime(_durationDelta);
     }
 
-    function updateOfferedCurrencyRateAndDecimal(uint _rate, uint _decimal) external onlyAdmin{
-        if(block.timestamp > whaleOpenTime){
-            revert TimeOutToSetPoolStatus();
-        }
-        offeredCurrency.rate = _rate;
-        offeredCurrency.decimal = _decimal;
-        emit UpdateOfferedCurrencyRateAndDecimal(_rate, _decimal);
-    }
-
-    function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) public whenNotPaused nonReentrant {
+    function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) external whenNotPaused nonReentrant {
         if(!_validWhaleSession()) {
             revert TimeOutToBuyToken(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
         }
@@ -213,7 +206,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
-    function buyTokenInCrowdfundingPool(bytes32[] memory proof, uint _purchaseAmount) public whenNotPaused nonReentrant {
+    function buyTokenInCrowdfundingPool(bytes32[] memory proof, uint _purchaseAmount) external whenNotPaused nonReentrant {
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
@@ -285,9 +278,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function _validCommunitySession() internal view returns (bool) {
-        return
-            block.timestamp > communityOpenTime &&
-            block.timestamp <= communityOpenTime + communityDuration;
+        return block.timestamp > communityOpenTime && block.timestamp <= communityOpenTime + communityDuration;
     }    
 
     function _validWhaleSession() internal view returns(bool){
@@ -310,11 +301,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
         _forwardPurchaseTokenFunds(buyer, _purchaseAmount);
 
-        uint IDOTokenAmount = _getIDOTokenAmountByOfferedCurrency(_purchaseAmount);
-        uint TGEIDOTokenAmount = IDOTokenAmount * TGEPercentage / PERCENTAGE_DENOMINATOR;
-        uint airdropTokenAmount = IDOTokenAmount - TGEIDOTokenAmount;
+        if(address(IDOToken) != address(0) || offeredCurrency.rate != 0){
+            uint IDOTokenAmount = _getIDOTokenAmountByOfferedCurrency(_purchaseAmount);
+            uint TGEIDOTokenAmount = IDOTokenAmount * TGEPercentage / PERCENTAGE_DENOMINATOR;
+            uint airdropTokenAmount = IDOTokenAmount - TGEIDOTokenAmount;
+            _updatePurchasingState(_purchaseAmount, airdropTokenAmount, TGEIDOTokenAmount);
+        }else{
+            _updatePurchasingState(_purchaseAmount, 0, 0);
+        }
 
-        _updatePurchasingState(_purchaseAmount, airdropTokenAmount, TGEIDOTokenAmount);
         emit BuyToken(_msgSender(), address(this), address(IDOToken), _purchaseAmount);
     }
 
@@ -379,6 +374,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
+        _validAddress(address(IDOToken));
         _validAddress(_redeemIDOTokenRecipient);
         if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
             uint remainAmount = IDOToken.balanceOf(address(this));
@@ -405,6 +401,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function claimTGEIDOToken(uint _IDOClaimAmount) external {
+        _validAddress(address(IDOToken));
         if(TGEClaimable == false){
             revert NotAllowedToClaimTGEIDOAmount();
         }
@@ -421,6 +418,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external onlyAdmin{
+        _validAddress(address(IDOToken));
         if(TGEClaimable == _TGEClaimableStatus){
             revert AlreadySetClaimableTGE(_TGEClaimableStatus);
         }
@@ -428,9 +426,4 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit SetTGEClaimable(_TGEClaimableStatus);
     }
 
-    function setIDOTokenAddress(address _IDOToken) external onlyAdmin {
-        _validAddress(_IDOToken);
-        IDOToken = IERC20(_IDOToken);
-        emit SetIDOTokenAddress(_IDOToken);
-    }
 }
