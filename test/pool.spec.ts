@@ -11,6 +11,10 @@ import { PoolFactory__factory } from "../typechain-types/factories/contracts/IDO
 
 import { ERC20Token } from "../typechain-types/contracts/test/ERC20Token"
 import { ERC20Token__factory } from "../typechain-types/factories/contracts/test/ERC20Token__factory"
+
+import { ERC20TokenFactory } from "../typechain-types/contracts/test/ERC20TokenFactory"
+import { ERC20TokenFactory__factory } from "../typechain-types/factories/contracts/test/ERC20TokenFactory__factory"
+
 import { expect } from "chai"
 import { BigNumber } from "ethers"
 import { hexlify, keccak256, parseUnits, solidityKeccak256, solidityPack } from "ethers/lib/utils"
@@ -57,6 +61,8 @@ describe("Ignition Pool",()=>{
         let IDOTokens: ERC20Token[]
         let zeroAddress: string = '0x'+'0'.repeat(40);
         let poolInfoList: PoolInfo[]
+        let erc20Sample: ERC20Token
+        let erc20TokenFactory: ERC20TokenFactory
 
         const PERCENTAGE_DENOMINATOR = 10000;
 
@@ -68,12 +74,32 @@ describe("Ignition Pool",()=>{
         poolFactory = await new PoolFactory__factory(owner).deploy();
         await poolFactory.initialize(pool.address)
 
+        erc20Sample = await new ERC20Token__factory(owner).deploy();
+        erc20TokenFactory = await new ERC20TokenFactory__factory(owner).deploy(erc20Sample.address)
+
+        // Create purchase token
+        await erc20TokenFactory.connect(owner).createToken("PurchaseToken0","PurchaseToken0", 6)
+        const purchaseToken0Address = await erc20TokenFactory.currentToken()
+        const purchaseToken0 = new ERC20Token__factory(owner).attach(purchaseToken0Address)
+
+        await erc20TokenFactory.connect(owner).createToken("PurchaseToken1","PurchaseToken1", 8)
+        const purchaseToken1Address = await erc20TokenFactory.currentToken()
+        const purchaseToken1 = new ERC20Token__factory(owner).attach(purchaseToken1Address)
+
+        await erc20TokenFactory.connect(owner).createToken("PurchaseToken2","PurchaseToken2", 18)
+        const purchaseToken2Address = await erc20TokenFactory.currentToken()
+        const purchaseToken2 = new ERC20Token__factory(owner).attach(purchaseToken2Address)
+
+        await erc20TokenFactory.connect(owner).createToken("PurchaseToken3","PurchaseToken3", 6)
+        const purchaseToken3Address = await erc20TokenFactory.currentToken()
+        const purchaseToken3 = new ERC20Token__factory(owner).attach(purchaseToken3Address)
+
+        await erc20TokenFactory.connect(owner).createToken("PurchaseToken4","PurchaseToken4", 6)
+        const purchaseToken4Address = await erc20TokenFactory.currentToken()
+        const purchaseToken4 = new ERC20Token__factory(owner).attach(purchaseToken4Address)
+
         purchaseTokens = [
-            await new ERC20Token__factory(owner).deploy("PurchaseToken0","PurchaseToken0", 6),
-            await new ERC20Token__factory(owner).deploy("PurchaseToken1","PurchaseToken1", 8),
-            await new ERC20Token__factory(owner).deploy("PurchaseToken2","PurchaseToken2", 18),
-            await new ERC20Token__factory(owner).deploy("PurchaseToken3","PurchaseToken3", 6),
-            await new ERC20Token__factory(owner).deploy("PurchaseToken4","PurchaseToken4", 6),
+            purchaseToken0, purchaseToken1, purchaseToken2, purchaseToken3, purchaseToken4
         ]
 
         for(let i=0;i<purchaseTokens.length;i++){
@@ -82,12 +108,29 @@ describe("Ignition Pool",()=>{
             }
         }
 
+        // Create IDO token
+        await erc20TokenFactory.connect(owner).createToken("IDOToken0","IDOToken0", 18)
+        const IDOToken0Address = await erc20TokenFactory.currentToken()
+        const IDOToken0 = new ERC20Token__factory(owner).attach(IDOToken0Address)
+
+        await erc20TokenFactory.connect(owner).createToken("IDOToken1","IDOToken1", 6)
+        const IDOToken1Address = await erc20TokenFactory.currentToken()
+        const IDOToken1 = new ERC20Token__factory(owner).attach(IDOToken1Address)
+
+        await erc20TokenFactory.connect(owner).createToken("IDOToken2","IDOToken2", 10)
+        const IDOToken2Address = await erc20TokenFactory.currentToken()
+        const IDOToken2 = new ERC20Token__factory(owner).attach(IDOToken2Address)
+
+        await erc20TokenFactory.connect(owner).createToken("IDOToken3","IDOToken3", 8)
+        const IDOToken3Address = await erc20TokenFactory.currentToken()
+        const IDOToken3 = new ERC20Token__factory(owner).attach(IDOToken3Address)
+
+        await erc20TokenFactory.connect(owner).createToken("IDOToken4","IDOToken4", 8)
+        const IDOToken4Address = await erc20TokenFactory.currentToken()
+        const IDOToken4 = new ERC20Token__factory(owner).attach(IDOToken4Address)
+
         IDOTokens = [
-            await new ERC20Token__factory(owner).deploy("IDOToken0","IDOToken0", 18),
-            await new ERC20Token__factory(owner).deploy("IDOToken1","IDOToken1", 6),
-            await new ERC20Token__factory(owner).deploy("IDOToken2","IDOToken2", 10),
-            await new ERC20Token__factory(owner).deploy("IDOToken3","IDOToken3", 8),
-            await new ERC20Token__factory(owner).deploy("IDOToken4","IDOToken4", 8),
+            IDOToken0, IDOToken1, IDOToken2, IDOToken3, IDOToken4
         ]
 
         await IDOTokens[0].connect(collaborator0).mint(collaborator0.address, parseUnits('1000000', '30'))
