@@ -92,6 +92,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint purchaseAmount);
     error NotEnoughAllowance(address buyer, address purchaseToken, uint allowance, uint amount);
     error TimeOutToBuyToken(uint whaleOpenTime, uint whaleDuration, uint communityOpenTime, uint communityDuration, uint timestamp, address buyer);
+    error TimeOutToExtendWhaleTime();
 
     modifier onlyAdmin {
         if(!poolFactory.hasAdminRole(_msgSender())){
@@ -168,6 +169,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function extendWhaleTime(uint64 _durationDelta) external onlyAdmin {
+        if(block.timestamp > whaleOpenTime + whaleDuration){
+            revert TimeOutToExtendWhaleTime();
+        }
         whaleDuration += _durationDelta;
         communityOpenTime += _durationDelta;
         emit ExtendWhaleTime(_durationDelta);

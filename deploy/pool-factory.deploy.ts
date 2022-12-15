@@ -3,8 +3,11 @@ import { DeployFunction } from 'hardhat-deploy/types'
 
 const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { ethers, deployments, getNamedAccounts} = hre
-    const { deploy } = deployments
+    const { deploy, execute } = deployments
     const { deployer } = await getNamedAccounts()
+
+    // const poolFactoryAddr = (await deployments.get('PoolFactory_Implementation')).address
+    const poolFactoryAddr = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F';
 
     await deploy('PoolFactory', {
         from: deployer,
@@ -12,10 +15,16 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
         log: true,
         deterministicDeployment: false,
     })
+
+    await execute(
+        'PoolFactory',
+        {from: deployer, log: true},
+        'initialize',
+        poolFactoryAddr
+      );
 }
 
 deployPoolFactoryProxy.tags = ['POOL_FACTORY']
 
 export default deployPoolFactoryProxy
 
-// test

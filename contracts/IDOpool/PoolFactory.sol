@@ -50,18 +50,6 @@ contract PoolFactory is Initializable, AccessControl {
         return hasRole(ADMIN, _admin);
     }
 
-    function _validAddress(address _address) internal pure {
-        if (_address == address(0)) {
-            revert ZeroAddress();
-        }
-    }
-
-    function _validAmount(uint _amount) internal pure {
-        if (_amount == 0) {
-            revert ZeroAmount();
-        }
-    }
-
     function initialize(address _poolImplementationAddress) external initializer {
         poolImplementationAddress = _poolImplementationAddress;
         _setupRole(ADMIN, _msgSender());
@@ -103,11 +91,10 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token].length;
     }
 
-    function createPool(address[2] memory addrs, uint[13] memory uints) external returns (address pool) {
+    function createPool(address[2] memory addrs, uint[13] memory uints, uint createdTimeInDb) external returns (address pool) {
         _verifyPoolInfo(addrs, uints);
         address _IDOToken = addrs[0];
-        uint256 tokenIndex = getCreatedPoolsLengthByToken(_msgSender(), _IDOToken);
-        bytes32 salt = keccak256(abi.encodePacked(_msgSender(), _IDOToken, tokenIndex));
+        bytes32 salt = keccak256(abi.encode(addrs, uints, _msgSender(), createdTimeInDb));
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
         IPool(pool).initialize(addrs, uints);
         getCreatedPools[_msgSender()][_IDOToken].push(pool);
@@ -153,6 +140,17 @@ contract PoolFactory is Initializable, AccessControl {
             uint _totalRaiseAmount = uints[7];
             _validAmount(_totalRaiseAmount);
 
+        }
+    }
+    function _validAddress(address _address) internal pure {
+        if (_address == address(0)) {
+            revert ZeroAddress();
+        }
+    }
+    
+    function _validAmount(uint _amount) internal pure {
+        if (_amount == 0) {
+            revert ZeroAmount();
         }
     }
 

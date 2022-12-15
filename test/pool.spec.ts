@@ -279,7 +279,7 @@ describe("Ignition Pool",()=>{
             await poolFactory.connect(collaborator0).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
                 [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.participationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
-                poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal])
+                poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
 
             expect(await poolFactory.getCreatedPoolsLengthByToken(collaborator0.address, poolInfo1.IDOToken)).to.be.equal(1)
             expect(await poolFactory.allPoolsLength()).to.be.equal(1)
@@ -290,7 +290,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -298,7 +298,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -306,7 +306,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -314,7 +314,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal])).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
             }
         })
     })
@@ -328,7 +328,7 @@ describe("Ignition Pool",()=>{
             await poolFactory.connect(collaborator0).createPool([poolInfo0.IDOToken, poolInfo0.purchaseToken],
                 [poolInfo0.maxPurchaseAmountForKYCUser, poolInfo0.maxPurchaseAmountForNotKYCUser, poolInfo0.TGEDate, poolInfo0.TGEPercentage, poolInfo0.participationFeePercentage,
                 poolInfo0.galaxyPoolProportion, poolInfo0.earlyAccessProportion, poolInfo0.totalRaiseAmount, poolInfo0.whaleOpenTime, poolInfo0.whaleDuration,
-                poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal])
+                poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], 1671095858080)
 
             const pool0Address = await poolFactory.getCreatedPools(collaborator0.address, poolInfo0.IDOToken, 0)
 
@@ -684,7 +684,7 @@ describe("Ignition Pool",()=>{
             await poolFactory.connect(collaborator1).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
                 [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.participationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
-                poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal])
+                poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
             
             const pool1Address = await poolFactory.getCreatedPools(collaborator1.address, poolInfo1.IDOToken, 0)
  
@@ -1035,6 +1035,7 @@ describe("Ignition Pool",()=>{
 
             await time.increase(await pool1.whaleDuration())
             
+            await expect(pool1.connect(owner).extendWhaleTime(10)).to.be.revertedWithCustomError(pool1, "TimeOutToExtendWhaleTime");
             // revert buy out of time for whale 
             const signature0Revert0 = await signPermit(investors[1], purchaseToken1Name, purchaseToken1Addr, pool1.address, parseUnits('10',purchaseToken1Decimal), await purchaseTokens[1].nonces(investors[1].address), deadline0)
             await expect(pool1.connect(investors[1]).buyTokenInGalaxyPoolWithPermit(proof1, parseUnits('10',purchaseToken1Decimal), leafInfo1.maxPurchaseBaseOnAllocation, deadline0, signature0Revert0)).to.be.revertedWithCustomError(pool1, 'TimeOutToBuyToken')
@@ -1144,7 +1145,7 @@ describe("Ignition Pool",()=>{
             await poolFactory.connect(collaborator0).createPool([poolInfoList[2].IDOToken, poolInfoList[2].purchaseToken],
                 [poolInfoList[2].maxPurchaseAmountForKYCUser, poolInfoList[2].maxPurchaseAmountForNotKYCUser, poolInfoList[2].TGEDate, poolInfoList[2].TGEPercentage, poolInfoList[2].participationFeePercentage,
                 poolInfoList[2].galaxyPoolProportion, poolInfoList[2].earlyAccessProportion, poolInfoList[2].totalRaiseAmount, poolInfoList[2].whaleOpenTime, poolInfoList[2].whaleDuration,
-                poolInfoList[2].communityDuration, poolInfoList[2].rate, poolInfoList[2].decimal])
+                poolInfoList[2].communityDuration, poolInfoList[2].rate, poolInfoList[2].decimal], 1671095858080)
 
             const pool2Address = await poolFactory.getCreatedPools(collaborator0.address, poolInfoList[2].IDOToken, 0)
 
