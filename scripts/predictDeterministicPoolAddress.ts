@@ -137,23 +137,23 @@ const poolInfoList = [
     },
 ]
 
-const implementation = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F'
+const poolImplementation = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F'
 const deployer = '0x9460b481366b7462af4f7991d430e5eB97FAAEB5'
-
+const poolFactoryProxy = '0x89AC9209959865B9EfF5AeF042049D97cC1584cF'
 const createdTimeInDb = 101;
 
-function predictDeterministicPoolAddress(poolInfo: PoolInfo, createdTimeInDb: number, implementation: string, deployer: string){
+function predictDeterministicPoolAddress(poolInfo: PoolInfo, createdTimeInDb: number, poolImplementation: string, deployer: string, poolFactoryProxy: string){
     const abiCoder = new ethers.utils.AbiCoder()
     const encodeData = abiCoder.encode(['address[2]','uint[13]','address','uint'],[[poolInfo.IDOToken, poolInfo.purchaseToken],[poolInfo.maxPurchaseAmountForKYCUser, poolInfo.maxPurchaseAmountForNotKYCUser, poolInfo.TGEDate, poolInfo.TGEPercentage, poolInfo.participationFeePercentage, poolInfo.galaxyPoolProportion, poolInfo.earlyAccessProportion, poolInfo.totalRaiseAmount, poolInfo.whaleOpenTime, poolInfo.whaleDuration, poolInfo.communityDuration, poolInfo.rate, poolInfo.decimal], deployer, createdTimeInDb])
     const salt = solidityKeccak256(['bytes'],[arrayify(encodeData)])
-    console.log("salt", salt)
-    const sliceImplementation = implementation.slice(2)
-    const sliceDeployer = deployer.slice(2)
+    const slicepoolImplementation = poolImplementation.slice(2)
+    const deployer2 = poolFactoryProxy
+    const sliceDeployer = deployer2.slice(2)
     const sliceSalt = salt.slice(2)
     const str1 = '3d602d80600a3d3981f3363d3d373d3d3d363d73'
     const str2 = '5af43d82803e903d91602b57fd5bf3ff'
 
-    const tmpSummaryStr = str1.concat(sliceImplementation).concat(str2).concat(sliceDeployer).concat(sliceSalt)
+    const tmpSummaryStr = str1.concat(slicepoolImplementation).concat(str2).concat(sliceDeployer).concat(sliceSalt)
     const hash1 = solidityKeccak256(['bytes'],[arrayify('0x'.concat(tmpSummaryStr.slice(0, (3*16+7)*2)))])
     const sliceHash1 = hash1.slice(2)
     const summaryStr = tmpSummaryStr.concat(sliceHash1)
@@ -161,32 +161,7 @@ function predictDeterministicPoolAddress(poolInfo: PoolInfo, createdTimeInDb: nu
     console.log('0x'.concat(predictPoolAddress.slice(26)))
 }
 
-predictDeterministicPoolAddress(poolInfoList[0], createdTimeInDb, implementation, deployer)
-
-// function test(implementation: string, deployer: string, salt: string){
-//     const sliceImplementation = implementation.slice(2)
-//     const sliceDeployer = deployer.slice(2)
-//     const sliceSalt = salt.slice(2)
-//     const str1 = '3d602d80600a3d3981f3363d3d373d3d3d363d73'
-//     const str2 = '5af43d82803e903d91602b57fd5bf3ff'
-
-//     const tmpSummaryStr = str1.concat(sliceImplementation).concat(str2).concat(sliceDeployer).concat(sliceSalt)
-//     console.log(arrayify('0x'.concat(tmpSummaryStr.slice(0, (3*16+7)*2))))
-//     const hash1 = solidityKeccak256(['bytes'],[arrayify('0x'.concat(tmpSummaryStr.slice(0, (3*16+7)*2)))])
-//     const sliceHash1 = hash1.slice(2)
-//     const summaryStr = tmpSummaryStr.concat(sliceHash1)
-//     console.log(arrayify('0x'.concat(summaryStr.slice((3*16+7)*2, (3*16+7)*2+(5*16+5)*2))))
-//     const predictPoolAddress = solidityKeccak256(['bytes'], [arrayify('0x'.concat(summaryStr.slice((3*16+7)*2, (3*16+7)*2+(5*16+5)*2)))])
-//     console.log('0x'.concat(predictPoolAddress.slice(26)))
-// }
-
-// predictDeterministicPoolAddress(poolInfoList[0], 5)
-// implementation:  0xaBefC6e201617C19108d4F5bdbB87d3B7e93c913
-// salt:            0x036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0
-// deployer:        0x5B38Da6a701c568545dCfcB03FcB875f56beddC4
-// pool:            0xE772479d5Eb959954200d74F4C2dC716cE742590
-
-// test(implementation, deployer, salt)
+predictDeterministicPoolAddress(poolInfoList[0], createdTimeInDb, poolImplementation, deployer, poolFactoryProxy)
 
 // [0x7e919252cd379Aef5f911Eae090fF6b4909b78C6,0x856e4424f806D16E8CBC702B3c0F2ede5468eae5]
 // [0x02540be400,0x3b9aca00,0x63c26fc1,0x07d0,0x03e8,0x07d0,0x0fa0,0x082f79cd9000,0x639ed741,0x015180,0x02a300,0x71afd498d000,0x01]
