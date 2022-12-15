@@ -146,14 +146,13 @@ function predictDeterministicPoolAddress(poolInfo: PoolInfo, createdTimeInDb: nu
     const abiCoder = new ethers.utils.AbiCoder()
     const encodeData = abiCoder.encode(['address[2]','uint[13]','address','uint'],[[poolInfo.IDOToken, poolInfo.purchaseToken],[poolInfo.maxPurchaseAmountForKYCUser, poolInfo.maxPurchaseAmountForNotKYCUser, poolInfo.TGEDate, poolInfo.TGEPercentage, poolInfo.participationFeePercentage, poolInfo.galaxyPoolProportion, poolInfo.earlyAccessProportion, poolInfo.totalRaiseAmount, poolInfo.whaleOpenTime, poolInfo.whaleDuration, poolInfo.communityDuration, poolInfo.rate, poolInfo.decimal], deployer, createdTimeInDb])
     const salt = solidityKeccak256(['bytes'],[arrayify(encodeData)])
-    const slicepoolImplementation = poolImplementation.slice(2)
-    const deployer2 = poolFactoryProxy
-    const sliceDeployer = deployer2.slice(2)
+    const slicePoolImplementation = poolImplementation.slice(2)
+    const sliceDeployer = poolFactoryProxy.slice(2)
     const sliceSalt = salt.slice(2)
     const str1 = '3d602d80600a3d3981f3363d3d373d3d3d363d73'
     const str2 = '5af43d82803e903d91602b57fd5bf3ff'
 
-    const tmpSummaryStr = str1.concat(slicepoolImplementation).concat(str2).concat(sliceDeployer).concat(sliceSalt)
+    const tmpSummaryStr = str1.concat(slicePoolImplementation).concat(str2).concat(sliceDeployer).concat(sliceSalt)
     const hash1 = solidityKeccak256(['bytes'],[arrayify('0x'.concat(tmpSummaryStr.slice(0, (3*16+7)*2)))])
     const sliceHash1 = hash1.slice(2)
     const summaryStr = tmpSummaryStr.concat(sliceHash1)
