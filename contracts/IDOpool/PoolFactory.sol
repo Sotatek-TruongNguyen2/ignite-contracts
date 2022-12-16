@@ -28,7 +28,7 @@ contract PoolFactory is Initializable, AccessControl {
     error AlreadyNotAdmin();
     error NotValidGalaxyPoolProportion();
     error NotValidEarlyAccessProportion();
-    event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId);
+    event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint dbPoolId);
     event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
 
     function grantAdminRole(address _admin) external onlyRole(ADMIN){
@@ -91,16 +91,16 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token].length;
     }
 
-    function createPool(address[2] memory addrs, uint[13] memory uints, uint createdTimeInDb) external returns (address pool) {
+    function createPool(address[2] memory addrs, uint[13] memory uints, uint dbPoolId) external returns (address pool) {
         _verifyPoolInfo(addrs, uints);
         address _IDOToken = addrs[0];
-        bytes32 salt = keccak256(abi.encode(addrs, uints, _msgSender(), createdTimeInDb));
+        bytes32 salt = keccak256(abi.encode(addrs, uints, _msgSender(), dbPoolId));
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
         IPool(pool).initialize(addrs, uints);
         getCreatedPools[_msgSender()][_IDOToken].push(pool);
         allPools.push(pool);
 
-        emit PoolCreated(_msgSender(), _IDOToken, pool, allPools.length - 1);
+        emit PoolCreated(_msgSender(), _IDOToken, pool, allPools.length - 1, dbPoolId);
 
     }
 
