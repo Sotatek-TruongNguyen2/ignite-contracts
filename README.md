@@ -68,7 +68,7 @@ We also call the minimum basic unit of Itoken and Ptoken is **wItoken** and **wP
 
 We will call decimal of IDO Token and Purchase Token is **Ide** and **Pde** respectively.
 
-<div font-weight="bold">
+```
 1 (IDO Token) = x (Purchase Token)
 
 1 (Itoken) = x (Ptoken)
@@ -76,15 +76,13 @@ We will call decimal of IDO Token and Purchase Token is **Ide** and **Pde** resp
 10^Ide (wItoken) = x*10^Pde (wPtoken)
 
 1 (wItoken) = x*10^(Pde-Ide) (wPtoken)
-</div>
 
-With {amount} of wPtoken, we will receive:
+1 / (x*10^(Pde-Ide)) (wItoken) = 1 (wPtoken)
 
->> amount / (x*10^(Pde-Ide)) (wItoken) = amount (wPtoken)
-
-Now, reverse for more easy when reading:
+amount / (x*10^(Pde-Ide)) (wItoken) = amount (wPtoken)
 
 amount (wPtoken) = amount / (x * 10^(Pde-Ide)) (wItoken) = **amount * 10^(Ide-Pde) / x** (wItoken)
+```
 
 But in Solidity, we can not use float number, so if x = 0.005 or Ide < Pde, x and 10^(Ide-Pde) will equal 0.
 
