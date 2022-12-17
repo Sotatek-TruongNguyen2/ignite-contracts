@@ -14,6 +14,7 @@ import "dotenv/config"
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
+const BSC_API_KEY = process.env.BSC_API_KEY
 
 const accounts = [DEPLOYER_PRIVATE_KEY as string]
 
@@ -249,7 +250,7 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: BSC_API_KEY,
   },
   watcher: {
     compile: {

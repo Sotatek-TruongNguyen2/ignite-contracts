@@ -16,7 +16,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         })
 
         // const poolFactoryAddr = (await deployments.get('PoolFactory_Implementation')).address
-        const poolFactoryAddr = '0x52Ff4f16ac60a622dFc5C9167484644bAAa738ea'
+        const poolFactoryAddr = '0xCa0d68901cD420A3fc5582aE31B82062D366939C'
 
         console.log('----- START VERIFICATION -----');
 

@@ -14,6 +14,6 @@ const deployERC20Token: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
     })
 }
 
-deployERC20Token.tags = ['ERC20TOKEN']
+deployERC20Token.tags = ['ERC20_TOKEN']
 
 export default deployERC20Token

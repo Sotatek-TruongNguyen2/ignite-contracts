@@ -12,7 +12,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         await new Promise((res, _) =>{
             setTimeout(()=>{
                 res(true)
-            }, 30000)
+            }, 300)
         })
 
         const erc20TokenFactoryAddress = (await deployments.get('ERC20TokenFactory')).address
