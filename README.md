@@ -8,25 +8,54 @@
 
 # Note when calling function to buy token:
 
-- If purchase token is USDC, we can use buyTokenInGalaxyPoolWithPermit() or buyTokenInCrowdfundingPoolWithPermit() functions
+- If purchase token is USDC, we can use buyToken...WithPermit() functions
 
-- DAI token also has permit function, but parameters of this is different from permit function of ERC20 token stardard of openzeppelin.
+- DAI token also has permit function, but parameters of this function is different from permit function of ERC20 token stardard of openzeppelin.
 
 # Create Merkle tree:
 
-- Leaf = {address + hash("Pool type") + max purchase KYC/notKYC amount + max purchase for each user per allocation}
+- Leaf = { address + hash("Pool type") + max purchase KYC/notKYC amount + max purchase for each user per allocation }
 
-- Type of leaf:
+- Type of investors:
+  
+  + (1) WHALE + KYC 
+  
+  + (2) WHALE + Not KYC
+  
+  + (3) NORMAL_USER + KYC
+  
+  + (4) NORMAL_USER + Not KYC
 
-  + [address+WHALE+10_000+maxPurchaseBaseOnAllocation]
+- Type of pool groups:
+  
+  + (x) Galaxy pool
+  
+  + (y) Early access
+  
+  + (z) Normal access
+  
+- Type of leaves:
 
-  + [address+WHALE+10_000+0]
+  + (a) { address + hash(WHALE) + max purchase KYC amount + maxPurchaseBaseOnAllocation }
 
-  + [address+WHALE+1_000+maxPurchaseBaseOnAllocation]
+  + (b) { address + hash(WHALE) + max purchase KYC amount + 0 }
 
-  + [address+WHALE+1_000+0]
+  + (c) { address + hash(WHALE) + max purchase **NOT** KYC amount + maxPurchaseBaseOnAllocation }
 
-  + [address+NORMAL_USER+10_000+0]
+  + (d) { address + hash(WHALE) + max purchase **NOT** KYC amount + 0 }
+
+  + (e) { address + **hash(NORMAL_USER)** + max purchase KYC amount + 0 }
+  
+- Mapping between leaves, investors and pools:
+
+Investor | Group | Leaves | Note | | Investor | Group | Leaves | Note
+:--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--:
+(1) | (x) | (a) | | | (3) | (x) | | **Can not happen**
+(1) | (y) | (b) | | | (3) | (y) | | **Can not happen**
+(1) | (z) | (e) | Can not need leaf | | (3) | (z) | (e) | Can not need leaf
+(2) | (x) | (c) | | | (4) | (x) | | **Can not happen**
+(2) | (y) | (d) | | | (4) | (y) | | **Can not happen**
+(2) | (z) | | Do not need leaf | | (4) | (z) | | Do not need leaf
 
 
 # Calculate rate and decimal variable in Pool contract
@@ -39,13 +68,15 @@ We also call the minimum basic unit of Itoken and Ptoken is **wItoken** and **wP
 
 We will call decimal of IDO Token and Purchase Token is **Ide** and **Pde** respectively.
 
->> 1 (IDO Token) = x (Purchase Token)
+<div font-weight="bold">
+1 (IDO Token) = x (Purchase Token)
 
->> 1 (Itoken) = x (Ptoken)
+1 (Itoken) = x (Ptoken)
 
->> 10^Ide (wItoken) = x*10^Pde (wPtoken)
+10^Ide (wItoken) = x*10^Pde (wPtoken)
 
->> 1 (wItoken) = x*10^(Pde-Ide) (wPtoken)
+1 (wItoken) = x*10^(Pde-Ide) (wPtoken)
+</div>
 
 With {amount} of wPtoken, we will receive:
 
