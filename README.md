@@ -81,7 +81,7 @@ We will call decimal of IDO Token and Purchase Token is **Ide** and **Pde** resp
 
 amount / (x*10^(Pde-Ide)) (wItoken) = amount (wPtoken)
 
-amount (wPtoken) = amount / (x * 10^(Pde-Ide)) (wItoken) = **amount * 10^(Ide-Pde) / x** (wItoken)
+amount (wPtoken) = amount / (x * 10^(Pde-Ide)) (wItoken) = amount * 10^(Ide-Pde) / x (wItoken)
 ```
 
 But in Solidity, we can not use float number, so if x = 0.005 or Ide < Pde, x and 10^(Ide-Pde) will equal 0.
