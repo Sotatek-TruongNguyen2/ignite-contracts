@@ -30,18 +30,25 @@ enum CHAIN_IDS {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.10',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 100,
+    compilers: [
+      {
+        version: '0.8.10',
+            settings: {
+              optimizer: {
+                enabled: true,
+                runs: 100,
+              },
+              outputSelection: {
+                '*': {
+                  '*': ['storageLayout'],
+                },
+              },
+            },
       },
-      outputSelection: {
-        '*': {
-          '*': ['storageLayout'],
-        },
-      },
-    },
+      {
+        version: '0.6.12'
+      }
+    ]
   },
   defaultNetwork: 'hardhat',
   networks: {

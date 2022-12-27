@@ -6,8 +6,8 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
     const { deploy, execute } = deployments
     const { deployer } = await getNamedAccounts()
 
-    // const poolFactoryAddr = (await deployments.get('PoolFactory_Implementation')).address
-    const poolFactoryAddr = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F';
+    // const poolAddr = (await deployments.get('PoolFactory_Implementation')).address
+    const poolAddr = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F';
 
     await deploy('PoolFactory', {
         from: deployer,
@@ -20,7 +20,7 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
         'PoolFactory',
         {from: deployer, log: true},
         'initialize',
-        poolFactoryAddr
+        poolAddr
       );
 }
 

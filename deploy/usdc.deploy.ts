@@ -1,26 +1,26 @@
 import { HardhatRuntimeEnvironment} from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
-const deployERC20Token: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployUSDC: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { ethers, deployments, getNamedAccounts} = hre
     const { deploy, execute } = deployments
     const { deployer } = await getNamedAccounts()
 
-    await deploy('ERC20Token', {
+    await deploy('FiatTokenV2_1', {
         from: deployer,
         args: [],
         log: true,
         deterministicDeployment: false,
     })
 
-    await execute(
-        'ERC20Token',
-        {from: deployer, log: true},
-        'initialize',
-        'USD Coin', 'USDC', 6
-    )
+    // await execute(
+    //     'ERC20Token',
+    //     {from: deployer, log: true},
+    //     'initialize',
+    //     'USD Coin', 'USDC', 6
+    // )
 }
 
-deployERC20Token.tags = ['ERC20_TOKEN']
+deployUSDC.tags = ['USDC']
 
-export default deployERC20Token
+export default deployUSDC

@@ -45,9 +45,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     uint public totalRaiseAmount;
 
     uint64 public whaleOpenTime;
-    uint64 public whaleDuration;
+    uint64 public whaleCloseTime;
     uint64 public communityOpenTime;
-    uint64 public communityDuration;
+    uint64 public communityCloseTime;
 
     uint public purchasedAmountInGalaxyPool;
     uint public purchasedAmountInEarlyAccess;
@@ -60,8 +60,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event UpdateRoot(bytes32 root);
     event SetTGEClaimable(bool claimable);
     event SetIDOTokenAddress(address IDOToken);
-    event ExtendWhaleTime(uint64 _durationDelta);
-    event ExtendCommunityTime(uint64 _durationDelta);
     event ClaimTGEAmount(address buyer, uint claimAmount);
     event UpdateFeeRecipient(address indexed feeRecipient);
     event UpdateOpenPoolStatus(address indexed pool, bool status);
@@ -69,8 +67,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint remainAmount);
     event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
     event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
+    event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime);
     event PoolCreated(address IDOToken, address purchaseToken, uint rate, uint decimal,uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser,
-        uint16 participationFeePercentage, uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleDuration, uint64 communityDuration);
+        uint16 participationFeePercentage, uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime);
 
     error NotAdmin();
     error ZeroAmount();
@@ -91,8 +90,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     error ExceedMaxPurchaseAmountForNotKYCUser(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint purchaseAmount);
     error NotEnoughAllowance(address buyer, address purchaseToken, uint allowance, uint amount);
-    error TimeOutToBuyToken(uint whaleOpenTime, uint whaleDuration, uint communityOpenTime, uint communityDuration, uint timestamp, address buyer);
-    error TimeOutToExtendWhaleTime();
+    error NotUpdateValidTime(uint whaleOpenTime, uint whaleCloseTime, uint communityOpenTime, uint communityCloseTime);
+    error TimeOutToBuyToken(uint whaleOpenTime, uint whaleCloseTime, uint communityOpenTime, uint communityCloseTime, uint timestamp, address buyer);
 
     modifier onlyAdmin {
         if(!poolFactory.hasAdminRole(_msgSender())){
@@ -143,9 +142,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             uint _whaleDuration = uints[9];
             uint _communityDuration = uints[10];
             whaleOpenTime = SafeCast.toUint64(_whaleOpenTime);
-            whaleDuration = SafeCast.toUint64(_whaleDuration);
-            communityDuration = SafeCast.toUint64(_communityDuration);
-            communityOpenTime = SafeCast.toUint64(_whaleOpenTime + _whaleDuration);
+            whaleCloseTime = SafeCast.toUint64(_whaleOpenTime+_whaleDuration);
+            communityOpenTime = whaleCloseTime;
+            communityCloseTime = SafeCast.toUint64(communityOpenTime + _communityDuration);
         }
         {
             uint _rate = uints[11];
@@ -155,7 +154,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
         
         emit PoolCreated(address(IDOToken), address(purchaseToken), offeredCurrency.rate, offeredCurrency.decimal, maxPurchaseAmountForKYCUser, 
-            maxPurchaseAmountForNotKYCUser, participationFeePercentage, galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleDuration, communityDuration);
+            maxPurchaseAmountForNotKYCUser, participationFeePercentage, galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime);
     }
 
     function setRoot(bytes32 _root) external onlyAdmin{
@@ -168,23 +167,19 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit UpdateOpenPoolStatus(address(this), false);
     }
 
-    function extendWhaleTime(uint64 _durationDelta) external onlyAdmin {
-        if(block.timestamp > whaleOpenTime + whaleDuration){
-            revert TimeOutToExtendWhaleTime();
+    function updateTime(uint64 _newWhaleCloseTime, uint64 _newCommunityCloseTime) external onlyAdmin {
+        if(_newWhaleCloseTime >= _newCommunityCloseTime || _newWhaleCloseTime <= whaleOpenTime) {
+            revert NotUpdateValidTime(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime);
         }
-        whaleDuration += _durationDelta;
-        communityOpenTime += _durationDelta;
-        emit ExtendWhaleTime(_durationDelta);
-    }
-
-    function extendCommunityTime(uint64 _durationDelta) external onlyAdmin{
-        communityDuration += _durationDelta;
-        emit ExtendCommunityTime(_durationDelta);
+        whaleCloseTime = _newWhaleCloseTime;
+        communityOpenTime = _newWhaleCloseTime;
+        communityCloseTime = _newCommunityCloseTime;
+        emit UpdateTime(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime);
     }
 
     function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) external whenNotPaused nonReentrant {
         if(!_validWhaleSession()) {
-            revert TimeOutToBuyToken(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+            revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
         _verifyAllowance(_msgSender(), _purchaseAmount);
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
@@ -202,7 +197,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             _preValidatePurchase(_purchaseAmount);
             _internalNormalUserBuyToken(proof, _purchaseAmount);
         }else{
-            revert TimeOutToBuyToken(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+            revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
     }
 
@@ -211,7 +206,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
         IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _purchaseAmount, _deadline, v, r, s);
         if(!_validWhaleSession()) {
-            revert TimeOutToBuyToken(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+            revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
         _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, 0);
@@ -232,14 +227,14 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             _preValidatePurchase(_purchaseAmount);
             _internalNormalUserBuyToken(proof, _purchaseAmount);
         }else{
-            revert TimeOutToBuyToken(whaleOpenTime, whaleDuration, communityOpenTime, communityDuration, block.timestamp, _msgSender());
+            revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
     }
 
     function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
         _validAddress(address(IDOToken));
         _validAddress(_redeemIDOTokenRecipient);
-        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
+        if(paused() == true || block.timestamp > communityCloseTime){
             uint remainAmount = IDOToken.balanceOf(address(this));
             if(remainAmount > 0){
                 IDOToken.safeTransfer(_redeemIDOTokenRecipient, remainAmount);
@@ -252,7 +247,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
 
     function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
         _validAddress(_redeemPurchaseTokenRecipient);
-        if(paused() == true || block.timestamp > communityOpenTime + communityDuration){
+        if(paused() == true || block.timestamp > communityCloseTime){
             uint purchaseAmount = purchaseToken.balanceOf(address(this));
             if(purchaseAmount > 0){
                 purchaseToken.safeTransfer(_redeemPurchaseTokenRecipient, purchaseAmount);
@@ -335,11 +330,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     function _validWhaleSession() internal view returns(bool){
-        return block.timestamp > whaleOpenTime && block.timestamp <= whaleOpenTime + whaleDuration;
+        return block.timestamp > whaleOpenTime && block.timestamp <= whaleCloseTime;
     }
 
     function _validCommunitySession() internal view returns (bool) {
-        return block.timestamp > communityOpenTime && block.timestamp <= communityOpenTime + communityDuration;
+        return block.timestamp > communityOpenTime && block.timestamp <= communityCloseTime;
     }    
 
     function _internalBuyToken(address buyer, uint _purchaseAmount, uint _participationFeePercentage, bool _KYCStatus) internal{

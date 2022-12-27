@@ -15,22 +15,22 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
             }, 30)
         })
 
-        const erc20TokenAddress = (await deployments.get('ERC20Token')).address
-        // const erc20TokenAddress = '0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD'
+        const usdcAddr = (await deployments.get('FiatTokenV2_1')).address
+        // const usdcAddr = '0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD'
 
         console.log('----- START VERIFICATION -----');
 
         await hre.run('verify:verify', {
-            address: erc20TokenAddress,
+            address: usdcAddr,
             constructorArguments: [],
-            contract: "contracts/test/ERC20Token.sol:ERC20Token"
+            contract: "contracts/test/USDC.sol:FiatTokenV2_1"
         })    
     } catch (error) {
         console.log(error);
     }
 }
 
-verification.tags = ['VERIFICATION_ERC20TOKEN']
+verification.tags = ['VERIFICATION_USDC']
 // verification.dependencies = ['ERC20TOKEN']
 // verification.runAtTheEnd = true
 

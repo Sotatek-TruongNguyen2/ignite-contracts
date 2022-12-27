@@ -12,7 +12,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         await new Promise((res, _) =>{
             setTimeout(()=>{
                 res(true)
-            }, 30000)
+            }, 30)
         })
 
         const poolImplementationAddr = (await deployments.get('Pool')).address
