@@ -35,7 +35,8 @@ describe("Ignition Pool",()=>{
             maxPurchaseAmountForNotKYCUser: BigNumber
             TGEDate: BigNumber
             TGEPercentage: BigNumber
-            participationFeePercentage: BigNumber
+            galaxyParticipationFeePercentage: BigNumber
+            crowdfundingParticipationFeePercentage: BigNumber
             galaxyPoolProportion: BigNumber
             earlyAccessProportion: BigNumber
             totalRaiseAmount: BigNumber
@@ -144,7 +145,8 @@ describe("Ignition Pool",()=>{
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000',6),
                 TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('2000'),
-                participationFeePercentage: BigNumber.from('1000'),
+                galaxyParticipationFeePercentage: BigNumber.from('0'),
+                crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('9000000',6),
@@ -162,7 +164,8 @@ describe("Ignition Pool",()=>{
                 maxPurchaseAmountForNotKYCUser: parseUnits('15000',8),
                 TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(27*24*60*60),
                 TGEPercentage: BigNumber.from('1000'),
-                participationFeePercentage: BigNumber.from('1500'),
+                galaxyParticipationFeePercentage: BigNumber.from('0'),
+                crowdfundingParticipationFeePercentage: BigNumber.from('1500'),
                 galaxyPoolProportion: BigNumber.from('5000'),
                 earlyAccessProportion: BigNumber.from('5000'),
                 totalRaiseAmount: parseUnits('100000', 8),
@@ -181,7 +184,8 @@ describe("Ignition Pool",()=>{
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000',18),
                 TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(10*24*60*60),
                 TGEPercentage: BigNumber.from('1000'),
-                participationFeePercentage: BigNumber.from('1500'),
+                galaxyParticipationFeePercentage: BigNumber.from('1000'),
+                crowdfundingParticipationFeePercentage: BigNumber.from('1500'),
                 galaxyPoolProportion: BigNumber.from('1000'),
                 earlyAccessProportion: BigNumber.from('6000'),
                 totalRaiseAmount: parseUnits('800000',18),
@@ -202,7 +206,8 @@ describe("Ignition Pool",()=>{
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000', 6),
                 TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('3000'),
-                participationFeePercentage: BigNumber.from('1000'),
+                galaxyParticipationFeePercentage: BigNumber.from('0'),
+                crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('850000',6),
@@ -220,7 +225,8 @@ describe("Ignition Pool",()=>{
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000', 6),
                 TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('3000'),
-                participationFeePercentage: BigNumber.from('1000'),
+                galaxyParticipationFeePercentage: BigNumber.from('0'),
+                crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('850000',6),
@@ -277,7 +283,7 @@ describe("Ignition Pool",()=>{
             const {jsonCopy, owner, poolFactory, poolInfoList, collaborator0, zeroAddress} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo1 = jsonCopy(poolInfoList[0])
             await poolFactory.connect(collaborator0).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
-                [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.participationFeePercentage,
+                [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
                 poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
 
@@ -288,7 +294,7 @@ describe("Ignition Pool",()=>{
                 let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.purchaseToken = zeroAddress
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
+                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
             }
@@ -296,7 +302,7 @@ describe("Ignition Pool",()=>{
                 let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.galaxyPoolProportion = BigNumber.from('100000')
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
+                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
             }
@@ -304,7 +310,7 @@ describe("Ignition Pool",()=>{
                 let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.earlyAccessProportion = BigNumber.from('23400')
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
+                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
             }
@@ -312,7 +318,7 @@ describe("Ignition Pool",()=>{
                 let poolInfo4 = jsonCopy(poolInfoList[4])
                 poolInfo4.totalRaiseAmount = BigNumber.from(0)
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
-                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.participationFeePercentage,
+                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
             }
@@ -326,7 +332,7 @@ describe("Ignition Pool",()=>{
             const poolInfo0 = jsonCopy(poolInfoList[0])
 
             await poolFactory.connect(collaborator0).createPool([poolInfo0.IDOToken, poolInfo0.purchaseToken],
-                [poolInfo0.maxPurchaseAmountForKYCUser, poolInfo0.maxPurchaseAmountForNotKYCUser, poolInfo0.TGEDate, poolInfo0.TGEPercentage, poolInfo0.participationFeePercentage,
+                [poolInfo0.maxPurchaseAmountForKYCUser, poolInfo0.maxPurchaseAmountForNotKYCUser, poolInfo0.TGEDate, poolInfo0.TGEPercentage, poolInfo0.galaxyParticipationFeePercentage, poolInfo0.crowdfundingParticipationFeePercentage,
                 poolInfo0.galaxyPoolProportion, poolInfo0.earlyAccessProportion, poolInfo0.totalRaiseAmount, poolInfo0.whaleOpenTime, poolInfo0.whaleDuration,
                 poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], 1671095858080)
 
@@ -481,7 +487,8 @@ describe("Ignition Pool",()=>{
             expect(await pool0.maxPurchaseAmountForKYCUser()).to.be.equal(Number(poolInfo0.maxPurchaseAmountForKYCUser.hex))
             expect(await pool0.maxPurchaseAmountForNotKYCUser()).to.be.equal(Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex))
             expect(await pool0.TGEPercentage()).to.be.equal(Number(poolInfo0.TGEPercentage.hex))
-            expect(await pool0.participationFeePercentage()).to.be.equal(Number(poolInfo0.participationFeePercentage.hex))
+            expect(await pool0.galaxyParticipationFeePercentage()).to.be.equal(Number(poolInfo0.galaxyParticipationFeePercentage.hex))
+            expect(await pool0.crowdfundingParticipationFeePercentage()).to.be.equal(Number(poolInfo0.crowdfundingParticipationFeePercentage.hex))
             expect(await pool0.galaxyPoolProportion()).to.be.equal(Number(poolInfo0.galaxyPoolProportion.hex))
             expect(await pool0.earlyAccessProportion()).to.be.equal(Number(poolInfo0.earlyAccessProportion.hex))
             expect(await pool0.totalRaiseAmount()).to.be.equal(Number(poolInfo0.totalRaiseAmount.hex))
@@ -682,7 +689,7 @@ describe("Ignition Pool",()=>{
             // poolInfo1.IDOToken = zeroAddress
 
             await poolFactory.connect(collaborator1).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
-                [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.participationFeePercentage,
+                [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
                 poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
             
@@ -869,7 +876,8 @@ describe("Ignition Pool",()=>{
             expect(await pool1.maxPurchaseAmountForKYCUser()).to.be.equal(Number(poolInfo1.maxPurchaseAmountForKYCUser.hex))
             expect(await pool1.maxPurchaseAmountForNotKYCUser()).to.be.equal(Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex))
             expect(await pool1.TGEPercentage()).to.be.equal(Number(poolInfo1.TGEPercentage.hex))
-            expect(await pool1.participationFeePercentage()).to.be.equal(Number(poolInfo1.participationFeePercentage.hex))
+            expect(await pool1.galaxyParticipationFeePercentage()).to.be.equal(Number(poolInfo1.galaxyParticipationFeePercentage.hex))
+            expect(await pool1.crowdfundingParticipationFeePercentage()).to.be.equal(Number(poolInfo1.crowdfundingParticipationFeePercentage.hex))
             expect(await pool1.galaxyPoolProportion()).to.be.equal(Number(poolInfo1.galaxyPoolProportion.hex))
             expect(await pool1.earlyAccessProportion()).to.be.equal(Number(poolInfo1.earlyAccessProportion.hex))
             expect(await pool1.totalRaiseAmount()).to.be.equal(Number(poolInfo1.totalRaiseAmount.hex))
@@ -992,7 +1000,7 @@ describe("Ignition Pool",()=>{
             const proof0EA = getProof(leaf0EA)
             
             // buy successfully (investor0, WHALE, KYC User, early access)
-            const allowance0EA = parseUnits('1820',purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('1820',purchaseToken1Decimal))
+            const allowance0EA = parseUnits('1820',purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('1820',purchaseToken1Decimal))
             const signature0EA = await signPermit(investors[0], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance0EA, await purchaseTokens[1].nonces(investors[0].address), deadline0)
             const balanceOfInvestor0BeforeBuyToken = await purchaseTokens[1].balanceOf(investors[0].address)
             const balanceOfpool1BeforeBuyToken = await purchaseTokens[1].balanceOf(pool1.address)
@@ -1009,7 +1017,7 @@ describe("Ignition Pool",()=>{
             await expect(pool1.connect(owner).redeemIDOToken(owner.address)).to.be.revertedWithCustomError(pool1,"NotEnoughConditionToRedeemIDOToken")
             
             // buy successfully more than allocation in galaxy pool; not more than max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
-            const allowance0EA0 = parseUnits('8000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('8000', purchaseToken1Decimal))
+            const allowance0EA0 = parseUnits('8000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('8000', purchaseToken1Decimal))
             const signature0EA0 = await signPermit(investors[0], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance0EA0, await purchaseTokens[1].nonces(investors[0].address), deadline0)
             expect(await pool1.connect(investors[0]).buyTokenInCrowdfundingPoolWithPermit(proof0EA, parseUnits('8000', purchaseToken1Decimal), allowance0EA0, deadline0, signature0EA0)).to.be.emit(pool1, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue)
             
@@ -1018,7 +1026,7 @@ describe("Ignition Pool",()=>{
             const proof7EA = getProof(leaf7EA)
             
             // revert buy more than max purchase in early access (investor3, WHALE, Not KYC User, early access)
-            const allowance7EA = parseUnits('18000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('18000', purchaseToken1Decimal))
+            const allowance7EA = parseUnits('18000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('18000', purchaseToken1Decimal))
             const signature7EA = await signPermit(investors[3], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance7EA, await purchaseTokens[1].nonces(investors[3].address), deadline0)
             await expect(pool1.connect(investors[3]).buyTokenInCrowdfundingPoolWithPermit(proof7EA, parseUnits('18000', purchaseToken1Decimal), allowance7EA, deadline0, signature7EA)).to.be.revertedWithCustomError(pool1, 'ExceedMaxPurchaseAmountForEarlyAccess').withArgs(anyValue, anyValue)
             
@@ -1033,7 +1041,7 @@ describe("Ignition Pool",()=>{
 
             
             // revert buy (investor5, NORMAL, KYC User, early access)
-            const allowance8EA = parseUnits('10', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('10', purchaseToken1Decimal))
+            const allowance8EA = parseUnits('10', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('10', purchaseToken1Decimal))
             const signature8EA = await signPermit(investors[5], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance8EA, await purchaseTokens[1].nonces(investors[5].address), deadline0)
             await expect(pool1.connect(investors[5]).buyTokenInCrowdfundingPoolWithPermit(proof8, parseUnits('10', purchaseToken1Decimal), allowance8EA, deadline0, signature8EA)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
             
@@ -1050,7 +1058,7 @@ describe("Ignition Pool",()=>{
             
             // buy successfully (investor1, WHALE-NORMAL, KYC user, community pool)
             // expect(await pool1.connect(investors[1]).buyTokenInCrowdfundingPool(proof10NU, parseUnits('100', 6))).to.be.emit(pool1, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
-            const allowance10NU = parseUnits('10', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('10', purchaseToken1Decimal))
+            const allowance10NU = parseUnits('10', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('10', purchaseToken1Decimal))
             const signature10NU = await signPermit(investors[1], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance10NU, await purchaseTokens[1].nonces(investors[1].address), deadline0)
             expect(await pool1.connect(investors[1]).buyTokenInCrowdfundingPoolWithPermit(proof10NU, parseUnits('10', purchaseToken1Decimal), allowance10NU, deadline0, signature10NU)).to.be.emit(pool1, "BuyToken")
             
@@ -1059,35 +1067,35 @@ describe("Ignition Pool",()=>{
             const proof9NU = getProof(leaf9NU)
 
             // revert buy more than max purchase of KYC in galaxy, after in early access and lately in community pool (not early access) (investor0, WHALE, KYC User, community pool)
-            const allowance9NU = parseUnits('30000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('30000', purchaseToken1Decimal))
+            const allowance9NU = parseUnits('30000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('30000', purchaseToken1Decimal))
             const signature9NU = await signPermit(investors[0], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance9NU, await purchaseTokens[1].nonces(investors[0].address), deadline0)
             await expect(pool1.connect(investors[0]).buyTokenInCrowdfundingPoolWithPermit(proof9NU, parseUnits('30000', purchaseToken1Decimal), allowance9NU, deadline0, signature9NU)).to.be.revertedWithCustomError(pool1, 'ExceedMaxPurchaseAmountForKYCUser')
             
             // buy successfully (investor6, NORMAL, Not KYC user, community pool)
-            const allowance12NU = parseUnits('3000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('3000', purchaseToken1Decimal))
+            const allowance12NU = parseUnits('3000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('3000', purchaseToken1Decimal))
             const signature12NU = await signPermit(investors[6], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance12NU, await purchaseTokens[1].nonces(investors[6].address), deadline0)
             expect(await pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU)).to.be.emit(pool1, 'BuyToken')
             
             const leaf8NU = buyWhiteList[8]
             const proof8NU = getProof(leaf8NU)
-            const allowance13NU = parseUnits('30000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('30000', purchaseToken1Decimal))
+            const allowance13NU = parseUnits('30000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('30000', purchaseToken1Decimal))
             const signature13NU = await signPermit(investors[5], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance13NU, await purchaseTokens[1].nonces(investors[5].address), deadline0)
             await pool1.connect(investors[5]).buyTokenInCrowdfundingPoolWithPermit(proof8NU,parseUnits('30000', purchaseToken1Decimal), allowance13NU, deadline0, signature13NU)
 
-            const allowance14NU = parseUnits('14998', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14998', purchaseToken1Decimal))
+            const allowance14NU = parseUnits('14998', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14998', purchaseToken1Decimal))
             const signature14NU = await signPermit(investors[7], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance14NU, await purchaseTokens[1].nonces(investors[7].address), deadline0)
             await pool1.connect(investors[7]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14998', purchaseToken1Decimal), allowance14NU, deadline0, signature14NU)
             
-            const allowance15NU = parseUnits('14999', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14999', purchaseToken1Decimal))
+            const allowance15NU = parseUnits('14999', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14999', purchaseToken1Decimal))
             const signature15NU = await signPermit(investors[8], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance15NU, await purchaseTokens[1].nonces(investors[8].address), deadline0)
             await pool1.connect(investors[8]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14999', purchaseToken1Decimal), allowance15NU, deadline0, signature15NU)
             
-            const allowance16NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
+            const allowance16NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
             const signature16NU = await signPermit(investors[9], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance16NU, await purchaseTokens[1].nonces(investors[9].address), deadline0)
             await expect(pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([], 0, allowance16NU, deadline0, signature16NU)).to.be.revertedWithCustomError(pool1, 'ZeroAmount')
             await pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance16NU, deadline0, signature16NU)
 
-            const allowance17NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].participationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
+            const allowance17NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
             const signature17NU = await signPermit(investors[10], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance17NU, await purchaseTokens[1].nonces(investors[10].address), deadline0)
             await expect(pool1.connect(investors[10]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance17NU, deadline0, signature17NU)).to.be.revertedWithCustomError(pool1, 'ExceedTotalRaiseAmount')
 
@@ -1147,7 +1155,7 @@ describe("Ignition Pool",()=>{
             const poolInfo2 = jsonCopy(poolInfoList[2])
 
             await poolFactory.connect(collaborator0).createPool([poolInfoList[2].IDOToken, poolInfoList[2].purchaseToken],
-                [poolInfoList[2].maxPurchaseAmountForKYCUser, poolInfoList[2].maxPurchaseAmountForNotKYCUser, poolInfoList[2].TGEDate, poolInfoList[2].TGEPercentage, poolInfoList[2].participationFeePercentage,
+                [poolInfoList[2].maxPurchaseAmountForKYCUser, poolInfoList[2].maxPurchaseAmountForNotKYCUser, poolInfoList[2].TGEDate, poolInfoList[2].TGEPercentage, poolInfoList[2].galaxyParticipationFeePercentage, poolInfoList[2].crowdfundingParticipationFeePercentage,
                 poolInfoList[2].galaxyPoolProportion, poolInfoList[2].earlyAccessProportion, poolInfoList[2].totalRaiseAmount, poolInfoList[2].whaleOpenTime, poolInfoList[2].whaleDuration,
                 poolInfoList[2].communityDuration, poolInfoList[2].rate, poolInfoList[2].decimal], 1671095858080)
 
@@ -1303,7 +1311,8 @@ describe("Ignition Pool",()=>{
             expect(await pool2.maxPurchaseAmountForKYCUser()).to.be.equal(poolInfoList[2].maxPurchaseAmountForKYCUser)
             expect(await pool2.maxPurchaseAmountForNotKYCUser()).to.be.equal(poolInfoList[2].maxPurchaseAmountForNotKYCUser)
             expect(await pool2.TGEPercentage()).to.be.equal(poolInfoList[2].TGEPercentage)
-            expect(await pool2.participationFeePercentage()).to.be.equal(poolInfoList[2].participationFeePercentage)
+            expect(await pool2.galaxyParticipationFeePercentage()).to.be.equal(poolInfoList[2].galaxyParticipationFeePercentage)
+            expect(await pool2.crowdfundingParticipationFeePercentage()).to.be.equal(poolInfoList[2].crowdfundingParticipationFeePercentage)
             expect(await pool2.galaxyPoolProportion()).to.be.equal(poolInfoList[2].galaxyPoolProportion)
             expect(await pool2.earlyAccessProportion()).to.be.equal(poolInfoList[2].earlyAccessProportion)
             expect(await pool2.totalRaiseAmount()).to.be.equal(poolInfoList[2].totalRaiseAmount)
@@ -1354,7 +1363,7 @@ describe("Ignition Pool",()=>{
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
             await time.increaseTo(await pool2.whaleOpenTime())
             await expect(pool2.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90', 18), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2, 'NotEnoughAllowance')
-            await purchaseTokens[2].connect(investors[0]).approve(pool2.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
+            await purchaseTokens[2].connect(investors[0]).approve(pool2.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(leafInfo0.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
             expect(await pool2.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90', 18), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool2, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool2.purchasedAmount()).to.be.equal(parseUnits('90', 18))
             // expect(Number((await IDOTokens[0].balanceOf(investors[0].address)).div(parseUnits('1',18)))).to.be.equal(90/poolInfoList[2].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[2].TGEPercentage))
@@ -1363,9 +1372,9 @@ describe("Ignition Pool",()=>{
             // get proof for investor1 in galaxy pool
             const leafInfo1 = buyWhiteList[1]
             const proof1 = getProof(leafInfo1)
-            
+
             // revert buy more than max purchase amount for KYC user (investor1, WHALE, KYC user, galaxy pool)
-            await purchaseTokens[2].connect(investors[1]).approve(pool2.address, BigNumber.from(leafInfo1.maxPurchaseBaseOnAllocation))
+            await purchaseTokens[2].connect(investors[1]).approve(pool2.address, BigNumber.from(leafInfo1.maxPurchaseBaseOnAllocation).add(leafInfo1.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
             await expect(pool2.connect(investors[1]).buyTokenInGalaxyPool(proof1, parseUnits('11000',18), leafInfo1.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2,"ExceedMaxPurchaseAmountForKYCUser").withArgs(investors[1].address, parseUnits('11000',18))
             
             // get proof for investor2 in galaxy pool
@@ -1373,7 +1382,7 @@ describe("Ignition Pool",()=>{
             const proof4 = getProof(leafInfo4)
             
             // buy successfully (investor2, WHALE, Not KYC user, galaxy pool)
-            await purchaseTokens[2].connect(investors[2]).approve(pool2.address, BigNumber.from(leafInfo4.maxPurchaseBaseOnAllocation))
+            await purchaseTokens[2].connect(investors[2]).approve(pool2.address, BigNumber.from(leafInfo4.maxPurchaseBaseOnAllocation).add(leafInfo4.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
             expect(await pool2.connect(investors[2]).buyTokenInGalaxyPool(proof4, parseUnits('870', 18), leafInfo4.maxPurchaseBaseOnAllocation)).to.be.emit(pool2, "BuyToken").withArgs(investors[2].address, anyValue, anyValue, anyValue) // 900 purchaseToken0
             
             // buy successfully twice (investor2, WHALE, Not KYC user, galaxy pool)

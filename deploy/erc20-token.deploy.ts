@@ -13,12 +13,12 @@ const deployERC20Token: DeployFunction = async (hre: HardhatRuntimeEnvironment) 
         deterministicDeployment: false,
     })
 
-    await execute(
-        'ERC20Token',
-        {from: deployer, log: true},
-        'initialize',
-        'USD Coin', 'USDC', 6
-    )
+    // await execute(
+    //     'ERC20Token',
+    //     {from: deployer, log: true},
+    //     'initialize',
+    //     'USD Coin', 'USDC', 6
+    // )
 }
 
 deployERC20Token.tags = ['ERC20_TOKEN']

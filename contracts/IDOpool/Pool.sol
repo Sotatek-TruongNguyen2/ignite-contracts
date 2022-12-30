@@ -38,7 +38,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     
     uint64 public TGEDate;
     uint16 public TGEPercentage;
-    uint16 public participationFeePercentage;
+    uint16 public galaxyParticipationFeePercentage;
+    uint16 public crowdfundingParticipationFeePercentage;
     uint16 public galaxyPoolProportion;
     uint16 public earlyAccessProportion;
     bool public TGEClaimable;
@@ -68,8 +69,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
     event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
     event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime);
-    event PoolCreated(address IDOToken, address purchaseToken, uint rate, uint decimal,uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser,
-        uint16 participationFeePercentage, uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime);
+    event PoolCreated(address IDOToken, address purchaseToken, uint rate, uint decimal,uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser, uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime);
 
     error NotAdmin();
     error ZeroAmount();
@@ -100,7 +100,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _;
     }
 
-    function initialize(address[2] memory addrs, uint[13] memory uints) external initializer{
+    function initialize(address[2] memory addrs, uint[14] memory uints) external initializer{
         {
             poolFactory = IPoolFactory(_msgSender());
         }
@@ -123,13 +123,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             TGEPercentage = SafeCast.toUint16(_TGEPercentage);
         }
         {
-            uint _participationFeePercentage = uints[4];
-            participationFeePercentage = SafeCast.toUint16(_participationFeePercentage);
+            uint _galaxyParticipationFeePercentage = uints[4];
+            uint _crowdfundingParticipationFeePercentage = uints[5];
+            galaxyParticipationFeePercentage = SafeCast.toUint16(_galaxyParticipationFeePercentage);
+            crowdfundingParticipationFeePercentage = SafeCast.toUint16(_crowdfundingParticipationFeePercentage);
         }
         {
-            uint _galaxyPoolProportion = uints[5];
-            uint _earlyAccessProportion = uints[6];
-            uint _totalRaiseAmount = uints[7];
+            uint _galaxyPoolProportion = uints[6];
+            uint _earlyAccessProportion = uints[7];
+            uint _totalRaiseAmount = uints[8];
             galaxyPoolProportion = SafeCast.toUint16(_galaxyPoolProportion);
             earlyAccessProportion = SafeCast.toUint16(_earlyAccessProportion);
             totalRaiseAmount = _totalRaiseAmount;
@@ -138,23 +140,23 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             maxPurchaseAmountForEarlyAccess = _totalRaiseAmount * (PERCENTAGE_DENOMINATOR - _galaxyPoolProportion) * _earlyAccessProportion / PERCENTAGE_DENOMINATOR / PERCENTAGE_DENOMINATOR;
         }
         {
-            uint _whaleOpenTime = uints[8];
-            uint _whaleDuration = uints[9];
-            uint _communityDuration = uints[10];
+            uint _whaleOpenTime = uints[9];
+            uint _whaleDuration = uints[10];
+            uint _communityDuration = uints[11];
             whaleOpenTime = SafeCast.toUint64(_whaleOpenTime);
             whaleCloseTime = SafeCast.toUint64(_whaleOpenTime+_whaleDuration);
             communityOpenTime = whaleCloseTime;
             communityCloseTime = SafeCast.toUint64(communityOpenTime + _communityDuration);
         }
         {
-            uint _rate = uints[11];
-            uint _decimal = uints[12];
+            uint _rate = uints[12];
+            uint _decimal = uints[13];
             offeredCurrency.rate = _rate;
             offeredCurrency.decimal = _decimal;
         }
         
         emit PoolCreated(address(IDOToken), address(purchaseToken), offeredCurrency.rate, offeredCurrency.decimal, maxPurchaseAmountForKYCUser, 
-            maxPurchaseAmountForNotKYCUser, participationFeePercentage, galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime);
+            maxPurchaseAmountForNotKYCUser, galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime);
     }
 
     function setRoot(bytes32 _root) external onlyAdmin{
@@ -183,7 +185,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
         _verifyAllowance(_msgSender(), _purchaseAmount);
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
-        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, 0);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage);
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
@@ -191,7 +193,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
-            _internalWhaleBuyToken(proof, _purchaseAmount, 0, participationFeePercentage);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage);
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
         }else if(_validCommunitySession()){
             _preValidatePurchase(_purchaseAmount);
@@ -209,7 +211,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
-        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, 0);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage);
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
@@ -221,7 +223,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
-            _internalWhaleBuyToken(proof, _purchaseAmount, 0, participationFeePercentage);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage);
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
         }else if(_validCommunitySession()){
             _preValidatePurchase(_purchaseAmount);
@@ -314,9 +316,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
 
     function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
         if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
-            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, true);
+            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, true);
         }else {
-            _internalBuyToken(_msgSender(), _purchaseAmount, participationFeePercentage, false);
+            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, false);
         }
     }
     

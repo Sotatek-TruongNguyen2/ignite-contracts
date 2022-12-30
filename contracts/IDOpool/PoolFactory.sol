@@ -91,7 +91,7 @@ contract PoolFactory is Initializable, AccessControl {
         return getCreatedPools[_creator][_token].length;
     }
 
-    function createPool(address[2] memory addrs, uint[13] memory uints, uint dbPoolId) external returns (address pool) {
+    function createPool(address[2] memory addrs, uint[14] memory uints, uint dbPoolId) external returns (address pool) {
         _verifyPoolInfo(addrs, uints);
         address _IDOToken = addrs[0];
         bytes32 salt = keccak256(abi.encode(addrs, uints, _msgSender(), dbPoolId));
@@ -104,7 +104,7 @@ contract PoolFactory is Initializable, AccessControl {
 
     }
 
-    function _verifyPoolInfo(address[2] memory addrs, uint[13] memory uints) internal pure{
+    function _verifyPoolInfo(address[2] memory addrs, uint[14] memory uints) internal pure{
         // address _IDOToken = addrs[0];
         {
             address _purchaseToken = addrs[1];
@@ -116,28 +116,29 @@ contract PoolFactory is Initializable, AccessControl {
             uint _maxPurchaseAmountForNotKYCUser = uints[1];
             uint _TGEDate = uints[2];
             uint _TGEPercentage = uints[3];
-            uint _participationFeePercentage = uints[4];
-            uint _galaxyPoolProportion = uints[5];
-            uint _earlyAccessProportion = uints[6];
-            uint _totalRaiseAmount = uints[7];
-            uint _whaleOpenTime = uints[8];
-            uint _whaleDuration = uints[9];
-            uint _communityDuration = uints[10];
-            uint _rate = uints[11];
-            uint _decimal = uints[12];
+            uint _galaxyParticipationFeePercentage = uints[4];
+            uint _crowdfundingParticipationFeePercentage = uints[5];
+            uint _galaxyPoolProportion = uints[6];
+            uint _earlyAccessProportion = uints[7];
+            uint _totalRaiseAmount = uints[8];
+            uint _whaleOpenTime = uints[9];
+            uint _whaleDuration = uints[10];
+            uint _communityDuration = uints[11];
+            uint _rate = uints[12];
+            uint _decimal = uints[13];
             */
 
-            uint _galaxyPoolProportion = uints[5];
+            uint _galaxyPoolProportion = uints[6];
             if(_galaxyPoolProportion > PERCENTAGE_DENOMINATOR){
                 revert NotValidGalaxyPoolProportion();
             }
 
-            uint _earlyAccessProportion = uints[6];
+            uint _earlyAccessProportion = uints[7];
             if(_earlyAccessProportion > PERCENTAGE_DENOMINATOR){
                 revert NotValidEarlyAccessProportion();
             }
 
-            uint _totalRaiseAmount = uints[7];
+            uint _totalRaiseAmount = uints[8];
             _validAmount(_totalRaiseAmount);
 
         }

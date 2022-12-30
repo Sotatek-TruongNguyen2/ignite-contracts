@@ -7,7 +7,7 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
     const { deployer } = await getNamedAccounts()
 
     // const poolAddr = (await deployments.get('PoolFactory_Implementation')).address
-    const poolAddr = '0x901ff11b2e65A8805d175533A5f062EB2f9bD43F';
+    const poolAddr = '0x79a0C155423A0c38155800ec5aee4292eda8ff63';
 
     await deploy('PoolFactory', {
         from: deployer,

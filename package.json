@@ -8,7 +8,9 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "deploy:goerli": "hardhat deploy --network goerli",
-    "deploy:binancetest": "hardhat deploy --network binancetest"
+    "deploy:binancetest": "hardhat deploy --network binancetest",
+    "deploy:mumbai": "hardhat deploy --network mumbai",
+    "deploy:fuji": "hardhat deploy --network fuji"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
