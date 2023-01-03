@@ -94,6 +94,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     error NotUpdateValidTime(uint whaleOpenTime, uint whaleCloseTime, uint communityOpenTime, uint communityCloseTime);
     error TimeOutToBuyToken(uint whaleOpenTime, uint whaleCloseTime, uint communityOpenTime, uint communityCloseTime, uint timestamp, address buyer);
 
+    /**
+     * @dev Check whether or not sender of transaction has admin role
+     */
     modifier onlyAdmin {
         if(!poolFactory.hasAdminRole(_msgSender())){
             revert NotAdmin();
@@ -101,6 +104,14 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _;
     }
 
+    /**
+     * @notice Initialize a pool with its information
+     * @dev Emit 2 events
+     * @param addrs Array of address includes: address of IDO token, address of purchase token
+     * @param uints Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage, 
+     * galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion,
+     * total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token
+     */
     function initialize(address[2] memory addrs, uint[14] memory uints) external initializer{
         {
             poolFactory = IPoolFactory(_msgSender());
@@ -160,16 +171,31 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit PoolCreated2(galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime, offeredCurrency.rate, offeredCurrency.decimal);
     }
 
+    /**
+     * @notice Set merkle tree root after snapshoting information of investor
+     * @dev Only admin can call it
+     * @param _root Root of merkle tree
+     */
     function setRoot(bytes32 _root) external onlyAdmin{
         root = _root;
         emit UpdateRoot(root);
     }
 
+    /**
+     * @notice Close pool: cancel project, nobody can buy token
+     * @dev Only admin can call it
+     */
     function closePool() external onlyAdmin {
         _pause();
         emit UpdateOpenPoolStatus(address(this), false);
     }
 
+    /**
+     * @notice Update time for galaxy pool and crowdfunding pool
+     * @dev Only admin can call it, galaxy pool must be closed before crowdfunding pool
+     * @param _newWhaleCloseTime New close time of galaxy pool
+     * @param _newCommunityCloseTime New close time of crowdfunding pool
+     */
     function updateTime(uint64 _newWhaleCloseTime, uint64 _newCommunityCloseTime) external onlyAdmin {
         if(_newWhaleCloseTime >= _newCommunityCloseTime || _newWhaleCloseTime <= whaleOpenTime) {
             revert NotUpdateValidTime(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime);
@@ -180,6 +206,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit UpdateTime(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime);
     }
 
+    /**
+     * @notice Investor buy token in galaxy pool
+     * @dev Must be in time for whale and pool is not closed
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocation of whale
+     */
     function buyTokenInGalaxyPool(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) external whenNotPaused nonReentrant {
         if(!_validWhaleSession()) {
             revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
@@ -190,6 +223,12 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
+    /**
+     * @notice Investor buy token in crowdfunding pool
+     * @dev Must be in time for crowdfunding pool and pool is not closed
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function buyTokenInCrowdfundingPool(bytes32[] memory proof, uint _purchaseAmount) external whenNotPaused nonReentrant {
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
@@ -204,7 +243,16 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
-    // Used only for USDC
+    /**
+     * @notice Investor buy token in galaxy pool
+     * @dev Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC.
+     * Must be in time for whale and pool is not closed
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocation of whale
+     * @param _deadline Deadline of off-chain investor's signature
+     * @param _signature Signature of investor
+     */
     function buyTokenInGalaxyPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
         IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _purchaseAmount, _deadline, v, r, s);
@@ -216,9 +264,17 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
-    // Used only for USDC
+    /**
+     * @notice Investor buy token in crowdfunding pool
+     * @dev Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC.
+     * Must be in time for crowdfunding pool and pool is not closed
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _allowance Allowance amount of investor's USDC for pool
+     * @param _deadline Deadline of off-chain investor's signature
+     * @param _signature Signature of investor
+     */
     function buyTokenInCrowdfundingPoolWithPermit(bytes32[] memory proof, uint _purchaseAmount, uint _allowance, uint _deadline, bytes memory _signature) external whenNotPaused nonReentrant{
-        
         (bytes32 r, bytes32 s, uint8 v) = _splitSignature(_signature);
         IERC20Permit(address(purchaseToken)).permit(_msgSender(), address(this), _allowance, _deadline, v, r, s);
         _verifyAllowance(_msgSender(), _purchaseAmount);
@@ -234,6 +290,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @notice Admin redeem redundant IDO token in pool
+     * @dev Only admin can call it after pool closed
+     * @param _redeemIDOTokenRecipient Address of recipient
+     */
     function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
         _validAddress(address(IDOToken));
         _validAddress(_redeemIDOTokenRecipient);
@@ -248,6 +309,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @notice Admin redeem purchase token in pool
+     * @dev Only admin can call it after pool closed
+     * @param _redeemPurchaseTokenRecipient Address of recipient
+     */
     function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
         _validAddress(_redeemPurchaseTokenRecipient);
         if(paused() == true || block.timestamp > communityCloseTime){
@@ -261,6 +327,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @notice Investor claim IDO token after TGE date
+     * @param _IDOClaimAmount Amount of IDO token is wanted to claim
+     */
     function claimTGEIDOToken(uint _IDOClaimAmount) external {
         _validAddress(address(IDOToken));
         if(TGEClaimable == false){
@@ -278,6 +348,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit ClaimTGEAmount(_msgSender(), _IDOClaimAmount);
     }
 
+    /**
+     * @notice Allow or disallow investors to claim TGE amount of IDO token
+     * @dev Only admin can call it
+     */
     function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external onlyAdmin{
         _validAddress(address(IDOToken));
         if(TGEClaimable == _TGEClaimableStatus){
@@ -287,24 +361,43 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit SetTGEClaimable(_TGEClaimableStatus);
     }
 
+    /**
+     * @dev Check whether or not an address is zero address
+     * @param _address An address
+     */
     function _validAddress(address _address) internal pure {
         if (_address == address(0)) {
             revert ZeroAddress();
         }
     }
 
+    /**
+     * @dev Check whether or not an amount greater than 0
+     * @param _amount An amount
+     */
     function _validAmount(uint _amount) internal pure {
         if (_amount == 0) {
             revert ZeroAmount();
         }
     }
 
+    /**
+     * @dev Check whether or not length of a signature is valid
+     * @param _signature Signature of investor
+     */
     function _validSignature(bytes memory _signature) internal pure {
         if (_signature.length != 65) {
             revert NotValidSignature();
         }
     }
 
+    /**
+     * @dev Internal function for whale to buy token
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocation of whale
+     * @param _participationFeePercentage Fee percentage when buying token
+     */
     function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _participationFeePercentage) internal {
         if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForKYCUser, _maxPurchaseBaseOnAllocations, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, true);
@@ -315,6 +408,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @dev Internal function for normal user to buy token
+     * @param proof Respective proof for a leaf, which is respective for investor in merkle tree
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
         if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, true);
@@ -323,6 +421,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
     
+    /**
+     * @dev Split signature of investor to v,r,s
+     * @param _signature Signature of investor
+     * @return r r element of signature
+     * @return s s element of signature
+     * @return v v element of signature
+     */
     function _splitSignature(bytes memory _signature) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
         _validSignature(_signature);
         assembly {
@@ -332,14 +437,29 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @dev Check whether or not session of whale
+     * @return Return true if yes, and vice versa
+     */
     function _validWhaleSession() internal view returns(bool){
         return block.timestamp > whaleOpenTime && block.timestamp <= whaleCloseTime;
     }
 
+    /**
+     * @dev Check whether or not session of community user
+     * @return Return true if yes, and vice versa
+     */
     function _validCommunitySession() internal view returns (bool) {
         return block.timestamp > communityOpenTime && block.timestamp <= communityCloseTime;
     }    
 
+    /**
+     * @dev Internal function to buy token
+     * @param buyer Address of investor
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _participationFeePercentage Fee percentage when buying token
+     * @param _KYCStatus True if investor KYC and vice versa
+     */
     function _internalBuyToken(address buyer, uint _purchaseAmount, uint _participationFeePercentage, bool _KYCStatus) internal{
 
         if(_KYCStatus == true &&  userPurchasedAmount[_msgSender()] + _purchaseAmount > maxPurchaseAmountForKYCUser){
@@ -368,14 +488,28 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         emit BuyToken(_msgSender(), address(this), address(IDOToken), _purchaseAmount);
     }
 
+    /**
+     * @dev Update purchasing amount in galaxy pool
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _updatePurchasingInGalaxyPoolState(uint _purchaseAmount) internal {
         purchasedAmountInGalaxyPool += _purchaseAmount;
     }
 
+    /**
+     * @dev Update purchasing amount in early access
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _updatePurchasingInEarlyAccessState(uint _purchaseAmount) internal {
         purchasedAmountInEarlyAccess += _purchaseAmount;
     }
 
+    /**
+     * @dev Update purchasing amount, airdrop amount and TGE amount in all pools
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _airdropTokenAmount Airdrop token amount of investor
+     * @param _TGEIDOTokenAmount TGE amount of investor
+     */
     function _updatePurchasingState(uint _purchaseAmount, uint _airdropTokenAmount, uint _TGEIDOTokenAmount) internal {
         purchasedAmount += _purchaseAmount;
         userPurchasedAmount[_msgSender()] += _purchaseAmount;
@@ -383,23 +517,49 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         userIDOTGEAmount[_msgSender()] += _TGEIDOTokenAmount;
     }
 
-    function _deliverTGEIDOTokens(address buyer, uint _TGEtokenAmount) internal {
-        IDOToken.safeTransfer(buyer, _TGEtokenAmount);
+    /**
+     * @dev Transfer TGE amount of token to investor
+     * @param buyer Address of investor
+     * @param _TGETokenAmount TGE amount of token of investor
+     */
+    function _deliverTGEIDOTokens(address buyer, uint _TGETokenAmount) internal {
+        IDOToken.safeTransfer(buyer, _TGETokenAmount);
     }
 
+    /**
+     * @dev Get IDO token amount base on amount of purchase token
+     * @param _amount Amount of purchase token
+     * @return Return amount of respective IDO token
+     */
     function _getIDOTokenAmountByOfferedCurrency(uint _amount) internal view returns(uint){
         return _amount * offeredCurrency.rate / 10 ** offeredCurrency.decimal;
     }
 
+    /**
+     * @dev Transfer purchase token from investor to pool
+     * @param buyer Address of investor
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _forwardPurchaseTokenFunds(address buyer, uint _purchaseAmount) internal {
         purchaseToken.safeTransferFrom(buyer, address(this), _purchaseAmount);
     }
 
+    /**
+     * @dev Calculate fee when investor buy token
+     * @param _purchaseAmount Purchase amount of investor
+     * @param _participationFeePercentage Fee percentage when buying token
+     * @return Return amount of fee when investor buy token
+     */
     function _calculateParticipantFee(uint _purchaseAmount, uint _participationFeePercentage) internal pure returns(uint){
         if(_participationFeePercentage == 0) return 0;
         return _purchaseAmount * _participationFeePercentage / PERCENTAGE_DENOMINATOR;
     }
 
+    /**
+     * @dev Verify allowance of investor's token for pool
+     * @param _user Address of investor
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _verifyAllowance(address _user, uint _purchaseAmount) private view{
         uint allowance = purchaseToken.allowance(_user, address(this));
         if(allowance < _purchaseAmount){
@@ -407,6 +567,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @dev Check whether or not purchase amount exceeds max purchase amount base on allocation for whale
+     * @param _purchaseAmount Amount of purchase token
+     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocations for whale
+     */
     function _preValidatePurchaseInGalaxyPool(uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations) internal pure{
         _validAmount(_purchaseAmount);
         if(_purchaseAmount > _maxPurchaseBaseOnAllocations){
@@ -414,6 +579,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @dev Check whether or not purchase amount exceeds max purchase in early access for whale
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _preValidatePurchaseInEarlyAccess(uint _purchaseAmount) internal view{
         _validAmount(_purchaseAmount);
         if(purchasedAmountInEarlyAccess + _purchaseAmount > maxPurchaseAmountForEarlyAccess){
@@ -421,6 +590,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
     }
 
+    /**
+     * @dev Check whether or not purchase amount exceeds amount in all pools
+     * @param _purchaseAmount Purchase amount of investor
+     */
     function _preValidatePurchase(uint _purchaseAmount) internal view{
         _validAmount(_purchaseAmount);
         if(purchasedAmount + _purchaseAmount > totalRaiseAmount){

@@ -85,89 +85,116 @@
             "code": "function buyTokenInCrowdfundingPool(bytes32[] proof, uint256 _purchaseAmount) external nonpayable",
             "inputs": {
                 "proof": {
-                    "type": "bytes32[]"
+                    "type": "bytes32[]",
+                    "description": "Respective proof for a leaf, which is respective for investor in merkle tree"
                 },
                 "_purchaseAmount": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Purchase amount of investor"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Investor buy token in crowdfunding pool",
+            "details": "Must be in time for crowdfunding pool and pool is not closed"
         },
         "buyTokenInCrowdfundingPoolWithPermit(bytes32[],uint256,uint256,uint256,bytes)": {
             "stateMutability": "nonpayable",
             "code": "function buyTokenInCrowdfundingPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _allowance, uint256 _deadline, bytes _signature) external nonpayable",
             "inputs": {
                 "proof": {
-                    "type": "bytes32[]"
+                    "type": "bytes32[]",
+                    "description": "Respective proof for a leaf, which is respective for investor in merkle tree"
                 },
                 "_purchaseAmount": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Purchase amount of investor"
                 },
                 "_allowance": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Allowance amount of investor's USDC for pool"
                 },
                 "_deadline": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Deadline of off-chain investor's signature"
                 },
                 "_signature": {
-                    "type": "bytes"
+                    "type": "bytes",
+                    "description": "Signature of investor"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Investor buy token in crowdfunding pool",
+            "details": "Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC. Must be in time for crowdfunding pool and pool is not closed"
         },
         "buyTokenInGalaxyPool(bytes32[],uint256,uint256)": {
             "stateMutability": "nonpayable",
             "code": "function buyTokenInGalaxyPool(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations) external nonpayable",
             "inputs": {
                 "proof": {
-                    "type": "bytes32[]"
+                    "type": "bytes32[]",
+                    "description": "Respective proof for a leaf, which is respective for investor in merkle tree"
                 },
                 "_purchaseAmount": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Purchase amount of investor"
                 },
                 "_maxPurchaseBaseOnAllocations": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Max purchase amount base on allocation of whale"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Investor buy token in galaxy pool",
+            "details": "Must be in time for whale and pool is not closed"
         },
         "buyTokenInGalaxyPoolWithPermit(bytes32[],uint256,uint256,uint256,bytes)": {
             "stateMutability": "nonpayable",
             "code": "function buyTokenInGalaxyPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations, uint256 _deadline, bytes _signature) external nonpayable",
             "inputs": {
                 "proof": {
-                    "type": "bytes32[]"
+                    "type": "bytes32[]",
+                    "description": "Respective proof for a leaf, which is respective for investor in merkle tree"
                 },
                 "_purchaseAmount": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Purchase amount of investor"
                 },
                 "_maxPurchaseBaseOnAllocations": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Max purchase amount base on allocation of whale"
                 },
                 "_deadline": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Deadline of off-chain investor's signature"
                 },
                 "_signature": {
-                    "type": "bytes"
+                    "type": "bytes",
+                    "description": "Signature of investor"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Investor buy token in galaxy pool",
+            "details": "Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC. Must be in time for whale and pool is not closed"
         },
         "claimTGEIDOToken(uint256)": {
             "stateMutability": "nonpayable",
             "code": "function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable",
             "inputs": {
                 "_IDOClaimAmount": {
-                    "type": "uint256"
+                    "type": "uint256",
+                    "description": "Amount of IDO token is wanted to claim"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Investor claim IDO token after TGE date"
         },
         "closePool()": {
             "stateMutability": "nonpayable",
             "code": "function closePool() external nonpayable",
             "inputs": {},
-            "outputs": {}
+            "outputs": {},
+            "notice": "Close pool: cancel project, nobody can buy token",
+            "details": "Only admin can call it"
         },
         "communityCloseTime()": {
             "stateMutability": "view",
@@ -281,13 +308,17 @@
             "code": "function initialize(address[2] addrs, uint256[14] uints) external nonpayable",
             "inputs": {
                 "addrs": {
-                    "type": "address[2]"
+                    "type": "address[2]",
+                    "description": "Array of address includes: address of IDO token, address of purchase token"
                 },
                 "uints": {
-                    "type": "uint256[14]"
+                    "type": "uint256[14]",
+                    "description": "Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,  galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion, total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Initialize a pool with its information",
+            "details": "Emit 2 events"
         },
         "maxPurchaseAmountForEarlyAccess()": {
             "stateMutability": "view",
@@ -408,20 +439,26 @@
             "code": "function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable",
             "inputs": {
                 "_redeemIDOTokenRecipient": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of recipient"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Admin redeem redundant IDO token in pool",
+            "details": "Only admin can call it after pool closed"
         },
         "redeemPurchaseToken(address)": {
             "stateMutability": "nonpayable",
             "code": "function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external nonpayable",
             "inputs": {
                 "_redeemPurchaseTokenRecipient": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of recipient"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Admin redeem purchase token in pool",
+            "details": "Only admin can call it after pool closed"
         },
         "renounceRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -469,17 +506,22 @@
                     "type": "bool"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Allow or disallow investors to claim TGE amount of IDO token",
+            "details": "Only admin can call it"
         },
         "setRoot(bytes32)": {
             "stateMutability": "nonpayable",
             "code": "function setRoot(bytes32 _root) external nonpayable",
             "inputs": {
                 "_root": {
-                    "type": "bytes32"
+                    "type": "bytes32",
+                    "description": "Root of merkle tree"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Set merkle tree root after snapshoting information of investor",
+            "details": "Only admin can call it"
         },
         "supportsInterface(bytes4)": {
             "stateMutability": "view",
@@ -511,13 +553,17 @@
             "code": "function updateTime(uint64 _newWhaleCloseTime, uint64 _newCommunityCloseTime) external nonpayable",
             "inputs": {
                 "_newWhaleCloseTime": {
-                    "type": "uint64"
+                    "type": "uint64",
+                    "description": "New close time of galaxy pool"
                 },
                 "_newCommunityCloseTime": {
-                    "type": "uint64"
+                    "type": "uint64",
+                    "description": "New close time of crowdfunding pool"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Update time for galaxy pool and crowdfunding pool",
+            "details": "Only admin can call it, galaxy pool must be closed before crowdfunding pool"
         },
         "userIDOAirdropAmount(address)": {
             "stateMutability": "view",

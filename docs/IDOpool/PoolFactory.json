@@ -58,23 +58,29 @@
         },
         "createPool(address[2],uint256[14],uint256)": {
             "stateMutability": "nonpayable",
-            "code": "function createPool(address[2] addrs, uint256[14] uints, uint256 dbPoolId) external nonpayable returns (address pool)",
+            "code": "function createPool(address[2] addrs, uint256[14] uints, uint256 dbProjectId) external nonpayable returns (address pool)",
             "inputs": {
                 "addrs": {
-                    "type": "address[2]"
+                    "type": "address[2]",
+                    "description": "Array of address includes: address of IDO token, address of purchase token"
                 },
                 "uints": {
-                    "type": "uint256[14]"
+                    "type": "uint256[14]",
+                    "description": "Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,  galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion, total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token"
                 },
-                "dbPoolId": {
-                    "type": "uint256"
+                "dbProjectId": {
+                    "type": "uint256",
+                    "description": "Project Id in database"
                 }
             },
             "outputs": {
                 "pool": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of new pool"
                 }
-            }
+            },
+            "notice": "Create new pool",
+            "details": "Only has one pool address respectively for one input params"
         },
         "getCreatedPools(address,address,uint256)": {
             "stateMutability": "view",
@@ -115,7 +121,7 @@
                     "description": "Created Pool Address"
                 }
             },
-            "notice": "Get the created pools by token address",
+            "notice": "Get created pools by token address",
             "details": "User can retrieve their created pool by address of tokens"
         },
         "getCreatedPoolsLengthByToken(address,address)": {
@@ -159,10 +165,13 @@
             "code": "function grantAdminRole(address _admin) external nonpayable",
             "inputs": {
                 "_admin": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of new admin"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Grant admin role for new admin",
+            "details": "Only admin can call it"
         },
         "grantRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -183,14 +192,17 @@
             "code": "function hasAdminRole(address _admin) external view returns (bool)",
             "inputs": {
                 "_admin": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of an account"
                 }
             },
             "outputs": {
                 "_0": {
-                    "type": "bool"
+                    "type": "bool",
+                    "description": "Return true if account has admin role, and vice versa."
                 }
-            }
+            },
+            "notice": "Check whether or not an account has admin role"
         },
         "hasRole(bytes32,address)": {
             "stateMutability": "view",
@@ -215,10 +227,13 @@
             "code": "function initialize(address _poolImplementationAddress) external nonpayable",
             "inputs": {
                 "_poolImplementationAddress": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of pool implementation"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Initialize pool factory with address of pool implementation",
+            "details": "Called only once"
         },
         "poolImplementationAddress()": {
             "stateMutability": "view",
@@ -249,10 +264,13 @@
             "code": "function revokeAdminRole(address _admin) external nonpayable",
             "inputs": {
                 "_admin": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of an admin"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Revoke admin role of an admin",
+            "details": "Only admin can call it"
         },
         "revokeRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -273,10 +291,13 @@
             "code": "function setPoolImplementation(address _poolImplementationAddress) external nonpayable",
             "inputs": {
                 "_poolImplementationAddress": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address of new pool implementation"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "Set or change address of pool implementation",
+            "details": "Only admin can can call it"
         },
         "supportsInterface(bytes4)": {
             "stateMutability": "view",
@@ -305,7 +326,7 @@
             }
         },
         "PoolCreated": {
-            "code": "event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbPoolId)",
+            "code": "event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbProjectId)",
             "inputs": {
                 "createdBy": {
                     "type": "address",
@@ -323,7 +344,7 @@
                     "type": "uint256",
                     "indexed": false
                 },
-                "dbPoolId": {
+                "dbProjectId": {
                     "type": "uint256",
                     "indexed": false
                 }

@@ -152,16 +152,16 @@ function WHALE() external view returns (bytes32)
 function buyTokenInCrowdfundingPool(bytes32[] proof, uint256 _purchaseAmount) external nonpayable
 ```
 
+Investor buy token in crowdfunding pool
 
-
-
+*Must be in time for crowdfunding pool and pool is not closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| proof | bytes32[] | undefined |
-| _purchaseAmount | uint256 | undefined |
+| proof | bytes32[] | Respective proof for a leaf, which is respective for investor in merkle tree |
+| _purchaseAmount | uint256 | Purchase amount of investor |
 
 ### buyTokenInCrowdfundingPoolWithPermit
 
@@ -169,19 +169,19 @@ function buyTokenInCrowdfundingPool(bytes32[] proof, uint256 _purchaseAmount) ex
 function buyTokenInCrowdfundingPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _allowance, uint256 _deadline, bytes _signature) external nonpayable
 ```
 
+Investor buy token in crowdfunding pool
 
-
-
+*Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC. Must be in time for crowdfunding pool and pool is not closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| proof | bytes32[] | undefined |
-| _purchaseAmount | uint256 | undefined |
-| _allowance | uint256 | undefined |
-| _deadline | uint256 | undefined |
-| _signature | bytes | undefined |
+| proof | bytes32[] | Respective proof for a leaf, which is respective for investor in merkle tree |
+| _purchaseAmount | uint256 | Purchase amount of investor |
+| _allowance | uint256 | Allowance amount of investor&#39;s USDC for pool |
+| _deadline | uint256 | Deadline of off-chain investor&#39;s signature |
+| _signature | bytes | Signature of investor |
 
 ### buyTokenInGalaxyPool
 
@@ -189,17 +189,17 @@ function buyTokenInCrowdfundingPoolWithPermit(bytes32[] proof, uint256 _purchase
 function buyTokenInGalaxyPool(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations) external nonpayable
 ```
 
+Investor buy token in galaxy pool
 
-
-
+*Must be in time for whale and pool is not closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| proof | bytes32[] | undefined |
-| _purchaseAmount | uint256 | undefined |
-| _maxPurchaseBaseOnAllocations | uint256 | undefined |
+| proof | bytes32[] | Respective proof for a leaf, which is respective for investor in merkle tree |
+| _purchaseAmount | uint256 | Purchase amount of investor |
+| _maxPurchaseBaseOnAllocations | uint256 | Max purchase amount base on allocation of whale |
 
 ### buyTokenInGalaxyPoolWithPermit
 
@@ -207,19 +207,19 @@ function buyTokenInGalaxyPool(bytes32[] proof, uint256 _purchaseAmount, uint256 
 function buyTokenInGalaxyPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations, uint256 _deadline, bytes _signature) external nonpayable
 ```
 
+Investor buy token in galaxy pool
 
-
-
+*Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC. Must be in time for whale and pool is not closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| proof | bytes32[] | undefined |
-| _purchaseAmount | uint256 | undefined |
-| _maxPurchaseBaseOnAllocations | uint256 | undefined |
-| _deadline | uint256 | undefined |
-| _signature | bytes | undefined |
+| proof | bytes32[] | Respective proof for a leaf, which is respective for investor in merkle tree |
+| _purchaseAmount | uint256 | Purchase amount of investor |
+| _maxPurchaseBaseOnAllocations | uint256 | Max purchase amount base on allocation of whale |
+| _deadline | uint256 | Deadline of off-chain investor&#39;s signature |
+| _signature | bytes | Signature of investor |
 
 ### claimTGEIDOToken
 
@@ -227,7 +227,7 @@ function buyTokenInGalaxyPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount
 function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable
 ```
 
-
+Investor claim IDO token after TGE date
 
 
 
@@ -235,7 +235,7 @@ function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable
 
 | Name | Type | Description |
 |---|---|---|
-| _IDOClaimAmount | uint256 | undefined |
+| _IDOClaimAmount | uint256 | Amount of IDO token is wanted to claim |
 
 ### closePool
 
@@ -243,9 +243,9 @@ function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable
 function closePool() external nonpayable
 ```
 
+Close pool: cancel project, nobody can buy token
 
-
-
+*Only admin can call it*
 
 
 ### communityCloseTime
@@ -418,16 +418,16 @@ function hasRole(bytes32 role, address account) external view returns (bool)
 function initialize(address[2] addrs, uint256[14] uints) external nonpayable
 ```
 
+Initialize a pool with its information
 
-
-
+*Emit 2 events*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| addrs | address[2] | undefined |
-| uints | uint256[14] | undefined |
+| addrs | address[2] | Array of address includes: address of IDO token, address of purchase token |
+| uints | uint256[14] | Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,  galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion, total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token |
 
 ### maxPurchaseAmountForEarlyAccess
 
@@ -623,15 +623,15 @@ function purchasedAmountInGalaxyPool() external view returns (uint256)
 function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable
 ```
 
+Admin redeem redundant IDO token in pool
 
-
-
+*Only admin can call it after pool closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _redeemIDOTokenRecipient | address | undefined |
+| _redeemIDOTokenRecipient | address | Address of recipient |
 
 ### redeemPurchaseToken
 
@@ -639,15 +639,15 @@ function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable
 function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external nonpayable
 ```
 
+Admin redeem purchase token in pool
 
-
-
+*Only admin can call it after pool closed*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _redeemPurchaseTokenRecipient | address | undefined |
+| _redeemPurchaseTokenRecipient | address | Address of recipient |
 
 ### renounceRole
 
@@ -706,9 +706,9 @@ function root() external view returns (bytes32)
 function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external nonpayable
 ```
 
+Allow or disallow investors to claim TGE amount of IDO token
 
-
-
+*Only admin can call it*
 
 #### Parameters
 
@@ -722,15 +722,15 @@ function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external nonpayable
 function setRoot(bytes32 _root) external nonpayable
 ```
 
+Set merkle tree root after snapshoting information of investor
 
-
-
+*Only admin can call it*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _root | bytes32 | undefined |
+| _root | bytes32 | Root of merkle tree |
 
 ### supportsInterface
 
@@ -777,16 +777,16 @@ function totalRaiseAmount() external view returns (uint256)
 function updateTime(uint64 _newWhaleCloseTime, uint64 _newCommunityCloseTime) external nonpayable
 ```
 
+Update time for galaxy pool and crowdfunding pool
 
-
-
+*Only admin can call it, galaxy pool must be closed before crowdfunding pool*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _newWhaleCloseTime | uint64 | undefined |
-| _newCommunityCloseTime | uint64 | undefined |
+| _newWhaleCloseTime | uint64 | New close time of galaxy pool |
+| _newCommunityCloseTime | uint64 | New close time of crowdfunding pool |
 
 ### userIDOAirdropAmount
 

@@ -10,7 +10,6 @@ import "hardhat-deploy"
 import "hardhat-contract-sizer"
 import "solidity-coverage"
 import "dotenv/config"
-import "hardhat-docgen"
 import '@primitivefi/hardhat-dodoc';
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
@@ -285,11 +284,6 @@ const config: HardhatUserConfig = {
     enabled: false,
     currency: 'USD',
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
-  },
-  docgen: {
-    path: './docs',
-    clear: true,
-    runOnCompile: true,
   },
   dodoc: {
     runOnCompile: false,

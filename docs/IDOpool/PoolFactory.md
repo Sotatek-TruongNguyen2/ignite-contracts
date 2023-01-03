@@ -103,26 +103,26 @@ Get the number of all created pools
 ### createPool
 
 ```solidity
-function createPool(address[2] addrs, uint256[14] uints, uint256 dbPoolId) external nonpayable returns (address pool)
+function createPool(address[2] addrs, uint256[14] uints, uint256 dbProjectId) external nonpayable returns (address pool)
 ```
 
+Create new pool
 
-
-
+*Only has one pool address respectively for one input params*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| addrs | address[2] | undefined |
-| uints | uint256[14] | undefined |
-| dbPoolId | uint256 | undefined |
+| addrs | address[2] | Array of address includes: address of IDO token, address of purchase token |
+| uints | uint256[14] | Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,  galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion, total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token |
+| dbProjectId | uint256 | Project Id in database |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
-| pool | address | undefined |
+| pool | address | Address of new pool |
 
 ### getCreatedPools
 
@@ -154,7 +154,7 @@ function getCreatedPools(address, address, uint256) external view returns (addre
 function getCreatedPoolsByToken(address _creator, address _token) external view returns (address[])
 ```
 
-Get the created pools by token address
+Get created pools by token address
 
 *User can retrieve their created pool by address of tokens*
 
@@ -222,15 +222,15 @@ function getRoleAdmin(bytes32 role) external view returns (bytes32)
 function grantAdminRole(address _admin) external nonpayable
 ```
 
+Grant admin role for new admin
 
-
-
+*Only admin can call it*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _admin | address | undefined |
+| _admin | address | Address of new admin |
 
 ### grantRole
 
@@ -255,7 +255,7 @@ function grantRole(bytes32 role, address account) external nonpayable
 function hasAdminRole(address _admin) external view returns (bool)
 ```
 
-
+Check whether or not an account has admin role
 
 
 
@@ -263,13 +263,13 @@ function hasAdminRole(address _admin) external view returns (bool)
 
 | Name | Type | Description |
 |---|---|---|
-| _admin | address | undefined |
+| _admin | address | Address of an account |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | bool | undefined |
+| _0 | bool | Return true if account has admin role, and vice versa. |
 
 ### hasRole
 
@@ -300,15 +300,15 @@ function hasRole(bytes32 role, address account) external view returns (bool)
 function initialize(address _poolImplementationAddress) external nonpayable
 ```
 
+Initialize pool factory with address of pool implementation
 
-
-
+*Called only once*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _poolImplementationAddress | address | undefined |
+| _poolImplementationAddress | address | Address of pool implementation |
 
 ### poolImplementationAddress
 
@@ -350,15 +350,15 @@ function renounceRole(bytes32 role, address account) external nonpayable
 function revokeAdminRole(address _admin) external nonpayable
 ```
 
+Revoke admin role of an admin
 
-
-
+*Only admin can call it*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _admin | address | undefined |
+| _admin | address | Address of an admin |
 
 ### revokeRole
 
@@ -383,15 +383,15 @@ function revokeRole(bytes32 role, address account) external nonpayable
 function setPoolImplementation(address _poolImplementationAddress) external nonpayable
 ```
 
+Set or change address of pool implementation
 
-
-
+*Only admin can can call it*
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _poolImplementationAddress | address | undefined |
+| _poolImplementationAddress | address | Address of new pool implementation |
 
 ### supportsInterface
 
@@ -438,7 +438,7 @@ event Initialized(uint8 version)
 ### PoolCreated
 
 ```solidity
-event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbPoolId)
+event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbProjectId)
 ```
 
 
@@ -453,7 +453,7 @@ event PoolCreated(address createdBy, address indexed token, address indexed pool
 | token `indexed` | address | undefined |
 | pool `indexed` | address | undefined |
 | poolId  | uint256 | undefined |
-| dbPoolId  | uint256 | undefined |
+| dbProjectId  | uint256 | undefined |
 
 ### RoleAdminChanged
 
