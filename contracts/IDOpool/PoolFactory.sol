@@ -129,12 +129,13 @@ contract PoolFactory is Initializable, AccessControl {
             */
 
             uint _galaxyPoolProportion = uints[6];
-            if(_galaxyPoolProportion > PERCENTAGE_DENOMINATOR){
+            _validAmount(_galaxyPoolProportion);
+            if(_galaxyPoolProportion >= PERCENTAGE_DENOMINATOR){
                 revert NotValidGalaxyPoolProportion();
             }
 
             uint _earlyAccessProportion = uints[7];
-            if(_earlyAccessProportion > PERCENTAGE_DENOMINATOR){
+            if(_earlyAccessProportion >= PERCENTAGE_DENOMINATOR){
                 revert NotValidEarlyAccessProportion();
             }
 

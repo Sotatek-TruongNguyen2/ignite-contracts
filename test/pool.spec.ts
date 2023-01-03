@@ -156,6 +156,24 @@ describe("Ignition Pool",()=>{
                 rate: parseUnits('125',12),
                 decimal: BigNumber.from(1),
                 price: 0.08
+
+                // IDOToken: '0x94ce0e00aD6F80792bD1877765757f5F90d20B96',
+                // purchaseToken: '0x501D21aD98f85cA6160F5e5F5b1a81ad7f772001',
+                // maxPurchaseAmountForKYCUser: BigNumber.from('10'),
+                // maxPurchaseAmountForNotKYCUser: BigNumber.from('10'),
+                // TGEDate: BigNumber.from('0'),
+                // TGEPercentage: BigNumber.from('1400'),
+                // galaxyParticipationFeePercentage: BigNumber.from('0'),
+                // crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
+                // galaxyPoolProportion: BigNumber.from('5000'),
+                // earlyAccessProportion: BigNumber.from('1400'),
+                // totalRaiseAmount: BigNumber.from('10000000'),
+                // whaleOpenTime: BigNumber.from('1672495080'),
+                // whaleDuration: BigNumber.from('86115'),
+                // communityDuration: BigNumber.from('83541'),
+                // rate: BigNumber.from('1'),
+                // decimal: BigNumber.from('20'),
+                // price: 0.08
             },
             {
                 IDOToken: IDOTokens[1].address,
@@ -334,7 +352,7 @@ describe("Ignition Pool",()=>{
             await poolFactory.connect(collaborator0).createPool([poolInfo0.IDOToken, poolInfo0.purchaseToken],
                 [poolInfo0.maxPurchaseAmountForKYCUser, poolInfo0.maxPurchaseAmountForNotKYCUser, poolInfo0.TGEDate, poolInfo0.TGEPercentage, poolInfo0.galaxyParticipationFeePercentage, poolInfo0.crowdfundingParticipationFeePercentage,
                 poolInfo0.galaxyPoolProportion, poolInfo0.earlyAccessProportion, poolInfo0.totalRaiseAmount, poolInfo0.whaleOpenTime, poolInfo0.whaleDuration,
-                poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], 1671095858080)
+                poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], BigNumber.from('0x63a27c8108892063ce32599c'))
 
             const pool0Address = await poolFactory.getCreatedPools(collaborator0.address, poolInfo0.IDOToken, 0)
 

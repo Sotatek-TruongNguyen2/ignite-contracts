@@ -1,0 +1,1066 @@
+{
+    "methods": {
+        "DEFAULT_ADMIN_ROLE()": {
+            "stateMutability": "view",
+            "code": "function DEFAULT_ADMIN_ROLE() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "IDOToken()": {
+            "stateMutability": "view",
+            "code": "function IDOToken() external view returns (contract IERC20)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "contract IERC20"
+                }
+            }
+        },
+        "NORMAL_USER()": {
+            "stateMutability": "view",
+            "code": "function NORMAL_USER() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "PERCENTAGE_DENOMINATOR()": {
+            "stateMutability": "view",
+            "code": "function PERCENTAGE_DENOMINATOR() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "TGEClaimable()": {
+            "stateMutability": "view",
+            "code": "function TGEClaimable() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            }
+        },
+        "TGEDate()": {
+            "stateMutability": "view",
+            "code": "function TGEDate() external view returns (uint64)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint64"
+                }
+            }
+        },
+        "TGEPercentage()": {
+            "stateMutability": "view",
+            "code": "function TGEPercentage() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "WHALE()": {
+            "stateMutability": "view",
+            "code": "function WHALE() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "buyTokenInCrowdfundingPool(bytes32[],uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function buyTokenInCrowdfundingPool(bytes32[] proof, uint256 _purchaseAmount) external nonpayable",
+            "inputs": {
+                "proof": {
+                    "type": "bytes32[]"
+                },
+                "_purchaseAmount": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {}
+        },
+        "buyTokenInCrowdfundingPoolWithPermit(bytes32[],uint256,uint256,uint256,bytes)": {
+            "stateMutability": "nonpayable",
+            "code": "function buyTokenInCrowdfundingPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _allowance, uint256 _deadline, bytes _signature) external nonpayable",
+            "inputs": {
+                "proof": {
+                    "type": "bytes32[]"
+                },
+                "_purchaseAmount": {
+                    "type": "uint256"
+                },
+                "_allowance": {
+                    "type": "uint256"
+                },
+                "_deadline": {
+                    "type": "uint256"
+                },
+                "_signature": {
+                    "type": "bytes"
+                }
+            },
+            "outputs": {}
+        },
+        "buyTokenInGalaxyPool(bytes32[],uint256,uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function buyTokenInGalaxyPool(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations) external nonpayable",
+            "inputs": {
+                "proof": {
+                    "type": "bytes32[]"
+                },
+                "_purchaseAmount": {
+                    "type": "uint256"
+                },
+                "_maxPurchaseBaseOnAllocations": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {}
+        },
+        "buyTokenInGalaxyPoolWithPermit(bytes32[],uint256,uint256,uint256,bytes)": {
+            "stateMutability": "nonpayable",
+            "code": "function buyTokenInGalaxyPoolWithPermit(bytes32[] proof, uint256 _purchaseAmount, uint256 _maxPurchaseBaseOnAllocations, uint256 _deadline, bytes _signature) external nonpayable",
+            "inputs": {
+                "proof": {
+                    "type": "bytes32[]"
+                },
+                "_purchaseAmount": {
+                    "type": "uint256"
+                },
+                "_maxPurchaseBaseOnAllocations": {
+                    "type": "uint256"
+                },
+                "_deadline": {
+                    "type": "uint256"
+                },
+                "_signature": {
+                    "type": "bytes"
+                }
+            },
+            "outputs": {}
+        },
+        "claimTGEIDOToken(uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable",
+            "inputs": {
+                "_IDOClaimAmount": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {}
+        },
+        "closePool()": {
+            "stateMutability": "nonpayable",
+            "code": "function closePool() external nonpayable",
+            "inputs": {},
+            "outputs": {}
+        },
+        "communityCloseTime()": {
+            "stateMutability": "view",
+            "code": "function communityCloseTime() external view returns (uint64)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint64"
+                }
+            }
+        },
+        "communityOpenTime()": {
+            "stateMutability": "view",
+            "code": "function communityOpenTime() external view returns (uint64)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint64"
+                }
+            }
+        },
+        "crowdfundingParticipationFeePercentage()": {
+            "stateMutability": "view",
+            "code": "function crowdfundingParticipationFeePercentage() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "earlyAccessProportion()": {
+            "stateMutability": "view",
+            "code": "function earlyAccessProportion() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "galaxyParticipationFeePercentage()": {
+            "stateMutability": "view",
+            "code": "function galaxyParticipationFeePercentage() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "galaxyPoolProportion()": {
+            "stateMutability": "view",
+            "code": "function galaxyPoolProportion() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "getRoleAdmin(bytes32)": {
+            "stateMutability": "view",
+            "code": "function getRoleAdmin(bytes32 role) external view returns (bytes32)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            },
+            "details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
+        },
+        "grantRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function grantRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event."
+        },
+        "hasRole(bytes32,address)": {
+            "stateMutability": "view",
+            "code": "function hasRole(bytes32 role, address account) external view returns (bool)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Returns `true` if `account` has been granted `role`."
+        },
+        "initialize(address[2],uint256[14])": {
+            "stateMutability": "nonpayable",
+            "code": "function initialize(address[2] addrs, uint256[14] uints) external nonpayable",
+            "inputs": {
+                "addrs": {
+                    "type": "address[2]"
+                },
+                "uints": {
+                    "type": "uint256[14]"
+                }
+            },
+            "outputs": {}
+        },
+        "maxPurchaseAmountForEarlyAccess()": {
+            "stateMutability": "view",
+            "code": "function maxPurchaseAmountForEarlyAccess() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "maxPurchaseAmountForGalaxyPool()": {
+            "stateMutability": "view",
+            "code": "function maxPurchaseAmountForGalaxyPool() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "maxPurchaseAmountForKYCUser()": {
+            "stateMutability": "view",
+            "code": "function maxPurchaseAmountForKYCUser() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "maxPurchaseAmountForNotKYCUser()": {
+            "stateMutability": "view",
+            "code": "function maxPurchaseAmountForNotKYCUser() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "offeredCurrency()": {
+            "stateMutability": "view",
+            "code": "function offeredCurrency() external view returns (uint256 rate, uint256 decimal)",
+            "inputs": {},
+            "outputs": {
+                "rate": {
+                    "type": "uint256"
+                },
+                "decimal": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "paused()": {
+            "stateMutability": "view",
+            "code": "function paused() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Returns true if the contract is paused, and false otherwise."
+        },
+        "poolFactory()": {
+            "stateMutability": "view",
+            "code": "function poolFactory() external view returns (contract IPoolFactory)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "contract IPoolFactory"
+                }
+            }
+        },
+        "purchaseToken()": {
+            "stateMutability": "view",
+            "code": "function purchaseToken() external view returns (contract IERC20)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "contract IERC20"
+                }
+            }
+        },
+        "purchasedAmount()": {
+            "stateMutability": "view",
+            "code": "function purchasedAmount() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "purchasedAmountInEarlyAccess()": {
+            "stateMutability": "view",
+            "code": "function purchasedAmountInEarlyAccess() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "purchasedAmountInGalaxyPool()": {
+            "stateMutability": "view",
+            "code": "function purchasedAmountInGalaxyPool() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "redeemIDOToken(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable",
+            "inputs": {
+                "_redeemIDOTokenRecipient": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "redeemPurchaseToken(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external nonpayable",
+            "inputs": {
+                "_redeemPurchaseTokenRecipient": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "renounceRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function renounceRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `account`. May emit a {RoleRevoked} event."
+        },
+        "revokeRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function revokeRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event."
+        },
+        "root()": {
+            "stateMutability": "view",
+            "code": "function root() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "setClaimableTGEIDOToken(bool)": {
+            "stateMutability": "nonpayable",
+            "code": "function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external nonpayable",
+            "inputs": {
+                "_TGEClaimableStatus": {
+                    "type": "bool"
+                }
+            },
+            "outputs": {}
+        },
+        "setRoot(bytes32)": {
+            "stateMutability": "nonpayable",
+            "code": "function setRoot(bytes32 _root) external nonpayable",
+            "inputs": {
+                "_root": {
+                    "type": "bytes32"
+                }
+            },
+            "outputs": {}
+        },
+        "supportsInterface(bytes4)": {
+            "stateMutability": "view",
+            "code": "function supportsInterface(bytes4 interfaceId) external view returns (bool)",
+            "inputs": {
+                "interfaceId": {
+                    "type": "bytes4"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "See {IERC165-supportsInterface}."
+        },
+        "totalRaiseAmount()": {
+            "stateMutability": "view",
+            "code": "function totalRaiseAmount() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "updateTime(uint64,uint64)": {
+            "stateMutability": "nonpayable",
+            "code": "function updateTime(uint64 _newWhaleCloseTime, uint64 _newCommunityCloseTime) external nonpayable",
+            "inputs": {
+                "_newWhaleCloseTime": {
+                    "type": "uint64"
+                },
+                "_newCommunityCloseTime": {
+                    "type": "uint64"
+                }
+            },
+            "outputs": {}
+        },
+        "userIDOAirdropAmount(address)": {
+            "stateMutability": "view",
+            "code": "function userIDOAirdropAmount(address) external view returns (uint256)",
+            "inputs": {
+                "_0": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "userIDOTGEAmount(address)": {
+            "stateMutability": "view",
+            "code": "function userIDOTGEAmount(address) external view returns (uint256)",
+            "inputs": {
+                "_0": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "userPurchasedAmount(address)": {
+            "stateMutability": "view",
+            "code": "function userPurchasedAmount(address) external view returns (uint256)",
+            "inputs": {
+                "_0": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "whaleCloseTime()": {
+            "stateMutability": "view",
+            "code": "function whaleCloseTime() external view returns (uint64)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint64"
+                }
+            }
+        },
+        "whaleOpenTime()": {
+            "stateMutability": "view",
+            "code": "function whaleOpenTime() external view returns (uint64)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint64"
+                }
+            }
+        }
+    },
+    "events": {
+        "BuyToken": {
+            "code": "event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "pool": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "IDOToken": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "purchaseAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "ClaimTGEAmount": {
+            "code": "event ClaimTGEAmount(address buyer, uint256 claimAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "claimAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "Initialized": {
+            "code": "event Initialized(uint8 version)",
+            "inputs": {
+                "version": {
+                    "type": "uint8",
+                    "indexed": false
+                }
+            }
+        },
+        "Paused": {
+            "code": "event Paused(address account)",
+            "inputs": {
+                "account": {
+                    "type": "address",
+                    "indexed": false
+                }
+            }
+        },
+        "PoolCreated1": {
+            "code": "event PoolCreated1(address IDOToken, address purchaseToken, uint256 maxPurchaseAmountForKYCUser, uint256 maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage)",
+            "inputs": {
+                "IDOToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "purchaseToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "maxPurchaseAmountForKYCUser": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "maxPurchaseAmountForNotKYCUser": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "TGEDate": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "TGEPercentage": {
+                    "type": "uint16",
+                    "indexed": false
+                },
+                "galaxyParticipationFeePercentage": {
+                    "type": "uint16",
+                    "indexed": false
+                },
+                "crowdfundingParticipationFeePercentage": {
+                    "type": "uint16",
+                    "indexed": false
+                }
+            }
+        },
+        "PoolCreated2": {
+            "code": "event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint256 totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint256 rate, uint256 decimal)",
+            "inputs": {
+                "galaxyPoolProportion": {
+                    "type": "uint16",
+                    "indexed": false
+                },
+                "earlyAccessProportion": {
+                    "type": "uint16",
+                    "indexed": false
+                },
+                "totalRaiseAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "whaleOpenTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "whaleCloseTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "communityCloseTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "rate": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "decimal": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "RedeemIDOToken": {
+            "code": "event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint256 remainAmount)",
+            "inputs": {
+                "redeemIDOTokenRecipient": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "IDOToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "remainAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "RedeemPurchaseToken": {
+            "code": "event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint256 purchaseAmount)",
+            "inputs": {
+                "redeemPurchaseTokenRecipient": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "purchaseToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "purchaseAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "RoleAdminChanged": {
+            "code": "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "previousAdminRole": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "newAdminRole": {
+                    "type": "bytes32",
+                    "indexed": true
+                }
+            }
+        },
+        "RoleGranted": {
+            "code": "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "account": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "sender": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "RoleRevoked": {
+            "code": "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "account": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "sender": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "SetIDOTokenAddress": {
+            "code": "event SetIDOTokenAddress(address IDOToken)",
+            "inputs": {
+                "IDOToken": {
+                    "type": "address",
+                    "indexed": false
+                }
+            }
+        },
+        "SetTGEClaimable": {
+            "code": "event SetTGEClaimable(bool claimable)",
+            "inputs": {
+                "claimable": {
+                    "type": "bool",
+                    "indexed": false
+                }
+            }
+        },
+        "Unpaused": {
+            "code": "event Unpaused(address account)",
+            "inputs": {
+                "account": {
+                    "type": "address",
+                    "indexed": false
+                }
+            }
+        },
+        "UpdateFeeRecipient": {
+            "code": "event UpdateFeeRecipient(address indexed feeRecipient)",
+            "inputs": {
+                "feeRecipient": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "UpdateOfferedCurrencyRateAndDecimal": {
+            "code": "event UpdateOfferedCurrencyRateAndDecimal(uint256 _rate, uint256 _decimal)",
+            "inputs": {
+                "_rate": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "_decimal": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "UpdateOpenPoolStatus": {
+            "code": "event UpdateOpenPoolStatus(address indexed pool, bool status)",
+            "inputs": {
+                "pool": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "status": {
+                    "type": "bool",
+                    "indexed": false
+                }
+            }
+        },
+        "UpdateRoot": {
+            "code": "event UpdateRoot(bytes32 root)",
+            "inputs": {
+                "root": {
+                    "type": "bytes32",
+                    "indexed": false
+                }
+            }
+        },
+        "UpdateTime": {
+            "code": "event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime)",
+            "inputs": {
+                "whaleOpenTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "whaleCloseTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "communityOpenTime": {
+                    "type": "uint64",
+                    "indexed": false
+                },
+                "communityCloseTime": {
+                    "type": "uint64",
+                    "indexed": false
+                }
+            }
+        }
+    },
+    "errors": {
+        "AlreadySetClaimableTGE": {
+            "code": "error AlreadySetClaimableTGE(bool presentStatus)",
+            "inputs": {
+                "presentStatus": {
+                    "type": "bool"
+                }
+            }
+        },
+        "ClaimExceedMaxTGEAmount": {
+            "code": "error ClaimExceedMaxTGEAmount()",
+            "inputs": {}
+        },
+        "ExceedMaxPurchaseAmountForEarlyAccess": {
+            "code": "error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseAmount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "ExceedMaxPurchaseAmountForGalaxyPool": {
+            "code": "error ExceedMaxPurchaseAmountForGalaxyPool(address buyer, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseAmount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "ExceedMaxPurchaseAmountForKYCUser": {
+            "code": "error ExceedMaxPurchaseAmountForKYCUser(address buyer, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseAmount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "ExceedMaxPurchaseAmountForNotKYCUser": {
+            "code": "error ExceedMaxPurchaseAmountForNotKYCUser(address buyer, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseAmount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "ExceedMaxPurchaseAmountForUser": {
+            "code": "error ExceedMaxPurchaseAmountForUser()",
+            "inputs": {}
+        },
+        "ExceedTotalRaiseAmount": {
+            "code": "error ExceedTotalRaiseAmount(address buyer, uint256 purchaseAmount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseAmount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "NotAdmin": {
+            "code": "error NotAdmin()",
+            "inputs": {}
+        },
+        "NotAllowedToClaimTGEIDOAmount": {
+            "code": "error NotAllowedToClaimTGEIDOAmount()",
+            "inputs": {}
+        },
+        "NotEnoughAllowance": {
+            "code": "error NotEnoughAllowance(address buyer, address purchaseToken, uint256 allowance, uint256 amount)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                },
+                "purchaseToken": {
+                    "type": "address"
+                },
+                "allowance": {
+                    "type": "uint256"
+                },
+                "amount": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "NotEnoughConditionToRedeemIDOToken": {
+            "code": "error NotEnoughConditionToRedeemIDOToken()",
+            "inputs": {}
+        },
+        "NotEnoughConditionToRedeemPurchaseToken": {
+            "code": "error NotEnoughConditionToRedeemPurchaseToken()",
+            "inputs": {}
+        },
+        "NotInWhaleList": {
+            "code": "error NotInWhaleList(address buyer)",
+            "inputs": {
+                "buyer": {
+                    "type": "address"
+                }
+            }
+        },
+        "NotUpdateValidTime": {
+            "code": "error NotUpdateValidTime(uint256 whaleOpenTime, uint256 whaleCloseTime, uint256 communityOpenTime, uint256 communityCloseTime)",
+            "inputs": {
+                "whaleOpenTime": {
+                    "type": "uint256"
+                },
+                "whaleCloseTime": {
+                    "type": "uint256"
+                },
+                "communityOpenTime": {
+                    "type": "uint256"
+                },
+                "communityCloseTime": {
+                    "type": "uint256"
+                }
+            }
+        },
+        "NotValidSignature": {
+            "code": "error NotValidSignature()",
+            "inputs": {}
+        },
+        "NotYetTimeToClaimTGE": {
+            "code": "error NotYetTimeToClaimTGE()",
+            "inputs": {}
+        },
+        "TimeOutToBuyToken": {
+            "code": "error TimeOutToBuyToken(uint256 whaleOpenTime, uint256 whaleCloseTime, uint256 communityOpenTime, uint256 communityCloseTime, uint256 timestamp, address buyer)",
+            "inputs": {
+                "whaleOpenTime": {
+                    "type": "uint256"
+                },
+                "whaleCloseTime": {
+                    "type": "uint256"
+                },
+                "communityOpenTime": {
+                    "type": "uint256"
+                },
+                "communityCloseTime": {
+                    "type": "uint256"
+                },
+                "timestamp": {
+                    "type": "uint256"
+                },
+                "buyer": {
+                    "type": "address"
+                }
+            }
+        },
+        "TimeOutToSetPoolStatus": {
+            "code": "error TimeOutToSetPoolStatus()",
+            "inputs": {}
+        },
+        "ZeroAddress": {
+            "code": "error ZeroAddress()",
+            "inputs": {}
+        },
+        "ZeroAmount": {
+            "code": "error ZeroAmount()",
+            "inputs": {}
+        }
+    },
+    "path": "/IDOpool",
+    "name": "Pool"
+}

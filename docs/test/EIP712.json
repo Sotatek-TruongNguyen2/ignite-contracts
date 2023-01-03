@@ -1,0 +1,9 @@
+{
+    "methods": {},
+    "events": {},
+    "errors": {},
+    "path": "/test",
+    "title": "EIP712",
+    "notice": "A library that provides EIP712 helper functions",
+    "name": "EIP712"
+}

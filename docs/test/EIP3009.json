@@ -1,0 +1,235 @@
+{
+    "methods": {
+        "CANCEL_AUTHORIZATION_TYPEHASH()": {
+            "stateMutability": "view",
+            "code": "function CANCEL_AUTHORIZATION_TYPEHASH() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "DOMAIN_SEPARATOR()": {
+            "stateMutability": "view",
+            "code": "function DOMAIN_SEPARATOR() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "RECEIVE_WITH_AUTHORIZATION_TYPEHASH()": {
+            "stateMutability": "view",
+            "code": "function RECEIVE_WITH_AUTHORIZATION_TYPEHASH() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "TRANSFER_WITH_AUTHORIZATION_TYPEHASH()": {
+            "stateMutability": "view",
+            "code": "function TRANSFER_WITH_AUTHORIZATION_TYPEHASH() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "allowance(address,address)": {
+            "stateMutability": "view",
+            "code": "function allowance(address owner, address spender) external view returns (uint256)",
+            "inputs": {
+                "owner": {
+                    "type": "address"
+                },
+                "spender": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            },
+            "details": "Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called."
+        },
+        "approve(address,uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function approve(address spender, uint256 amount) external nonpayable returns (bool)",
+            "inputs": {
+                "spender": {
+                    "type": "address"
+                },
+                "amount": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Sets `amount` as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event."
+        },
+        "authorizationState(address,bytes32)": {
+            "stateMutability": "view",
+            "code": "function authorizationState(address authorizer, bytes32 nonce) external view returns (bool)",
+            "inputs": {
+                "authorizer": {
+                    "type": "address",
+                    "description": "Authorizer's address"
+                },
+                "nonce": {
+                    "type": "bytes32",
+                    "description": "Nonce of the authorization"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool",
+                    "description": "True if the nonce is used"
+                }
+            },
+            "notice": "Returns the state of an authorization",
+            "details": "Nonces are randomly generated 32-byte data unique to the authorizer's address"
+        },
+        "balanceOf(address)": {
+            "stateMutability": "view",
+            "code": "function balanceOf(address account) external view returns (uint256)",
+            "inputs": {
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            },
+            "details": "Returns the amount of tokens owned by `account`."
+        },
+        "totalSupply()": {
+            "stateMutability": "view",
+            "code": "function totalSupply() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            },
+            "details": "Returns the amount of tokens in existence."
+        },
+        "transfer(address,uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function transfer(address recipient, uint256 amount) external nonpayable returns (bool)",
+            "inputs": {
+                "recipient": {
+                    "type": "address"
+                },
+                "amount": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Moves `amount` tokens from the caller's account to `recipient`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+        },
+        "transferFrom(address,address,uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function transferFrom(address sender, address recipient, uint256 amount) external nonpayable returns (bool)",
+            "inputs": {
+                "sender": {
+                    "type": "address"
+                },
+                "recipient": {
+                    "type": "address"
+                },
+                "amount": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+        }
+    },
+    "events": {
+        "Approval": {
+            "code": "event Approval(address indexed owner, address indexed spender, uint256 value)",
+            "inputs": {
+                "owner": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "spender": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "value": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "AuthorizationCanceled": {
+            "code": "event AuthorizationCanceled(address indexed authorizer, bytes32 indexed nonce)",
+            "inputs": {
+                "authorizer": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "nonce": {
+                    "type": "bytes32",
+                    "indexed": true
+                }
+            }
+        },
+        "AuthorizationUsed": {
+            "code": "event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce)",
+            "inputs": {
+                "authorizer": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "nonce": {
+                    "type": "bytes32",
+                    "indexed": true
+                }
+            }
+        },
+        "Transfer": {
+            "code": "event Transfer(address indexed from, address indexed to, uint256 value)",
+            "inputs": {
+                "from": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "to": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "value": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        }
+    },
+    "errors": {},
+    "path": "/test",
+    "title": "EIP-3009",
+    "notice": "Provide internal implementation for gas-abstracted transfers",
+    "details": "Contracts that inherit from this must wrap these with publicly accessible functions, optionally adding modifiers where necessary",
+    "name": "EIP3009"
+}

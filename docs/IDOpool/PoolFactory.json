@@ -1,0 +1,429 @@
+{
+    "methods": {
+        "ADMIN()": {
+            "stateMutability": "view",
+            "code": "function ADMIN() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "DEFAULT_ADMIN_ROLE()": {
+            "stateMutability": "view",
+            "code": "function DEFAULT_ADMIN_ROLE() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        },
+        "PERCENTAGE_DENOMINATOR()": {
+            "stateMutability": "view",
+            "code": "function PERCENTAGE_DENOMINATOR() external view returns (uint16)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint16"
+                }
+            }
+        },
+        "allPools(uint256)": {
+            "stateMutability": "view",
+            "code": "function allPools(uint256) external view returns (address)",
+            "inputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        },
+        "allPoolsLength()": {
+            "stateMutability": "view",
+            "code": "function allPoolsLength() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256",
+                    "description": "Return number of created pools"
+                }
+            },
+            "notice": "Get the number of all created pools"
+        },
+        "createPool(address[2],uint256[14],uint256)": {
+            "stateMutability": "nonpayable",
+            "code": "function createPool(address[2] addrs, uint256[14] uints, uint256 dbPoolId) external nonpayable returns (address pool)",
+            "inputs": {
+                "addrs": {
+                    "type": "address[2]"
+                },
+                "uints": {
+                    "type": "uint256[14]"
+                },
+                "dbPoolId": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "pool": {
+                    "type": "address"
+                }
+            }
+        },
+        "getCreatedPools(address,address,uint256)": {
+            "stateMutability": "view",
+            "code": "function getCreatedPools(address, address, uint256) external view returns (address)",
+            "inputs": {
+                "_0": {
+                    "type": "address"
+                },
+                "_1": {
+                    "type": "address"
+                },
+                "_2": {
+                    "type": "uint256"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        },
+        "getCreatedPoolsByToken(address,address)": {
+            "stateMutability": "view",
+            "code": "function getCreatedPoolsByToken(address _creator, address _token) external view returns (address[])",
+            "inputs": {
+                "_creator": {
+                    "type": "address",
+                    "description": "Address of created pool user"
+                },
+                "_token": {
+                    "type": "address",
+                    "description": "Address of token want to query"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "address[]",
+                    "description": "Created Pool Address"
+                }
+            },
+            "notice": "Get the created pools by token address",
+            "details": "User can retrieve their created pool by address of tokens"
+        },
+        "getCreatedPoolsLengthByToken(address,address)": {
+            "stateMutability": "view",
+            "code": "function getCreatedPoolsLengthByToken(address _creator, address _token) external view returns (uint256)",
+            "inputs": {
+                "_creator": {
+                    "type": "address",
+                    "description": "Address of created pool user"
+                },
+                "_token": {
+                    "type": "address",
+                    "description": "Address of token want to query"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "uint256",
+                    "description": "Return number of created pool"
+                }
+            },
+            "notice": "Retrieve number of pools created for specific token"
+        },
+        "getRoleAdmin(bytes32)": {
+            "stateMutability": "view",
+            "code": "function getRoleAdmin(bytes32 role) external view returns (bytes32)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            },
+            "details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
+        },
+        "grantAdminRole(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function grantAdminRole(address _admin) external nonpayable",
+            "inputs": {
+                "_admin": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "grantRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function grantRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event."
+        },
+        "hasAdminRole(address)": {
+            "stateMutability": "view",
+            "code": "function hasAdminRole(address _admin) external view returns (bool)",
+            "inputs": {
+                "_admin": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            }
+        },
+        "hasRole(bytes32,address)": {
+            "stateMutability": "view",
+            "code": "function hasRole(bytes32 role, address account) external view returns (bool)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Returns `true` if `account` has been granted `role`."
+        },
+        "initialize(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function initialize(address _poolImplementationAddress) external nonpayable",
+            "inputs": {
+                "_poolImplementationAddress": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "poolImplementationAddress()": {
+            "stateMutability": "view",
+            "code": "function poolImplementationAddress() external view returns (address)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        },
+        "renounceRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function renounceRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `account`. May emit a {RoleRevoked} event."
+        },
+        "revokeAdminRole(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function revokeAdminRole(address _admin) external nonpayable",
+            "inputs": {
+                "_admin": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "revokeRole(bytes32,address)": {
+            "stateMutability": "nonpayable",
+            "code": "function revokeRole(bytes32 role, address account) external nonpayable",
+            "inputs": {
+                "role": {
+                    "type": "bytes32"
+                },
+                "account": {
+                    "type": "address"
+                }
+            },
+            "outputs": {},
+            "details": "Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event."
+        },
+        "setPoolImplementation(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function setPoolImplementation(address _poolImplementationAddress) external nonpayable",
+            "inputs": {
+                "_poolImplementationAddress": {
+                    "type": "address"
+                }
+            },
+            "outputs": {}
+        },
+        "supportsInterface(bytes4)": {
+            "stateMutability": "view",
+            "code": "function supportsInterface(bytes4 interfaceId) external view returns (bool)",
+            "inputs": {
+                "interfaceId": {
+                    "type": "bytes4"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "See {IERC165-supportsInterface}."
+        }
+    },
+    "events": {
+        "Initialized": {
+            "code": "event Initialized(uint8 version)",
+            "inputs": {
+                "version": {
+                    "type": "uint8",
+                    "indexed": false
+                }
+            }
+        },
+        "PoolCreated": {
+            "code": "event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbPoolId)",
+            "inputs": {
+                "createdBy": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "token": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "pool": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "poolId": {
+                    "type": "uint256",
+                    "indexed": false
+                },
+                "dbPoolId": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "RoleAdminChanged": {
+            "code": "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "previousAdminRole": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "newAdminRole": {
+                    "type": "bytes32",
+                    "indexed": true
+                }
+            }
+        },
+        "RoleGranted": {
+            "code": "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "account": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "sender": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "RoleRevoked": {
+            "code": "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+            "inputs": {
+                "role": {
+                    "type": "bytes32",
+                    "indexed": true
+                },
+                "account": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "sender": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "UpdatePoolImplementation": {
+            "code": "event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation)",
+            "inputs": {
+                "oldPoolImplementation": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "newPoolImplementation": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        }
+    },
+    "errors": {
+        "AlreadyAdmin": {
+            "code": "error AlreadyAdmin()",
+            "inputs": {}
+        },
+        "AlreadyNotAdmin": {
+            "code": "error AlreadyNotAdmin()",
+            "inputs": {}
+        },
+        "NotValidEarlyAccessProportion": {
+            "code": "error NotValidEarlyAccessProportion()",
+            "inputs": {}
+        },
+        "NotValidGalaxyPoolProportion": {
+            "code": "error NotValidGalaxyPoolProportion()",
+            "inputs": {}
+        },
+        "ZeroAddress": {
+            "code": "error ZeroAddress()",
+            "inputs": {}
+        },
+        "ZeroAmount": {
+            "code": "error ZeroAmount()",
+            "inputs": {}
+        },
+        "ZeroOfferedRate": {
+            "code": "error ZeroOfferedRate()",
+            "inputs": {}
+        }
+    },
+    "path": "/IDOpool",
+    "name": "PoolFactory"
+}

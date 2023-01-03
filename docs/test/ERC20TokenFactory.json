@@ -1,0 +1,48 @@
+{
+    "methods": {
+        "codeAddress()": {
+            "stateMutability": "view",
+            "code": "function codeAddress() external view returns (address)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        },
+        "createToken(string,string,uint8)": {
+            "stateMutability": "nonpayable",
+            "code": "function createToken(string name, string symbol, uint8 decimal_) external nonpayable returns (address)",
+            "inputs": {
+                "name": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "decimal_": {
+                    "type": "uint8"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        },
+        "currentToken()": {
+            "stateMutability": "view",
+            "code": "function currentToken() external view returns (address)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            }
+        }
+    },
+    "events": {},
+    "errors": {},
+    "path": "/test",
+    "name": "ERC20TokenFactory"
+}

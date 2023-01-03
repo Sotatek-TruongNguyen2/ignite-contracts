@@ -1,0 +1,18 @@
+{
+    "methods": {
+        "root()": {
+            "stateMutability": "view",
+            "code": "function root() external view returns (bytes32)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bytes32"
+                }
+            }
+        }
+    },
+    "events": {},
+    "errors": {},
+    "path": "/extensions",
+    "name": "IgnitionList"
+}

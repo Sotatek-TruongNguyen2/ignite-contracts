@@ -1,0 +1,9 @@
+{
+    "methods": {},
+    "events": {},
+    "errors": {},
+    "path": "/test",
+    "title": "ECRecover",
+    "notice": "A library that provides a safe ECDSA recovery function",
+    "name": "ECRecover"
+}
