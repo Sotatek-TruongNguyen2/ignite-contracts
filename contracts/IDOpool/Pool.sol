@@ -42,7 +42,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     uint16 public crowdfundingParticipationFeePercentage;
     uint16 public galaxyPoolProportion;
     uint16 public earlyAccessProportion;
-    bool public TGEClaimable;
+    bool public TGERedeemable;
     uint public totalRaiseAmount;
 
     uint64 public whaleOpenTime;
@@ -59,15 +59,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     mapping(address => uint) public userIDOTGEAmount;
 
     event UpdateRoot(bytes32 root);
-    event SetTGEClaimable(bool claimable);
+    event SetTGERedeemable(bool redeemable);
     event SetIDOTokenAddress(address IDOToken);
-    event ClaimTGEAmount(address buyer, uint claimAmount);
+    event RedeemTGEAmount(address buyer, uint redeemAmount);
     event UpdateFeeRecipient(address indexed feeRecipient);
     event UpdateOpenPoolStatus(address indexed pool, bool status);
     event UpdateOfferedCurrencyRateAndDecimal(uint _rate, uint _decimal);
-    event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint remainAmount);
+    event WithdrawIDOToken(address withdrawIDOTokenRecipient, address IDOToken, uint remainAmount);
     event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
-    event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
+    event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
     event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime);
     event PoolCreated1(address IDOToken, address purchaseToken, uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage);
     event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint rate, uint decimal);
@@ -76,15 +76,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     error ZeroAmount();
     error ZeroAddress();
     error NotValidSignature();
-    error NotYetTimeToClaimTGE();
+    error NotYetTimeToRedeemTGE();
     error TimeOutToSetPoolStatus();
-    error ClaimExceedMaxTGEAmount();
+    error RedeemExceedMaxTGEAmount();
     error NotInWhaleList(address buyer);
-    error NotAllowedToClaimTGEIDOAmount();
+    error NotAllowedToRedeemTGEIDOAmount();
     error ExceedMaxPurchaseAmountForUser();
-    error NotEnoughConditionToRedeemIDOToken();
-    error NotEnoughConditionToRedeemPurchaseToken();
-    error AlreadySetClaimableTGE(bool presentStatus);
+    error NotEnoughConditionToWithdrawIDOToken();
+    error NotEnoughConditionToWithdrawPurchaseToken();
+    error AlreadySetRedeemableTGE(bool presentStatus);
     error ExceedTotalRaiseAmount(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForKYCUser(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForGalaxyPool(address buyer, uint purchaseAmount);
@@ -291,74 +291,74 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     }
 
     /**
-     * @notice Admin redeem redundant IDO token in pool
+     * @notice Admin withdraw redundant IDO token in pool
      * @dev Only admin can call it after pool closed
-     * @param _redeemIDOTokenRecipient Address of recipient
+     * @param _withdrawIDOTokenRecipient Address of recipient
      */
-    function redeemIDOToken(address _redeemIDOTokenRecipient) external onlyAdmin {
+    function withdrawIDOToken(address _withdrawIDOTokenRecipient) external onlyAdmin {
         _validAddress(address(IDOToken));
-        _validAddress(_redeemIDOTokenRecipient);
+        _validAddress(_withdrawIDOTokenRecipient);
         if(paused() == true || block.timestamp > communityCloseTime){
             uint remainAmount = IDOToken.balanceOf(address(this));
             if(remainAmount > 0){
-                IDOToken.safeTransfer(_redeemIDOTokenRecipient, remainAmount);
-                emit RedeemIDOToken(_redeemIDOTokenRecipient, address(IDOToken), remainAmount);
+                IDOToken.safeTransfer(_withdrawIDOTokenRecipient, remainAmount);
+                emit WithdrawIDOToken(_withdrawIDOTokenRecipient, address(IDOToken), remainAmount);
             }
         }else{
-            revert NotEnoughConditionToRedeemIDOToken();
+            revert NotEnoughConditionToWithdrawIDOToken();
         }
     }
 
     /**
-     * @notice Admin redeem purchase token in pool
+     * @notice Admin withdraw purchase token in pool
      * @dev Only admin can call it after pool closed
-     * @param _redeemPurchaseTokenRecipient Address of recipient
+     * @param _withdrawPurchaseTokenRecipient Address of recipient
      */
-    function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external onlyAdmin{
-        _validAddress(_redeemPurchaseTokenRecipient);
+    function withdrawPurchaseToken(address _withdrawPurchaseTokenRecipient) external onlyAdmin{
+        _validAddress(_withdrawPurchaseTokenRecipient);
         if(paused() == true || block.timestamp > communityCloseTime){
             uint purchaseAmount = purchaseToken.balanceOf(address(this));
             if(purchaseAmount > 0){
-                purchaseToken.safeTransfer(_redeemPurchaseTokenRecipient, purchaseAmount);
-                emit RedeemPurchaseToken(_redeemPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
+                purchaseToken.safeTransfer(_withdrawPurchaseTokenRecipient, purchaseAmount);
+                emit WithdrawPurchaseToken(_withdrawPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
             }
         }else{
-            revert NotEnoughConditionToRedeemPurchaseToken();
+            revert NotEnoughConditionToWithdrawPurchaseToken();
         }
     }
 
     /**
-     * @notice Investor claim IDO token after TGE date
-     * @param _IDOClaimAmount Amount of IDO token is wanted to claim
+     * @notice Investor redeem IDO token after TGE date
+     * @param _IDORedeemAmount Amount of IDO token is wanted to redeem
      */
-    function claimTGEIDOToken(uint _IDOClaimAmount) external {
+    function redeemTGEIDOToken(uint _IDORedeemAmount) external {
         _validAddress(address(IDOToken));
-        if(TGEClaimable == false){
-            revert NotAllowedToClaimTGEIDOAmount();
+        if(TGERedeemable == false){
+            revert NotAllowedToRedeemTGEIDOAmount();
         }
         if(block.timestamp < TGEDate){
-            revert NotYetTimeToClaimTGE();
+            revert NotYetTimeToRedeemTGE();
         }
         uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
-        if(_IDOClaimAmount > IDOTGEAmount){
-            revert ClaimExceedMaxTGEAmount();
+        if(_IDORedeemAmount > IDOTGEAmount){
+            revert RedeemExceedMaxTGEAmount();
         }
-        userIDOTGEAmount[_msgSender()] -= _IDOClaimAmount;
-        _deliverTGEIDOTokens(_msgSender(), _IDOClaimAmount);
-        emit ClaimTGEAmount(_msgSender(), _IDOClaimAmount);
+        userIDOTGEAmount[_msgSender()] -= _IDORedeemAmount;
+        _deliverTGEIDOTokens(_msgSender(), _IDORedeemAmount);
+        emit RedeemTGEAmount(_msgSender(), _IDORedeemAmount);
     }
 
     /**
-     * @notice Allow or disallow investors to claim TGE amount of IDO token
+     * @notice Allow or disallow investors to redeem TGE amount of IDO token
      * @dev Only admin can call it
      */
-    function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external onlyAdmin{
+    function setRedeemableTGEIDOToken(bool _TGERedeemableStatus) external onlyAdmin{
         _validAddress(address(IDOToken));
-        if(TGEClaimable == _TGEClaimableStatus){
-            revert AlreadySetClaimableTGE(_TGEClaimableStatus);
+        if(TGERedeemable == _TGERedeemableStatus){
+            revert AlreadySetRedeemableTGE(_TGERedeemableStatus);
         }
-        TGEClaimable = _TGEClaimableStatus;
-        emit SetTGEClaimable(_TGEClaimableStatus);
+        TGERedeemable = _TGERedeemableStatus;
+        emit SetTGERedeemable(_TGERedeemableStatus);
     }
 
     /**

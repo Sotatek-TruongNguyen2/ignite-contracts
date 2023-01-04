@@ -28,6 +28,10 @@ describe("Ignition Pool",()=>{
             return JSON.parse(JSON.stringify(src));
         }
 
+        function paddingTo32Bytes(str: string){
+            return str.padEnd(66, '0');
+        }
+
         type PoolInfo = {
             IDOToken: string
             purchaseToken: string
@@ -257,7 +261,7 @@ describe("Ignition Pool",()=>{
             },
         ]
 
-        return {jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2,
+        return {jsonCopy, paddingTo32Bytes, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2,
         investors, poolFactory, pool, zeroAddress, provider, IDOTokens, purchaseTokens, poolInfoList, PERCENTAGE_DENOMINATOR}
     }
 
@@ -298,12 +302,17 @@ describe("Ignition Pool",()=>{
         })
      
         it("Should create pool successfully; revert not valid pool info", async()=>{
-            const {jsonCopy, owner, poolFactory, poolInfoList, collaborator0, zeroAddress} = await loadFixture(deployPoolFactoryFixture)
+            const {jsonCopy, paddingTo32Bytes, owner, poolFactory, poolInfoList, collaborator0, zeroAddress} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo1 = jsonCopy(poolInfoList[0])
             await poolFactory.connect(collaborator0).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
                 [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
                 poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
+            
+            // await poolFactory.connect(collaborator0).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
+            //     [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
+            //     poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
+            //     poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], paddingTo32Bytes('0x1671095858080'))
 
             expect(await poolFactory.getCreatedPoolsLengthByToken(collaborator0.address, poolInfo1.IDOToken)).to.be.equal(1)
             expect(await poolFactory.allPoolsLength()).to.be.equal(1)
@@ -315,6 +324,11 @@ describe("Ignition Pool",()=>{
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
+
+                // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                //     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], paddingTo32Bytes('0x1671095858080'))).to.be.revertedWithCustomError(poolFactory,"ZeroAddress")
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -323,6 +337,10 @@ describe("Ignition Pool",()=>{
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
+                // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                //     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], paddingTo32Bytes('0x1671095858080'))).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -331,6 +349,11 @@ describe("Ignition Pool",()=>{
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
+                // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                //     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], paddingTo32Bytes('0x1671095858080'))).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
+    
             }
             {
                 let poolInfo4 = jsonCopy(poolInfoList[4])
@@ -339,13 +362,19 @@ describe("Ignition Pool",()=>{
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
+                
+                // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                //     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], paddingTo32Bytes('0x1671095858080'))).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
+    
             }
         })
     })
 
     describe("Pool 0 - buy with approve",()=>{
         async function deployPool0Fixture(){
-            const {jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
+            const {jsonCopy, paddingTo32Bytes, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
                 poolInfoList, provider, zeroAddress, IDOTokens, purchaseTokens, PERCENTAGE_DENOMINATOR} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo0 = jsonCopy(poolInfoList[0])
 
@@ -354,6 +383,11 @@ describe("Ignition Pool",()=>{
                 poolInfo0.galaxyPoolProportion, poolInfo0.earlyAccessProportion, poolInfo0.totalRaiseAmount, poolInfo0.whaleOpenTime, poolInfo0.whaleDuration,
                 poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], BigNumber.from('0x63a27c8108892063ce32599c'))
 
+            // await poolFactory.connect(collaborator0).createPool([poolInfo0.IDOToken, poolInfo0.purchaseToken],
+            //     [poolInfo0.maxPurchaseAmountForKYCUser, poolInfo0.maxPurchaseAmountForNotKYCUser, poolInfo0.TGEDate, poolInfo0.TGEPercentage, poolInfo0.galaxyParticipationFeePercentage, poolInfo0.crowdfundingParticipationFeePercentage,
+            //     poolInfo0.galaxyPoolProportion, poolInfo0.earlyAccessProportion, poolInfo0.totalRaiseAmount, poolInfo0.whaleOpenTime, poolInfo0.whaleDuration,
+            //     poolInfo0.communityDuration, poolInfo0.rate, poolInfo0.decimal], paddingTo32Bytes('0x63a27c8108892063ce32599c'))
+    
             const pool0Address = await poolFactory.getCreatedPools(collaborator0.address, poolInfo0.IDOToken, 0)
 
             await poolFactory.connect(owner).grantAdminRole(admin1.address)
@@ -612,11 +646,11 @@ describe("Ignition Pool",()=>{
             // buy successfully upto max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             expect(await pool0.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('9800',6))).to.be.emit(pool0, "BuyToken").withArgs(investors[0].address, pool0.address, anyValue, anyValue)
 
-            // revert redeem purchase token
-            await expect(pool0.connect(owner).redeemPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool0,"NotEnoughConditionToRedeemPurchaseToken");
+            // revert withdraw purchase token
+            await expect(pool0.connect(owner).withdrawPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool0,"NotEnoughConditionToWithdrawPurchaseToken");
 
-            // revert redeem IDO token
-            await expect(pool0.connect(owner).redeemIDOToken(owner.address)).to.be.revertedWithCustomError(pool0,"NotEnoughConditionToRedeemIDOToken")
+            // revert withdraw IDO token
+            await expect(pool0.connect(owner).withdrawIDOToken(owner.address)).to.be.revertedWithCustomError(pool0,"NotEnoughConditionToWithdrawIDOToken")
 
             // revert buy more than max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             await expect(pool0.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100',6))).to.be.revertedWithCustomError(pool0, "ExceedMaxPurchaseAmountForKYCUser").withArgs(investors[0].address, anyValue)
@@ -667,40 +701,40 @@ describe("Ignition Pool",()=>{
             // console.log(await pool0.userIDOTGEAmount(investors[5].address))
             // console.log(await pool0.userIDOTGEAmount(investors[6].address))
 
-            await expect(pool0.connect(investors[0]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool0, "NotAllowedToClaimTGEIDOAmount")
-            await pool0.connect(admin1).setClaimableTGEIDOToken(true)
-            await expect(pool0.connect(investors[1]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToClaimTGE")
-            await pool0.connect(admin1).setClaimableTGEIDOToken(false)
+            await expect(pool0.connect(investors[0]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool0, "NotAllowedToRedeemTGEIDOAmount")
+            await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
+            await expect(pool0.connect(investors[1]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToRedeemTGE")
+            await pool0.connect(admin1).setRedeemableTGEIDOToken(false)
             
             await time.increaseTo(await pool0.TGEDate())
-            await pool0.connect(admin1).setClaimableTGEIDOToken(true)
+            await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
             const userIDOTGEAmount0 = await pool0.userIDOTGEAmount(investors[0].address);
-            expect(await pool0.connect(investors[0]).claimTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.emit(pool0, "ClaimTGEAmount").withArgs(anyValue, anyValue)
+            expect(await pool0.connect(investors[0]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.emit(pool0, "RedeemTGEAmount").withArgs(anyValue, anyValue)
             expect(await IDOTokens[0].balanceOf(investors[0].address)).to.be.equal(userIDOTGEAmount0)
 
-            await expect(pool0.connect(investors[0]).claimTGEIDOToken(parseUnits('10',6))).to.be.revertedWithCustomError(pool0,'ClaimExceedMaxTGEAmount')
+            await expect(pool0.connect(investors[0]).redeemTGEIDOToken(parseUnits('10',6))).to.be.revertedWithCustomError(pool0,'RedeemExceedMaxTGEAmount')
 
-            // redeem purchase token by admin
+            // withdraw purchase token by admin
             const balanceOfPurchaseTokenInPool0 = await purchaseTokens[0].balanceOf(pool0.address)
-            const balanceOfOwnerBeforeRedeemPurchaseToken = await purchaseTokens[0].balanceOf(owner.address)
-            expect(await pool0.connect(admin1).redeemPurchaseToken(owner.address)).to.be.emit(pool0, "RedeemPurchaseToken").withArgs(owner.address, purchaseTokens[0].address, anyValue)
-            const balanceOfOwnerAfterRedeemPurchaseToken = await purchaseTokens[0].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterRedeemPurchaseToken.sub(balanceOfOwnerBeforeRedeemPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInPool0)
+            const balanceOfOwnerBeforeWithdrawPurchaseToken = await purchaseTokens[0].balanceOf(owner.address)
+            expect(await pool0.connect(admin1).withdrawPurchaseToken(owner.address)).to.be.emit(pool0, "WithdrawPurchaseToken").withArgs(owner.address, purchaseTokens[0].address, anyValue)
+            const balanceOfOwnerAfterWithdrawPurchaseToken = await purchaseTokens[0].balanceOf(owner.address)
+            expect(balanceOfOwnerAfterWithdrawPurchaseToken.sub(balanceOfOwnerBeforeWithdrawPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInPool0)
             expect(await purchaseTokens[0].balanceOf(pool0.address)).to.be.equal(0)
 
-            // redeem IDO token by admin
+            // withdraw IDO token by admin
             const balanceOfIDOTokenInPool0 = await IDOTokens[0].balanceOf(pool0.address)
-            const balanceOfOwnerBeforeRedeemIDOToken = await IDOTokens[0].balanceOf(owner.address)
-            expect(await pool0.connect(admin1).redeemIDOToken(owner.address)).to.be.emit(pool0, "RedeemIDOToken").withArgs(anyValue, anyValue, anyValue)
-            const balanceOfOwnerAfterRedeemIDOToken = await IDOTokens[0].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterRedeemIDOToken.sub(balanceOfOwnerBeforeRedeemIDOToken)).to.be.equal(balanceOfIDOTokenInPool0)
+            const balanceOfOwnerBeforeWithdrawIDOToken = await IDOTokens[0].balanceOf(owner.address)
+            expect(await pool0.connect(admin1).withdrawIDOToken(owner.address)).to.be.emit(pool0, "WithdrawIDOToken").withArgs(anyValue, anyValue, anyValue)
+            const balanceOfOwnerAfterWithdrawIDOToken = await IDOTokens[0].balanceOf(owner.address)
+            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInPool0)
         })
     })
 
     describe("Pool 1 - buy with permit",()=>{
 
         async function deployPool1Fixture(){
-            const {jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
+            const {jsonCopy, paddingTo32Bytes, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
                 poolInfoList, provider, zeroAddress, IDOTokens, purchaseTokens, PERCENTAGE_DENOMINATOR} = await loadFixture(deployPoolFactoryFixture)
             
             const poolInfo1 = jsonCopy(poolInfoList[1])
@@ -711,6 +745,11 @@ describe("Ignition Pool",()=>{
                 poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
                 poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], 1671095858080)
             
+            // await poolFactory.connect(collaborator1).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
+            //     [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
+            //     poolInfo1.galaxyPoolProportion, poolInfo1.earlyAccessProportion, poolInfo1.totalRaiseAmount, poolInfo1.whaleOpenTime, poolInfo1.whaleDuration,
+            //     poolInfo1.communityDuration, poolInfo1.rate, poolInfo1.decimal], paddingTo32Bytes('0x63a27c8108892063ce32599c'))
+                
             const pool1Address = await poolFactory.getCreatedPools(collaborator1.address, poolInfo1.IDOToken, 0)
  
             await poolFactory.connect(owner).grantAdminRole(admin1.address)
@@ -1028,11 +1067,11 @@ describe("Ignition Pool",()=>{
             expect((balanceOfInvestor0AfterBuyToken).sub(balanceOfInvestor0BeforeBuyToken)).to.be.equal(BigNumber.from('0').sub(allowance0EA))
             expect((balanceOfpool1AfterBuyToken).sub(balanceOfpool1BeforeBuyToken)).to.be.equal(allowance0EA)
             
-            // revert redeem purchase token
-            await expect(pool1.connect(owner).redeemPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool1,"NotEnoughConditionToRedeemPurchaseToken");
+            // revert withdraw purchase token
+            await expect(pool1.connect(owner).withdrawPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool1,"NotEnoughConditionToWithdrawPurchaseToken");
             
-            // revert redeem IDO token
-            await expect(pool1.connect(owner).redeemIDOToken(owner.address)).to.be.revertedWithCustomError(pool1,"NotEnoughConditionToRedeemIDOToken")
+            // revert withdraw IDO token
+            await expect(pool1.connect(owner).withdrawIDOToken(owner.address)).to.be.revertedWithCustomError(pool1,"NotEnoughConditionToWithdrawIDOToken")
             
             // buy successfully more than allocation in galaxy pool; not more than max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             const allowance0EA0 = parseUnits('8000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('8000', purchaseToken1Decimal))
@@ -1132,43 +1171,43 @@ describe("Ignition Pool",()=>{
             // console.log(await pool1.userIDOTGEAmount(investors[5].address))
             // console.log(await pool1.userIDOTGEAmount(investors[6].address))
 
-            await pool1.connect(admin1).setClaimableTGEIDOToken(true);
-            await expect(pool1.connect(investors[0]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToClaimTGE")
-            await expect(pool1.connect(investors[1]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToClaimTGE")
-            await expect(pool1.connect(admin1).setClaimableTGEIDOToken(true)).to.be.revertedWithCustomError(pool1,"AlreadySetClaimableTGE").withArgs(true);
-            await pool1.connect(admin1).setClaimableTGEIDOToken(false);
+            await pool1.connect(admin1).setRedeemableTGEIDOToken(true);
+            await expect(pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
+            await expect(pool1.connect(investors[1]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
+            await expect(pool1.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool1,"AlreadySetRedeemableTGE").withArgs(true);
+            await pool1.connect(admin1).setRedeemableTGEIDOToken(false);
 
             await time.increaseTo(await pool1.TGEDate())
-            await expect(pool1.connect(admin1).setClaimableTGEIDOToken(false)).to.be.revertedWithCustomError(pool1, 'AlreadySetClaimableTGE').withArgs(false)
-            await pool1.connect(admin1).setClaimableTGEIDOToken(true);
+            await expect(pool1.connect(admin1).setRedeemableTGEIDOToken(false)).to.be.revertedWithCustomError(pool1, 'AlreadySetRedeemableTGE').withArgs(false)
+            await pool1.connect(admin1).setRedeemableTGEIDOToken(true);
 
             const userIDOTGEAmount0 = await pool1.userIDOTGEAmount(investors[0].address);
-            expect(await pool1.connect(investors[0]).claimTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.emit(pool1, "ClaimTGEAmount").withArgs(anyValue, anyValue)
+            expect(await pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.emit(pool1, "RedeemTGEAmount").withArgs(anyValue, anyValue)
             expect(await IDOTokens[1].balanceOf(investors[0].address)).to.be.equal(userIDOTGEAmount0)
 
-            await expect(pool1.connect(investors[0]).claimTGEIDOToken(parseUnits('10',16))).to.be.revertedWithCustomError(pool1,'ClaimExceedMaxTGEAmount')
+            await expect(pool1.connect(investors[0]).redeemTGEIDOToken(parseUnits('10',16))).to.be.revertedWithCustomError(pool1,'RedeemExceedMaxTGEAmount')
 
-            // redeem purchase token by admin
+            // withdraw purchase token by admin
             const balanceOfPurchaseTokenInpool1 = await purchaseTokens[1].balanceOf(pool1.address)
-            const balanceOfOwnerBeforeRedeemPurchaseToken = await purchaseTokens[1].balanceOf(owner.address)
-            await expect(pool1.connect(admin1).redeemPurchaseToken(zeroAddress)).to.be.revertedWithCustomError(pool1, 'ZeroAddress')
-            expect(await pool1.connect(admin1).redeemPurchaseToken(owner.address)).to.be.emit(pool1, "RedeemPurchaseToken").withArgs(owner.address, purchaseTokens[1].address, anyValue)
-            const balanceOfOwnerAfterRedeemPurchaseToken = await purchaseTokens[1].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterRedeemPurchaseToken.sub(balanceOfOwnerBeforeRedeemPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool1)
+            const balanceOfOwnerBeforeWithdrawPurchaseToken = await purchaseTokens[1].balanceOf(owner.address)
+            await expect(pool1.connect(admin1).withdrawPurchaseToken(zeroAddress)).to.be.revertedWithCustomError(pool1, 'ZeroAddress')
+            expect(await pool1.connect(admin1).withdrawPurchaseToken(owner.address)).to.be.emit(pool1, "WithdrawPurchaseToken").withArgs(owner.address, purchaseTokens[1].address, anyValue)
+            const balanceOfOwnerAfterWithdrawPurchaseToken = await purchaseTokens[1].balanceOf(owner.address)
+            expect(balanceOfOwnerAfterWithdrawPurchaseToken.sub(balanceOfOwnerBeforeWithdrawPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool1)
             expect(await purchaseTokens[1].balanceOf(pool1.address)).to.be.equal(0)
 
-            // redeem IDO token by admin
+            // withdraw IDO token by admin
             const balanceOfIDOTokenInpool1 = await IDOTokens[1].balanceOf(pool1.address)
-            const balanceOfOwnerBeforeRedeemIDOToken = await IDOTokens[1].balanceOf(owner.address)
-            expect(await pool1.connect(admin1).redeemIDOToken(owner.address)).to.be.emit(pool1, "RedeemIDOToken").withArgs(anyValue, anyValue, anyValue)
-            const balanceOfOwnerAfterRedeemIDOToken = await IDOTokens[1].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterRedeemIDOToken.sub(balanceOfOwnerBeforeRedeemIDOToken)).to.be.equal(balanceOfIDOTokenInpool1)
+            const balanceOfOwnerBeforeWithdrawIDOToken = await IDOTokens[1].balanceOf(owner.address)
+            expect(await pool1.connect(admin1).withdrawIDOToken(owner.address)).to.be.emit(pool1, "WithdrawIDOToken").withArgs(anyValue, anyValue, anyValue)
+            const balanceOfOwnerAfterWithdrawIDOToken = await IDOTokens[1].balanceOf(owner.address)
+            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInpool1)
         })
     })
 
     describe("Pool 2 - buy without IDO Token",()=>{
         async function deployPool2Fixture(){
-            const {jsonCopy, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
+            const {jsonCopy, paddingTo32Bytes, owner, admin1, admin2, admin3, collaborator0, collaborator1, collaborator2, investors, pool, poolFactory, 
                 poolInfoList, provider, zeroAddress, IDOTokens, purchaseTokens, PERCENTAGE_DENOMINATOR} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo2 = jsonCopy(poolInfoList[2])
 
@@ -1177,6 +1216,11 @@ describe("Ignition Pool",()=>{
                 poolInfoList[2].galaxyPoolProportion, poolInfoList[2].earlyAccessProportion, poolInfoList[2].totalRaiseAmount, poolInfoList[2].whaleOpenTime, poolInfoList[2].whaleDuration,
                 poolInfoList[2].communityDuration, poolInfoList[2].rate, poolInfoList[2].decimal], 1671095858080)
 
+            // await poolFactory.connect(collaborator0).createPool([poolInfoList[2].IDOToken, poolInfoList[2].purchaseToken],
+            //     [poolInfoList[2].maxPurchaseAmountForKYCUser, poolInfoList[2].maxPurchaseAmountForNotKYCUser, poolInfoList[2].TGEDate, poolInfoList[2].TGEPercentage, poolInfoList[2].galaxyParticipationFeePercentage, poolInfoList[2].crowdfundingParticipationFeePercentage,
+            //     poolInfoList[2].galaxyPoolProportion, poolInfoList[2].earlyAccessProportion, poolInfoList[2].totalRaiseAmount, poolInfoList[2].whaleOpenTime, poolInfoList[2].whaleDuration,
+            //     poolInfoList[2].communityDuration, poolInfoList[2].rate, poolInfoList[2].decimal], paddingTo32Bytes('0x63a27c8108892063ce32599c'))
+    
             const pool2Address = await poolFactory.getCreatedPools(collaborator0.address, poolInfoList[2].IDOToken, 0)
 
             await poolFactory.connect(owner).grantAdminRole(admin1.address)
@@ -1435,11 +1479,11 @@ describe("Ignition Pool",()=>{
             // buy successfully upto max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             expect(await pool2.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('9800', 18))).to.be.emit(pool2, "BuyToken").withArgs(investors[0].address, pool2.address, anyValue, anyValue)
             
-            // revert redeem purchase token
-            await expect(pool2.connect(owner).redeemPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool2,"NotEnoughConditionToRedeemPurchaseToken");
+            // revert withdraw purchase token
+            await expect(pool2.connect(owner).withdrawPurchaseToken(owner.address)).to.be.revertedWithCustomError(pool2,"NotEnoughConditionToWithdrawPurchaseToken");
             
-            // revert redeem IDO token
-            await expect(pool2.connect(owner).redeemIDOToken(owner.address)).to.be.revertedWithCustomError(pool2,"ZeroAddress")
+            // revert withdraw IDO token
+            await expect(pool2.connect(owner).withdrawIDOToken(owner.address)).to.be.revertedWithCustomError(pool2,"ZeroAddress")
             
             // revert buy more than max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             await expect(pool2.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100', 18))).to.be.revertedWithCustomError(pool2, "ExceedMaxPurchaseAmountForKYCUser").withArgs(investors[0].address, anyValue)
@@ -1487,21 +1531,21 @@ describe("Ignition Pool",()=>{
             // console.log(await pool2.userIDOTGEAmount(investors[5].address))
             // console.log(await pool2.userIDOTGEAmount(investors[6].address))
             
-            await expect(pool2.connect(investors[0]).claimTGEIDOToken(await pool2.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
-            await expect(pool2.connect(admin1).setClaimableTGEIDOToken(true)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
-            await expect(pool2.connect(investors[1]).claimTGEIDOToken(await pool2.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            await expect(pool2.connect(investors[0]).redeemTGEIDOToken(await pool2.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            await expect(pool2.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            await expect(pool2.connect(investors[1]).redeemTGEIDOToken(await pool2.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
 
             
-            // redeem purchase token by admin
+            // withdraw purchase token by admin
             const balanceOfPurchaseTokenInpool2 = await purchaseTokens[2].balanceOf(pool2.address)
-            const balanceOfOwnerBeforeRedeemPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
-            expect(await pool2.connect(admin1).redeemPurchaseToken(owner.address)).to.be.emit(pool2, "RedeemPurchaseToken").withArgs(owner.address, purchaseTokens[2].address, anyValue)
-            const balanceOfOwnerAfterRedeemPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterRedeemPurchaseToken.sub(balanceOfOwnerBeforeRedeemPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool2)
+            const balanceOfOwnerBeforeWithdrawPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
+            expect(await pool2.connect(admin1).withdrawPurchaseToken(owner.address)).to.be.emit(pool2, "WithdrawPurchaseToken").withArgs(owner.address, purchaseTokens[2].address, anyValue)
+            const balanceOfOwnerAfterWithdrawPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
+            expect(balanceOfOwnerAfterWithdrawPurchaseToken.sub(balanceOfOwnerBeforeWithdrawPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool2)
             expect(await purchaseTokens[2].balanceOf(pool2.address)).to.be.equal(0)
             
-            // revert redeem IDO token by admin
-            await expect(pool2.connect(admin1).redeemIDOToken(owner.address)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            // revert withdraw IDO token by admin
+            await expect(pool2.connect(admin1).withdrawIDOToken(owner.address)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
         })
     })
 })
