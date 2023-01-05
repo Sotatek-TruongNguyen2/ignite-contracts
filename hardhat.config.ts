@@ -102,8 +102,8 @@ const config: HardhatUserConfig = {
       tags: ['staging'],
     },
     goerli: {
-      // url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      url: 'https://rpc.ankr.com/eth_goerli',
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      // url: 'https://rpc.ankr.com/eth_goerli',
       accounts,
       chainId: 5,
       live: true,
@@ -260,7 +260,7 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: BSC_API_KEY,
   },
   watcher: {
     compile: {

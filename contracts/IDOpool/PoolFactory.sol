@@ -22,6 +22,9 @@ contract PoolFactory is Initializable, AccessControl {
     // Mapping from user to (From token to array of created pools for token)
     mapping(address => mapping(address => address[])) public getCreatedPools;
 
+    event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
+    event PoolCreated(bytes32 poolInfoHash, address pool);
+
     error ZeroAmount();
     error ZeroAddress();
     error AlreadyAdmin();
@@ -30,8 +33,6 @@ contract PoolFactory is Initializable, AccessControl {
     error NotValidGalaxyPoolProportion();
     error NotValidEarlyAccessProportion();
 
-    event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint dbProjectId);
-    event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
 
     /**
      * @notice Grant admin role for new admin
@@ -136,8 +137,9 @@ contract PoolFactory is Initializable, AccessControl {
         IPool(pool).initialize(addrs, uints);
         getCreatedPools[_msgSender()][_IDOToken].push(pool);
         allPools.push(pool);
-
-        emit PoolCreated(_msgSender(), _IDOToken, pool, allPools.length - 1, dbProjectId);
+        bytes32 poolInfoHash = keccak256(abi.encode(addrs, uints, dbProjectId));
+        
+        emit PoolCreated(poolInfoHash, pool);
     }
 
     /**

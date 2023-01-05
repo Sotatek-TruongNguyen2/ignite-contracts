@@ -9,7 +9,7 @@
     "coverage": "hardhat coverage",
     "dodoc": "hardhat dodoc",
     "deploy:goerli": "hardhat deploy --network goerli",
-    "deploy:binancetest": "hardhat deploy --network binancetest",
+    "deploy:bsctest": "hardhat deploy --network binancetest",
     "deploy:mumbai": "hardhat deploy --network mumbai",
     "deploy:fuji": "hardhat deploy --network fuji"
   },

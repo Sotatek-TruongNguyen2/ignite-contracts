@@ -69,8 +69,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
     event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
     event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime);
-    event PoolCreated1(address IDOToken, address purchaseToken, uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage);
-    event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint rate, uint decimal);
+    event PoolCreatedChild1(address IDOToken, address purchaseToken, uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage);
+    event PoolCreatedChild2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint rate, uint decimal);
 
     error NotAdmin();
     error ZeroAmount();
@@ -167,8 +167,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             offeredCurrency.decimal = _decimal;
         }
         
-        emit PoolCreated1(address(IDOToken), address(purchaseToken), maxPurchaseAmountForKYCUser, maxPurchaseAmountForNotKYCUser, TGEDate, TGEPercentage, galaxyParticipationFeePercentage, crowdfundingParticipationFeePercentage);
-        emit PoolCreated2(galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime, offeredCurrency.rate, offeredCurrency.decimal);
+        emit PoolCreatedChild1(address(IDOToken), address(purchaseToken), maxPurchaseAmountForKYCUser, maxPurchaseAmountForNotKYCUser, TGEDate, TGEPercentage, galaxyParticipationFeePercentage, crowdfundingParticipationFeePercentage);
+        emit PoolCreatedChild2(galaxyPoolProportion, earlyAccessProportion, totalRaiseAmount, whaleOpenTime, whaleCloseTime, communityCloseTime, offeredCurrency.rate, offeredCurrency.decimal);
     }
 
     /**
