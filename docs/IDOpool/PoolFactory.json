@@ -8,7 +8,8 @@
                 "_0": {
                     "type": "bytes32"
                 }
-            }
+            },
+            "notice": "keccak256(\"ADMIN\")"
         },
         "DEFAULT_ADMIN_ROLE()": {
             "stateMutability": "view",
@@ -28,7 +29,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "notice": "percentage denominator"
         },
         "allPools(uint256)": {
             "stateMutability": "view",
@@ -42,7 +44,8 @@
                 "_0": {
                     "type": "address"
                 }
-            }
+            },
+            "notice": "Array of created pools address"
         },
         "allPoolsLength()": {
             "stateMutability": "view",
@@ -100,7 +103,8 @@
                 "_0": {
                     "type": "address"
                 }
-            }
+            },
+            "notice": "Mapping from user to (From token to array of created pools for token)"
         },
         "getCreatedPoolsByToken(address,address)": {
             "stateMutability": "view",
@@ -243,7 +247,8 @@
                 "_0": {
                     "type": "address"
                 }
-            }
+            },
+            "notice": "Address of pool implementation"
         },
         "renounceRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -326,26 +331,14 @@
             }
         },
         "PoolCreated": {
-            "code": "event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbProjectId)",
+            "code": "event PoolCreated(bytes32 poolInfoHash, address pool)",
             "inputs": {
-                "createdBy": {
-                    "type": "address",
+                "poolInfoHash": {
+                    "type": "bytes32",
                     "indexed": false
-                },
-                "token": {
-                    "type": "address",
-                    "indexed": true
                 },
                 "pool": {
                     "type": "address",
-                    "indexed": true
-                },
-                "poolId": {
-                    "type": "uint256",
-                    "indexed": false
-                },
-                "dbProjectId": {
-                    "type": "uint256",
                     "indexed": false
                 }
             }

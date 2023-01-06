@@ -35,7 +35,7 @@ function IDOToken() external view returns (contract IERC20)
 
 
 
-
+*Address of IDO token*
 
 
 #### Returns
@@ -52,7 +52,7 @@ function NORMAL_USER() external view returns (bytes32)
 
 
 
-
+*keccak256(&quot;NORMAL_USER&quot;)*
 
 
 #### Returns
@@ -69,7 +69,7 @@ function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 
 
 
-
+*percentage denominator*
 
 
 #### Returns
@@ -77,23 +77,6 @@ function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint16 | undefined |
-
-### TGEClaimable
-
-```solidity
-function TGEClaimable() external view returns (bool)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bool | undefined |
 
 ### TGEDate
 
@@ -103,7 +86,7 @@ function TGEDate() external view returns (uint64)
 
 
 
-
+*Time for user to redeem IDO token*
 
 
 #### Returns
@@ -120,7 +103,7 @@ function TGEPercentage() external view returns (uint16)
 
 
 
-
+*Percentage of IDO token amount of user, which can be redeemed after TGEDate*
 
 
 #### Returns
@@ -128,6 +111,23 @@ function TGEPercentage() external view returns (uint16)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint16 | undefined |
+
+### TGERedeemable
+
+```solidity
+function TGERedeemable() external view returns (bool)
+```
+
+
+
+*Status whether or not investor can redeem IDO token*
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
 
 ### WHALE
 
@@ -137,7 +137,7 @@ function WHALE() external view returns (bytes32)
 
 
 
-
+*keccak256(&quot;WHALE&quot;)*
 
 
 #### Returns
@@ -221,22 +221,6 @@ Investor buy token in galaxy pool
 | _deadline | uint256 | Deadline of off-chain investor&#39;s signature |
 | _signature | bytes | Signature of investor |
 
-### claimTGEIDOToken
-
-```solidity
-function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable
-```
-
-Investor claim IDO token after TGE date
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _IDOClaimAmount | uint256 | Amount of IDO token is wanted to claim |
-
 ### closePool
 
 ```solidity
@@ -256,7 +240,7 @@ function communityCloseTime() external view returns (uint64)
 
 
 
-
+*Close time of crowdfunding pool*
 
 
 #### Returns
@@ -273,7 +257,7 @@ function communityOpenTime() external view returns (uint64)
 
 
 
-
+*Open time for community user = Close time of galaxy pool*
 
 
 #### Returns
@@ -290,7 +274,7 @@ function crowdfundingParticipationFeePercentage() external view returns (uint16)
 
 
 
-
+*Fee percentage when buying token in crowdfunding pool*
 
 
 #### Returns
@@ -307,7 +291,7 @@ function earlyAccessProportion() external view returns (uint16)
 
 
 
-
+*Proportion of crowdfunding pool amount for early access*
 
 
 #### Returns
@@ -324,7 +308,7 @@ function galaxyParticipationFeePercentage() external view returns (uint16)
 
 
 
-
+*Fee percentage when buying token in galaxy pool*
 
 
 #### Returns
@@ -341,7 +325,7 @@ function galaxyPoolProportion() external view returns (uint16)
 
 
 
-
+*Proportion of total raise for galaxy pool*
 
 
 #### Returns
@@ -437,7 +421,7 @@ function maxPurchaseAmountForEarlyAccess() external view returns (uint256)
 
 
 
-
+*Max purchase amount for early access  = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion*
 
 
 #### Returns
@@ -454,7 +438,7 @@ function maxPurchaseAmountForGalaxyPool() external view returns (uint256)
 
 
 
-
+*Max purchase amount for galaxy pool  = total raise amount * galaxy pool proportion*
 
 
 #### Returns
@@ -471,7 +455,7 @@ function maxPurchaseAmountForKYCUser() external view returns (uint256)
 
 
 
-
+*Max purchase amount for KYC user*
 
 
 #### Returns
@@ -488,7 +472,7 @@ function maxPurchaseAmountForNotKYCUser() external view returns (uint256)
 
 
 
-
+*Max purchase amount for NOT KYC user*
 
 
 #### Returns
@@ -505,7 +489,7 @@ function offeredCurrency() external view returns (uint256 rate, uint256 decimal)
 
 
 
-
+*Store rate and decimal to display price of IDO token*
 
 
 #### Returns
@@ -540,7 +524,7 @@ function poolFactory() external view returns (contract IPoolFactory)
 
 
 
-
+*Address of pool factory*
 
 
 #### Returns
@@ -557,7 +541,7 @@ function purchaseToken() external view returns (contract IERC20)
 
 
 
-
+*Address of purchase token*
 
 
 #### Returns
@@ -574,7 +558,7 @@ function purchasedAmount() external view returns (uint256)
 
 
 
-
+*Purchased amount in all pools*
 
 
 #### Returns
@@ -591,7 +575,7 @@ function purchasedAmountInEarlyAccess() external view returns (uint256)
 
 
 
-
+*Purchased amount in early access*
 
 
 #### Returns
@@ -608,7 +592,7 @@ function purchasedAmountInGalaxyPool() external view returns (uint256)
 
 
 
-
+*Purchased amount in galaxy pool*
 
 
 #### Returns
@@ -617,37 +601,21 @@ function purchasedAmountInGalaxyPool() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### redeemIDOToken
+### redeemTGEIDOToken
 
 ```solidity
-function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable
+function redeemTGEIDOToken(uint256 _IDORedeemAmount) external nonpayable
 ```
 
-Admin redeem redundant IDO token in pool
+Investor redeem IDO token after TGE date
 
-*Only admin can call it after pool closed*
+
 
 #### Parameters
 
 | Name | Type | Description |
 |---|---|---|
-| _redeemIDOTokenRecipient | address | Address of recipient |
-
-### redeemPurchaseToken
-
-```solidity
-function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external nonpayable
-```
-
-Admin redeem purchase token in pool
-
-*Only admin can call it after pool closed*
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _redeemPurchaseTokenRecipient | address | Address of recipient |
+| _IDORedeemAmount | uint256 | Amount of IDO token is wanted to redeem |
 
 ### renounceRole
 
@@ -700,13 +668,13 @@ function root() external view returns (bytes32)
 |---|---|---|
 | _0 | bytes32 | undefined |
 
-### setClaimableTGEIDOToken
+### setRedeemableTGEIDOToken
 
 ```solidity
-function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external nonpayable
+function setRedeemableTGEIDOToken(bool _TGERedeemableStatus) external nonpayable
 ```
 
-Allow or disallow investors to claim TGE amount of IDO token
+Allow or disallow investors to redeem TGE amount of IDO token
 
 *Only admin can call it*
 
@@ -714,7 +682,7 @@ Allow or disallow investors to claim TGE amount of IDO token
 
 | Name | Type | Description |
 |---|---|---|
-| _TGEClaimableStatus | bool | undefined |
+| _TGERedeemableStatus | bool | undefined |
 
 ### setRoot
 
@@ -762,7 +730,7 @@ function totalRaiseAmount() external view returns (uint256)
 
 
 
-
+*Total raise amount of all pools*
 
 
 #### Returns
@@ -796,7 +764,7 @@ function userIDOAirdropAmount(address) external view returns (uint256)
 
 
 
-
+*Mapping from User to airdrop amount*
 
 #### Parameters
 
@@ -818,7 +786,7 @@ function userIDOTGEAmount(address) external view returns (uint256)
 
 
 
-
+*Mapping from User to TGE amount*
 
 #### Parameters
 
@@ -840,7 +808,7 @@ function userPurchasedAmount(address) external view returns (uint256)
 
 
 
-
+*Mapping from User to purchased amount *
 
 #### Parameters
 
@@ -862,7 +830,7 @@ function whaleCloseTime() external view returns (uint64)
 
 
 
-
+*Close time of galaxy pool*
 
 
 #### Returns
@@ -879,7 +847,7 @@ function whaleOpenTime() external view returns (uint64)
 
 
 
-
+*Open time of galaxy pool*
 
 
 #### Returns
@@ -887,6 +855,38 @@ function whaleOpenTime() external view returns (uint64)
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint64 | undefined |
+
+### withdrawIDOToken
+
+```solidity
+function withdrawIDOToken(address _withdrawIDOTokenRecipient) external nonpayable
+```
+
+Admin withdraw redundant IDO token in pool
+
+*Only admin can call it after pool closed*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _withdrawIDOTokenRecipient | address | Address of recipient |
+
+### withdrawPurchaseToken
+
+```solidity
+function withdrawPurchaseToken(address _withdrawPurchaseTokenRecipient) external nonpayable
+```
+
+Admin withdraw purchase token in pool
+
+*Only admin can call it after pool closed*
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _withdrawPurchaseTokenRecipient | address | Address of recipient |
 
 
 
@@ -910,23 +910,6 @@ event BuyToken(address indexed buyer, address indexed pool, address indexed IDOT
 | pool `indexed` | address | undefined |
 | IDOToken `indexed` | address | undefined |
 | purchaseAmount  | uint256 | undefined |
-
-### ClaimTGEAmount
-
-```solidity
-event ClaimTGEAmount(address buyer, uint256 claimAmount)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| buyer  | address | undefined |
-| claimAmount  | uint256 | undefined |
 
 ### Initialized
 
@@ -960,10 +943,10 @@ event Paused(address account)
 |---|---|---|
 | account  | address | undefined |
 
-### PoolCreated1
+### PoolCreatedChild1
 
 ```solidity
-event PoolCreated1(address IDOToken, address purchaseToken, uint256 maxPurchaseAmountForKYCUser, uint256 maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage)
+event PoolCreatedChild1(address IDOToken, address purchaseToken, uint256 maxPurchaseAmountForKYCUser, uint256 maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage)
 ```
 
 
@@ -983,10 +966,10 @@ event PoolCreated1(address IDOToken, address purchaseToken, uint256 maxPurchaseA
 | galaxyParticipationFeePercentage  | uint16 | undefined |
 | crowdfundingParticipationFeePercentage  | uint16 | undefined |
 
-### PoolCreated2
+### PoolCreatedChild2
 
 ```solidity
-event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint256 totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint256 rate, uint256 decimal)
+event PoolCreatedChild2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint256 totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint256 rate, uint256 decimal)
 ```
 
 
@@ -1006,10 +989,10 @@ event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, ui
 | rate  | uint256 | undefined |
 | decimal  | uint256 | undefined |
 
-### RedeemIDOToken
+### RedeemTGEAmount
 
 ```solidity
-event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint256 remainAmount)
+event RedeemTGEAmount(address buyer, uint256 redeemAmount)
 ```
 
 
@@ -1020,27 +1003,8 @@ event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint256 
 
 | Name | Type | Description |
 |---|---|---|
-| redeemIDOTokenRecipient  | address | undefined |
-| IDOToken  | address | undefined |
-| remainAmount  | uint256 | undefined |
-
-### RedeemPurchaseToken
-
-```solidity
-event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint256 purchaseAmount)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| redeemPurchaseTokenRecipient  | address | undefined |
-| purchaseToken  | address | undefined |
-| purchaseAmount  | uint256 | undefined |
+| buyer  | address | undefined |
+| redeemAmount  | uint256 | undefined |
 
 ### RoleAdminChanged
 
@@ -1112,10 +1076,10 @@ event SetIDOTokenAddress(address IDOToken)
 |---|---|---|
 | IDOToken  | address | undefined |
 
-### SetTGEClaimable
+### SetTGERedeemable
 
 ```solidity
-event SetTGEClaimable(bool claimable)
+event SetTGERedeemable(bool redeemable)
 ```
 
 
@@ -1126,7 +1090,7 @@ event SetTGEClaimable(bool claimable)
 
 | Name | Type | Description |
 |---|---|---|
-| claimable  | bool | undefined |
+| redeemable  | bool | undefined |
 
 ### Unpaused
 
@@ -1229,14 +1193,50 @@ event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOp
 | communityOpenTime  | uint64 | undefined |
 | communityCloseTime  | uint64 | undefined |
 
+### WithdrawIDOToken
+
+```solidity
+event WithdrawIDOToken(address withdrawIDOTokenRecipient, address IDOToken, uint256 remainAmount)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| withdrawIDOTokenRecipient  | address | undefined |
+| IDOToken  | address | undefined |
+| remainAmount  | uint256 | undefined |
+
+### WithdrawPurchaseToken
+
+```solidity
+event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint256 purchaseAmount)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| withdrawPurchaseTokenRecipient  | address | undefined |
+| purchaseToken  | address | undefined |
+| purchaseAmount  | uint256 | undefined |
+
 
 
 ## Errors
 
-### AlreadySetClaimableTGE
+### AlreadySetRedeemableTGE
 
 ```solidity
-error AlreadySetClaimableTGE(bool presentStatus)
+error AlreadySetRedeemableTGE(bool presentStatus)
 ```
 
 
@@ -1248,17 +1248,6 @@ error AlreadySetClaimableTGE(bool presentStatus)
 | Name | Type | Description |
 |---|---|---|
 | presentStatus | bool | undefined |
-
-### ClaimExceedMaxTGEAmount
-
-```solidity
-error ClaimExceedMaxTGEAmount()
-```
-
-
-
-
-
 
 ### ExceedMaxPurchaseAmountForEarlyAccess
 
@@ -1367,10 +1356,10 @@ error NotAdmin()
 
 
 
-### NotAllowedToClaimTGEIDOAmount
+### NotAllowedToRedeemTGEIDOAmount
 
 ```solidity
-error NotAllowedToClaimTGEIDOAmount()
+error NotAllowedToRedeemTGEIDOAmount()
 ```
 
 
@@ -1397,10 +1386,10 @@ error NotEnoughAllowance(address buyer, address purchaseToken, uint256 allowance
 | allowance | uint256 | undefined |
 | amount | uint256 | undefined |
 
-### NotEnoughConditionToRedeemIDOToken
+### NotEnoughConditionToWithdrawIDOToken
 
 ```solidity
-error NotEnoughConditionToRedeemIDOToken()
+error NotEnoughConditionToWithdrawIDOToken()
 ```
 
 
@@ -1408,10 +1397,10 @@ error NotEnoughConditionToRedeemIDOToken()
 
 
 
-### NotEnoughConditionToRedeemPurchaseToken
+### NotEnoughConditionToWithdrawPurchaseToken
 
 ```solidity
-error NotEnoughConditionToRedeemPurchaseToken()
+error NotEnoughConditionToWithdrawPurchaseToken()
 ```
 
 
@@ -1465,10 +1454,21 @@ error NotValidSignature()
 
 
 
-### NotYetTimeToClaimTGE
+### NotYetTimeToRedeemTGE
 
 ```solidity
-error NotYetTimeToClaimTGE()
+error NotYetTimeToRedeemTGE()
+```
+
+
+
+
+
+
+### RedeemExceedMaxTGEAmount
+
+```solidity
+error RedeemExceedMaxTGEAmount()
 ```
 
 

@@ -18,7 +18,8 @@
                 "_0": {
                     "type": "contract IERC20"
                 }
-            }
+            },
+            "details": "Address of IDO token"
         },
         "NORMAL_USER()": {
             "stateMutability": "view",
@@ -28,7 +29,8 @@
                 "_0": {
                     "type": "bytes32"
                 }
-            }
+            },
+            "details": "keccak256(\"NORMAL_USER\")"
         },
         "PERCENTAGE_DENOMINATOR()": {
             "stateMutability": "view",
@@ -38,17 +40,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
-        },
-        "TGEClaimable()": {
-            "stateMutability": "view",
-            "code": "function TGEClaimable() external view returns (bool)",
-            "inputs": {},
-            "outputs": {
-                "_0": {
-                    "type": "bool"
-                }
-            }
+            },
+            "details": "percentage denominator"
         },
         "TGEDate()": {
             "stateMutability": "view",
@@ -58,7 +51,8 @@
                 "_0": {
                     "type": "uint64"
                 }
-            }
+            },
+            "details": "Time for user to redeem IDO token"
         },
         "TGEPercentage()": {
             "stateMutability": "view",
@@ -68,7 +62,19 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "details": "Percentage of IDO token amount of user, which can be redeemed after TGEDate"
+        },
+        "TGERedeemable()": {
+            "stateMutability": "view",
+            "code": "function TGERedeemable() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Status whether or not investor can redeem IDO token"
         },
         "WHALE()": {
             "stateMutability": "view",
@@ -78,7 +84,8 @@
                 "_0": {
                     "type": "bytes32"
                 }
-            }
+            },
+            "details": "keccak256(\"WHALE\")"
         },
         "buyTokenInCrowdfundingPool(bytes32[],uint256)": {
             "stateMutability": "nonpayable",
@@ -176,18 +183,6 @@
             "notice": "Investor buy token in galaxy pool",
             "details": "Investor do not need execute approve transaction, but need to sign data off-chain; used only for USDC. Must be in time for whale and pool is not closed"
         },
-        "claimTGEIDOToken(uint256)": {
-            "stateMutability": "nonpayable",
-            "code": "function claimTGEIDOToken(uint256 _IDOClaimAmount) external nonpayable",
-            "inputs": {
-                "_IDOClaimAmount": {
-                    "type": "uint256",
-                    "description": "Amount of IDO token is wanted to claim"
-                }
-            },
-            "outputs": {},
-            "notice": "Investor claim IDO token after TGE date"
-        },
         "closePool()": {
             "stateMutability": "nonpayable",
             "code": "function closePool() external nonpayable",
@@ -204,7 +199,8 @@
                 "_0": {
                     "type": "uint64"
                 }
-            }
+            },
+            "details": "Close time of crowdfunding pool"
         },
         "communityOpenTime()": {
             "stateMutability": "view",
@@ -214,7 +210,8 @@
                 "_0": {
                     "type": "uint64"
                 }
-            }
+            },
+            "details": "Open time for community user = Close time of galaxy pool"
         },
         "crowdfundingParticipationFeePercentage()": {
             "stateMutability": "view",
@@ -224,7 +221,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "details": "Fee percentage when buying token in crowdfunding pool"
         },
         "earlyAccessProportion()": {
             "stateMutability": "view",
@@ -234,7 +232,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "details": "Proportion of crowdfunding pool amount for early access"
         },
         "galaxyParticipationFeePercentage()": {
             "stateMutability": "view",
@@ -244,7 +243,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "details": "Fee percentage when buying token in galaxy pool"
         },
         "galaxyPoolProportion()": {
             "stateMutability": "view",
@@ -254,7 +254,8 @@
                 "_0": {
                     "type": "uint16"
                 }
-            }
+            },
+            "details": "Proportion of total raise for galaxy pool"
         },
         "getRoleAdmin(bytes32)": {
             "stateMutability": "view",
@@ -328,7 +329,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Max purchase amount for early access  = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion"
         },
         "maxPurchaseAmountForGalaxyPool()": {
             "stateMutability": "view",
@@ -338,7 +340,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Max purchase amount for galaxy pool  = total raise amount * galaxy pool proportion"
         },
         "maxPurchaseAmountForKYCUser()": {
             "stateMutability": "view",
@@ -348,7 +351,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Max purchase amount for KYC user"
         },
         "maxPurchaseAmountForNotKYCUser()": {
             "stateMutability": "view",
@@ -358,7 +362,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Max purchase amount for NOT KYC user"
         },
         "offeredCurrency()": {
             "stateMutability": "view",
@@ -371,7 +376,8 @@
                 "decimal": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Store rate and decimal to display price of IDO token"
         },
         "paused()": {
             "stateMutability": "view",
@@ -392,7 +398,8 @@
                 "_0": {
                     "type": "contract IPoolFactory"
                 }
-            }
+            },
+            "details": "Address of pool factory"
         },
         "purchaseToken()": {
             "stateMutability": "view",
@@ -402,7 +409,8 @@
                 "_0": {
                     "type": "contract IERC20"
                 }
-            }
+            },
+            "details": "Address of purchase token"
         },
         "purchasedAmount()": {
             "stateMutability": "view",
@@ -412,7 +420,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Purchased amount in all pools"
         },
         "purchasedAmountInEarlyAccess()": {
             "stateMutability": "view",
@@ -422,7 +431,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Purchased amount in early access"
         },
         "purchasedAmountInGalaxyPool()": {
             "stateMutability": "view",
@@ -432,33 +442,20 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Purchased amount in galaxy pool"
         },
-        "redeemIDOToken(address)": {
+        "redeemTGEIDOToken(uint256)": {
             "stateMutability": "nonpayable",
-            "code": "function redeemIDOToken(address _redeemIDOTokenRecipient) external nonpayable",
+            "code": "function redeemTGEIDOToken(uint256 _IDORedeemAmount) external nonpayable",
             "inputs": {
-                "_redeemIDOTokenRecipient": {
-                    "type": "address",
-                    "description": "Address of recipient"
+                "_IDORedeemAmount": {
+                    "type": "uint256",
+                    "description": "Amount of IDO token is wanted to redeem"
                 }
             },
             "outputs": {},
-            "notice": "Admin redeem redundant IDO token in pool",
-            "details": "Only admin can call it after pool closed"
-        },
-        "redeemPurchaseToken(address)": {
-            "stateMutability": "nonpayable",
-            "code": "function redeemPurchaseToken(address _redeemPurchaseTokenRecipient) external nonpayable",
-            "inputs": {
-                "_redeemPurchaseTokenRecipient": {
-                    "type": "address",
-                    "description": "Address of recipient"
-                }
-            },
-            "outputs": {},
-            "notice": "Admin redeem purchase token in pool",
-            "details": "Only admin can call it after pool closed"
+            "notice": "Investor redeem IDO token after TGE date"
         },
         "renounceRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -498,16 +495,16 @@
                 }
             }
         },
-        "setClaimableTGEIDOToken(bool)": {
+        "setRedeemableTGEIDOToken(bool)": {
             "stateMutability": "nonpayable",
-            "code": "function setClaimableTGEIDOToken(bool _TGEClaimableStatus) external nonpayable",
+            "code": "function setRedeemableTGEIDOToken(bool _TGERedeemableStatus) external nonpayable",
             "inputs": {
-                "_TGEClaimableStatus": {
+                "_TGERedeemableStatus": {
                     "type": "bool"
                 }
             },
             "outputs": {},
-            "notice": "Allow or disallow investors to claim TGE amount of IDO token",
+            "notice": "Allow or disallow investors to redeem TGE amount of IDO token",
             "details": "Only admin can call it"
         },
         "setRoot(bytes32)": {
@@ -546,7 +543,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Total raise amount of all pools"
         },
         "updateTime(uint64,uint64)": {
             "stateMutability": "nonpayable",
@@ -577,7 +575,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Mapping from User to airdrop amount"
         },
         "userIDOTGEAmount(address)": {
             "stateMutability": "view",
@@ -591,7 +590,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Mapping from User to TGE amount"
         },
         "userPurchasedAmount(address)": {
             "stateMutability": "view",
@@ -605,7 +605,8 @@
                 "_0": {
                     "type": "uint256"
                 }
-            }
+            },
+            "details": "Mapping from User to purchased amount "
         },
         "whaleCloseTime()": {
             "stateMutability": "view",
@@ -615,7 +616,8 @@
                 "_0": {
                     "type": "uint64"
                 }
-            }
+            },
+            "details": "Close time of galaxy pool"
         },
         "whaleOpenTime()": {
             "stateMutability": "view",
@@ -625,7 +627,34 @@
                 "_0": {
                     "type": "uint64"
                 }
-            }
+            },
+            "details": "Open time of galaxy pool"
+        },
+        "withdrawIDOToken(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function withdrawIDOToken(address _withdrawIDOTokenRecipient) external nonpayable",
+            "inputs": {
+                "_withdrawIDOTokenRecipient": {
+                    "type": "address",
+                    "description": "Address of recipient"
+                }
+            },
+            "outputs": {},
+            "notice": "Admin withdraw redundant IDO token in pool",
+            "details": "Only admin can call it after pool closed"
+        },
+        "withdrawPurchaseToken(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function withdrawPurchaseToken(address _withdrawPurchaseTokenRecipient) external nonpayable",
+            "inputs": {
+                "_withdrawPurchaseTokenRecipient": {
+                    "type": "address",
+                    "description": "Address of recipient"
+                }
+            },
+            "outputs": {},
+            "notice": "Admin withdraw purchase token in pool",
+            "details": "Only admin can call it after pool closed"
         }
     },
     "events": {
@@ -650,19 +679,6 @@
                 }
             }
         },
-        "ClaimTGEAmount": {
-            "code": "event ClaimTGEAmount(address buyer, uint256 claimAmount)",
-            "inputs": {
-                "buyer": {
-                    "type": "address",
-                    "indexed": false
-                },
-                "claimAmount": {
-                    "type": "uint256",
-                    "indexed": false
-                }
-            }
-        },
         "Initialized": {
             "code": "event Initialized(uint8 version)",
             "inputs": {
@@ -681,8 +697,8 @@
                 }
             }
         },
-        "PoolCreated1": {
-            "code": "event PoolCreated1(address IDOToken, address purchaseToken, uint256 maxPurchaseAmountForKYCUser, uint256 maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage)",
+        "PoolCreatedChild1": {
+            "code": "event PoolCreatedChild1(address IDOToken, address purchaseToken, uint256 maxPurchaseAmountForKYCUser, uint256 maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage)",
             "inputs": {
                 "IDOToken": {
                     "type": "address",
@@ -718,8 +734,8 @@
                 }
             }
         },
-        "PoolCreated2": {
-            "code": "event PoolCreated2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint256 totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint256 rate, uint256 decimal)",
+        "PoolCreatedChild2": {
+            "code": "event PoolCreatedChild2(uint16 galaxyPoolProportion, uint16 earlyAccessProportion, uint256 totalRaiseAmount, uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityCloseTime, uint256 rate, uint256 decimal)",
             "inputs": {
                 "galaxyPoolProportion": {
                     "type": "uint16",
@@ -755,35 +771,14 @@
                 }
             }
         },
-        "RedeemIDOToken": {
-            "code": "event RedeemIDOToken(address redeemIDOTokenRecipient, address IDOToken, uint256 remainAmount)",
+        "RedeemTGEAmount": {
+            "code": "event RedeemTGEAmount(address buyer, uint256 redeemAmount)",
             "inputs": {
-                "redeemIDOTokenRecipient": {
+                "buyer": {
                     "type": "address",
                     "indexed": false
                 },
-                "IDOToken": {
-                    "type": "address",
-                    "indexed": false
-                },
-                "remainAmount": {
-                    "type": "uint256",
-                    "indexed": false
-                }
-            }
-        },
-        "RedeemPurchaseToken": {
-            "code": "event RedeemPurchaseToken(address redeemPurchaseTokenRecipient, address purchaseToken, uint256 purchaseAmount)",
-            "inputs": {
-                "redeemPurchaseTokenRecipient": {
-                    "type": "address",
-                    "indexed": false
-                },
-                "purchaseToken": {
-                    "type": "address",
-                    "indexed": false
-                },
-                "purchaseAmount": {
+                "redeemAmount": {
                     "type": "uint256",
                     "indexed": false
                 }
@@ -849,10 +844,10 @@
                 }
             }
         },
-        "SetTGEClaimable": {
-            "code": "event SetTGEClaimable(bool claimable)",
+        "SetTGERedeemable": {
+            "code": "event SetTGERedeemable(bool redeemable)",
             "inputs": {
-                "claimable": {
+                "redeemable": {
                     "type": "bool",
                     "indexed": false
                 }
@@ -931,20 +926,50 @@
                     "indexed": false
                 }
             }
+        },
+        "WithdrawIDOToken": {
+            "code": "event WithdrawIDOToken(address withdrawIDOTokenRecipient, address IDOToken, uint256 remainAmount)",
+            "inputs": {
+                "withdrawIDOTokenRecipient": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "IDOToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "remainAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
+        "WithdrawPurchaseToken": {
+            "code": "event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint256 purchaseAmount)",
+            "inputs": {
+                "withdrawPurchaseTokenRecipient": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "purchaseToken": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "purchaseAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
         }
     },
     "errors": {
-        "AlreadySetClaimableTGE": {
-            "code": "error AlreadySetClaimableTGE(bool presentStatus)",
+        "AlreadySetRedeemableTGE": {
+            "code": "error AlreadySetRedeemableTGE(bool presentStatus)",
             "inputs": {
                 "presentStatus": {
                     "type": "bool"
                 }
             }
-        },
-        "ClaimExceedMaxTGEAmount": {
-            "code": "error ClaimExceedMaxTGEAmount()",
-            "inputs": {}
         },
         "ExceedMaxPurchaseAmountForEarlyAccess": {
             "code": "error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint256 purchaseAmount)",
@@ -1009,8 +1034,8 @@
             "code": "error NotAdmin()",
             "inputs": {}
         },
-        "NotAllowedToClaimTGEIDOAmount": {
-            "code": "error NotAllowedToClaimTGEIDOAmount()",
+        "NotAllowedToRedeemTGEIDOAmount": {
+            "code": "error NotAllowedToRedeemTGEIDOAmount()",
             "inputs": {}
         },
         "NotEnoughAllowance": {
@@ -1030,12 +1055,12 @@
                 }
             }
         },
-        "NotEnoughConditionToRedeemIDOToken": {
-            "code": "error NotEnoughConditionToRedeemIDOToken()",
+        "NotEnoughConditionToWithdrawIDOToken": {
+            "code": "error NotEnoughConditionToWithdrawIDOToken()",
             "inputs": {}
         },
-        "NotEnoughConditionToRedeemPurchaseToken": {
-            "code": "error NotEnoughConditionToRedeemPurchaseToken()",
+        "NotEnoughConditionToWithdrawPurchaseToken": {
+            "code": "error NotEnoughConditionToWithdrawPurchaseToken()",
             "inputs": {}
         },
         "NotInWhaleList": {
@@ -1067,8 +1092,12 @@
             "code": "error NotValidSignature()",
             "inputs": {}
         },
-        "NotYetTimeToClaimTGE": {
-            "code": "error NotYetTimeToClaimTGE()",
+        "NotYetTimeToRedeemTGE": {
+            "code": "error NotYetTimeToRedeemTGE()",
+            "inputs": {}
+        },
+        "RedeemExceedMaxTGEAmount": {
+            "code": "error RedeemExceedMaxTGEAmount()",
             "inputs": {}
         },
         "TimeOutToBuyToken": {

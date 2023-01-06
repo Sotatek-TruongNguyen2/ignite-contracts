@@ -16,7 +16,7 @@
 function ADMIN() external view returns (bytes32)
 ```
 
-
+keccak256(&quot;ADMIN&quot;)
 
 
 
@@ -50,7 +50,7 @@ function DEFAULT_ADMIN_ROLE() external view returns (bytes32)
 function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 ```
 
-
+percentage denominator
 
 
 
@@ -67,7 +67,7 @@ function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 function allPools(uint256) external view returns (address)
 ```
 
-
+Array of created pools address
 
 
 
@@ -130,7 +130,7 @@ Create new pool
 function getCreatedPools(address, address, uint256) external view returns (address)
 ```
 
-
+Mapping from user to (From token to array of created pools for token)
 
 
 
@@ -316,7 +316,7 @@ Initialize pool factory with address of pool implementation
 function poolImplementationAddress() external view returns (address)
 ```
 
-
+Address of pool implementation
 
 
 
@@ -438,7 +438,7 @@ event Initialized(uint8 version)
 ### PoolCreated
 
 ```solidity
-event PoolCreated(address createdBy, address indexed token, address indexed pool, uint256 poolId, uint256 dbProjectId)
+event PoolCreated(bytes32 poolInfoHash, address pool)
 ```
 
 
@@ -449,11 +449,8 @@ event PoolCreated(address createdBy, address indexed token, address indexed pool
 
 | Name | Type | Description |
 |---|---|---|
-| createdBy  | address | undefined |
-| token `indexed` | address | undefined |
-| pool `indexed` | address | undefined |
-| poolId  | uint256 | undefined |
-| dbProjectId  | uint256 | undefined |
+| poolInfoHash  | bytes32 | undefined |
+| pool  | address | undefined |
 
 ### RoleAdminChanged
 

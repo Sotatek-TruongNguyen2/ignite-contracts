@@ -8,18 +8,29 @@ import "../libraries/Clones.sol";
 
 contract PoolFactory is Initializable, AccessControl {
 
-    // keccak256("ADMIN")
+    /**
+     * keccak256("ADMIN")
+     */
     bytes32 public constant ADMIN = 0xdf8b4c520ffe197c5343c6f5aec59570151ef9a492f2c624fd45ddde6135ec42;
 
+    /**
+     * percentage denominator
+     */
     uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
 
-    // Address of pool implementation
+    /**
+     * Address of pool implementation
+     */
     address public poolImplementationAddress;
 
-    // Array of created pools address
+    /**
+     * Array of created pools address
+     */
     address[] public allPools;
 
-    // Mapping from user to (From token to array of created pools for token)
+    /**
+     * Mapping from user to (From token to array of created pools for token)
+     */
     mapping(address => mapping(address => address[])) public getCreatedPools;
 
     event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation);
@@ -32,7 +43,6 @@ contract PoolFactory is Initializable, AccessControl {
     error AlreadyNotAdmin();
     error NotValidGalaxyPoolProportion();
     error NotValidEarlyAccessProportion();
-
 
     /**
      * @notice Grant admin role for new admin
