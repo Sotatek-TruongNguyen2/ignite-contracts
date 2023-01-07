@@ -1,6 +1,9 @@
 import { BigNumber } from "ethers";
 
 function main(price: number, IDODecimal: number, purchaseDecimal: number){
+    if(price == 0){
+        return {rate: 0,de: 0}
+    }
     const MAX_DEX_LENGTH = 18
     const invert = 1/price
     let dex: number = invert.toString().split('.')[1].length
@@ -20,10 +23,6 @@ function main(price: number, IDODecimal: number, purchaseDecimal: number){
     return {rate, de}
 }
 
-const {rate, de} = main(55, 8, 6);
+const {rate, de} = main(0, 8, 6);
 console.log(rate, de)
 console.log(rate.toString(), de)
-
-
-
-// console.log("123456789".slice(0,5))
