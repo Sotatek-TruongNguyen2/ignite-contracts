@@ -147,14 +147,14 @@ describe("Ignition Pool",()=>{
                 purchaseToken: purchaseTokens[0].address,
                 maxPurchaseAmountForKYCUser: parseUnits('10000',6),
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000',6),
-                TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
+                TGEDate: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('2000'),
                 galaxyParticipationFeePercentage: BigNumber.from('0'),
                 crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('9000000',6),
-                whaleOpenTime: BigNumber.from((Date.now()/1000).toFixed()).add(3*24*60*60),
+                whaleOpenTime: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(3*24*60*60),
                 whaleDuration: BigNumber.from(24*60*60),
                 communityDuration: BigNumber.from(48*60*60),
                 rate: parseUnits('125',12),
@@ -184,14 +184,14 @@ describe("Ignition Pool",()=>{
                 purchaseToken: purchaseTokens[1].address,
                 maxPurchaseAmountForKYCUser: parseUnits('30000',8),
                 maxPurchaseAmountForNotKYCUser: parseUnits('15000',8),
-                TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(27*24*60*60),
+                TGEDate: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(27*24*60*60),
                 TGEPercentage: BigNumber.from('1000'),
                 galaxyParticipationFeePercentage: BigNumber.from('0'),
                 crowdfundingParticipationFeePercentage: BigNumber.from('1500'),
                 galaxyPoolProportion: BigNumber.from('5000'),
                 earlyAccessProportion: BigNumber.from('5000'),
                 totalRaiseAmount: parseUnits('100000', 8),
-                whaleOpenTime: BigNumber.from((Date.now()/1000).toFixed()).add(3*24*60*60),
+                whaleOpenTime: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(3*24*60*60),
                 whaleDuration: BigNumber.from(12*60*60),
                 communityDuration: BigNumber.from(24*60*60),
                 rate: BigNumber.from('35714285714285714285'),
@@ -204,14 +204,14 @@ describe("Ignition Pool",()=>{
                 purchaseToken: purchaseTokens[2].address,
                 maxPurchaseAmountForKYCUser: parseUnits('10000',18),
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000',18),
-                TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(10*24*60*60),
+                TGEDate: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(10*24*60*60),
                 TGEPercentage: BigNumber.from('1000'),
                 galaxyParticipationFeePercentage: BigNumber.from('1000'),
                 crowdfundingParticipationFeePercentage: BigNumber.from('1500'),
                 galaxyPoolProportion: BigNumber.from('1000'),
                 earlyAccessProportion: BigNumber.from('6000'),
                 totalRaiseAmount: parseUnits('800000',18),
-                whaleOpenTime: BigNumber.from((Date.now()/1000).toFixed()).add(3*24*60*60),
+                whaleOpenTime: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(3*24*60*60),
                 whaleDuration: BigNumber.from(24*60*60),
                 communityDuration: BigNumber.from(24*60*60),
                 rate: BigNumber.from(0),
@@ -226,14 +226,14 @@ describe("Ignition Pool",()=>{
                 purchaseToken: purchaseTokens[3].address,
                 maxPurchaseAmountForKYCUser: parseUnits('2000', 6),
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000', 6),
-                TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
+                TGEDate: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('3000'),
                 galaxyParticipationFeePercentage: BigNumber.from('0'),
                 crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('850000',6),
-                whaleOpenTime: BigNumber.from((Date.now()/1000).toFixed()).add(3*24*60*60),
+                whaleOpenTime: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(3*24*60*60),
                 whaleDuration: BigNumber.from(24*60*60),
                 communityDuration: BigNumber.from(12*60*60),
                 rate: BigNumber.from('1818181818181818100'),
@@ -245,14 +245,14 @@ describe("Ignition Pool",()=>{
                 purchaseToken: purchaseTokens[4].address,
                 maxPurchaseAmountForKYCUser: parseUnits('2000', 6),
                 maxPurchaseAmountForNotKYCUser: parseUnits('1000', 6),
-                TGEDate: BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60),
+                TGEDate: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(30*24*60*60),
                 TGEPercentage: BigNumber.from('3000'),
                 galaxyParticipationFeePercentage: BigNumber.from('0'),
                 crowdfundingParticipationFeePercentage: BigNumber.from('1000'),
                 galaxyPoolProportion: BigNumber.from('2000'),
                 earlyAccessProportion: BigNumber.from('4000'),
                 totalRaiseAmount: parseUnits('850000',6),
-                whaleOpenTime: BigNumber.from((Date.now()/1000).toFixed()).add(3*24*60*60),
+                whaleOpenTime: BigNumber.from(Math.floor(Date.now()/1000).toString()).add(3*24*60*60),
                 whaleDuration: BigNumber.from(24*60*60),
                 communityDuration: BigNumber.from(12*60*60),
                 rate: BigNumber.from('1818181818181818100'),
@@ -422,7 +422,7 @@ describe("Ignition Pool",()=>{
             ]
 
             const allocationList = PAIDBalanceList.map((balance)=>{
-                return Number((balance / 75000).toFixed())
+                return Math.floor(Number((balance / 75000)))
             })
 
             const allocationForGalaxyPool = allocationList.reduce(
@@ -437,13 +437,13 @@ describe("Ignition Pool",()=>{
                     candidate: investors[0].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[0]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[0])))
                 },
                 {
                     candidate: investors[1].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[1]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[1])))
                 },
                 {
                     candidate: investors[0].address,
@@ -461,13 +461,13 @@ describe("Ignition Pool",()=>{
                     candidate: investors[2].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[2]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[2])))
                 },
                 {
                     candidate: investors[3].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[3]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[3])))
                 },
                 {
                     candidate: investors[2].address,
@@ -548,8 +548,8 @@ describe("Ignition Pool",()=>{
             expect(await pool0.whaleCloseTime()).to.be.equal(Number(poolInfo0.whaleDuration.hex)+Number(poolInfo0.whaleOpenTime.hex))
             expect(await pool0.communityCloseTime()).to.be.equal(Number(poolInfo0.communityDuration.hex) + Number(poolInfo0.whaleOpenTime.hex) + Number(poolInfo0.whaleDuration.hex))
 
-            expect(await pool0.maxPurchaseAmountForGalaxyPool()).to.be.equal((Number(poolInfo0.totalRaiseAmount.hex)*Number(poolInfo0.galaxyPoolProportion.hex)/10000).toFixed())
-            expect(await pool0.maxPurchaseAmountForEarlyAccess()).to.be.equal((Number(poolInfo0.totalRaiseAmount.hex)*(10000-Number(poolInfo0.galaxyPoolProportion.hex))*Number(poolInfo0.earlyAccessProportion.hex)/10000/10000).toFixed())
+            expect(await pool0.maxPurchaseAmountForGalaxyPool()).to.be.equal(Math.floor(Number(poolInfo0.totalRaiseAmount.hex)*Number(poolInfo0.galaxyPoolProportion.hex)/10000))
+            expect(await pool0.maxPurchaseAmountForEarlyAccess()).to.be.equal(Math.floor(Number(poolInfo0.totalRaiseAmount.hex)*(10000-Number(poolInfo0.galaxyPoolProportion.hex))*Number(poolInfo0.earlyAccessProportion.hex)/10000/10000))
             expect(await pool0.communityOpenTime()).to.be.equal(Number(poolInfo0.whaleOpenTime.hex)+Number(poolInfo0.whaleDuration.hex))
         })
 
@@ -703,7 +703,7 @@ describe("Ignition Pool",()=>{
 
             await expect(pool0.connect(investors[0]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool0, "NotAllowedToRedeemTGEIDOAmount")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
-            await expect(pool0.connect(investors[1]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToRedeemTGE")
+            // await expect(pool0.connect(investors[1]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToRedeemTGE")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(false)
             
             await time.increaseTo(await pool0.TGEDate())
@@ -816,7 +816,7 @@ describe("Ignition Pool",()=>{
             ]
 
             const allocationList = PAIDBalanceList.map((balance)=>{
-                return Number((balance / 75000).toFixed())
+                return Math.floor(Number((balance / 75000)))
             })
 
             const allocationForGalaxyPool = allocationList.reduce(
@@ -831,13 +831,13 @@ describe("Ignition Pool",()=>{
                     candidate: investors[0].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[0]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[0])))
                 },
                 {
                     candidate: investors[1].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[1]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[1])))
                 },
                 {
                     candidate: investors[0].address,
@@ -855,13 +855,13 @@ describe("Ignition Pool",()=>{
                     candidate: investors[2].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[2]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[2])))
                 },
                 {
                     candidate: investors[3].address,
                     userType: WHALE_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
-                    maxPurchaseBaseOnAllocation: Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[3]).toFixed())
+                    maxPurchaseBaseOnAllocation: Math.floor(Number((Number(maxPurchaseAmountForGalaxyPool_pool0) / allocationForGalaxyPool * allocationList[3])))
                 },
                 {
                     candidate: investors[2].address,
@@ -941,8 +941,8 @@ describe("Ignition Pool",()=>{
             expect(await pool1.whaleOpenTime()).to.be.equal(Number(poolInfo1.whaleOpenTime.hex))
             expect(await pool1.whaleCloseTime()).to.be.equal(Number(poolInfo1.whaleDuration.hex)+Number(poolInfo1.whaleOpenTime.hex))
             expect(await pool1.communityCloseTime()).to.be.equal(Number(poolInfo1.communityDuration.hex) + Number(poolInfo1.whaleOpenTime.hex) + Number(poolInfo1.whaleDuration.hex))
-            expect(await pool1.maxPurchaseAmountForGalaxyPool()).to.be.equal((Number(poolInfo1.totalRaiseAmount.hex)*Number(poolInfo1.galaxyPoolProportion.hex)/10000).toFixed())
-            expect(await pool1.maxPurchaseAmountForEarlyAccess()).to.be.equal((Number(poolInfo1.totalRaiseAmount.hex)*(10000-Number(poolInfo1.galaxyPoolProportion.hex))*Number(poolInfo1.earlyAccessProportion.hex)/10000/10000).toFixed())
+            expect(await pool1.maxPurchaseAmountForGalaxyPool()).to.be.equal(Math.floor(Number(poolInfo1.totalRaiseAmount.hex)*Number(poolInfo1.galaxyPoolProportion.hex)/10000))
+            expect(await pool1.maxPurchaseAmountForEarlyAccess()).to.be.equal(Math.floor(Number(poolInfo1.totalRaiseAmount.hex)*(10000-Number(poolInfo1.galaxyPoolProportion.hex))*Number(poolInfo1.earlyAccessProportion.hex)/10000/10000))
             expect(await pool1.communityOpenTime()).to.be.equal(Number(poolInfo1.whaleOpenTime.hex)+Number(poolInfo1.whaleDuration.hex))
         })
 
@@ -992,7 +992,7 @@ describe("Ignition Pool",()=>{
             const proof0 = getProof(leafInfo0)
             
             // revert TimeOutToBuyToken (buy before whaleOpentime)
-            const deadline0Revert = BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60)
+            const deadline0Revert = BigNumber.from(Math.floor(Date.now()/1000).toString()).add(30*24*60*60)
             const signature0Revert = await signPermit(investors[0],purchaseToken1Name, purchaseToken1Addr, pool1.address, parseUnits('90', purchaseToken1Decimal), await purchaseTokens[1].nonces(investors[0].address), deadline0Revert)
             await expect(pool1.connect(investors[0]).buyTokenInGalaxyPoolWithPermit(proof0, parseUnits('90', purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation, deadline0Revert, signature0Revert)).to.be.revertedWithCustomError(pool1, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, investors[0].address)
             
@@ -1002,11 +1002,11 @@ describe("Ignition Pool",()=>{
             await purchaseTokens[1].connect(investors[0]).approve(pool1.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
             expect(await pool1.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90',purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool1, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool1.purchasedAmount()).to.be.equal(Number(parseUnits('90',purchaseToken1Decimal)))
-            expect(await pool1.userIDOTGEAmount(investors[0].address)).to.be.equal(parseUnits(((90*(10**6)/poolInfoList[1].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[1].TGEPercentage)).toFixed()).toString(),0))
+            expect(await pool1.userIDOTGEAmount(investors[0].address)).to.be.equal(parseUnits((Math.floor(90*(10**6)/poolInfoList[1].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[1].TGEPercentage))).toString(),0))
             expect(await pool1.userPurchasedAmount(investors[0].address)).to.be.equal(Number(parseUnits('90',purchaseToken1Decimal)))
             
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
-            const deadline0 = BigNumber.from((Date.now()/1000).toFixed()).add(30*24*60*60)
+            const deadline0 = BigNumber.from(Math.floor(Date.now()/1000).toString()).add(30*24*60*60)
             const signature0 = await signPermit(investors[0],purchaseToken1Name, purchaseToken1Addr, pool1.address, parseUnits('90', purchaseToken1Decimal), await purchaseTokens[1].nonces(investors[0].address), deadline0)
             expect(await pool1.connect(investors[0]).buyTokenInGalaxyPoolWithPermit(proof0, parseUnits('90', purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation, deadline0, signature0)).to.be.emit(pool1, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue)
             expect(await pool1.purchasedAmount()).to.be.equal(Number(parseUnits('180',purchaseToken1Decimal)))
@@ -1172,8 +1172,8 @@ describe("Ignition Pool",()=>{
             // console.log(await pool1.userIDOTGEAmount(investors[6].address))
 
             await pool1.connect(admin1).setRedeemableTGEIDOToken(true);
-            await expect(pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
-            await expect(pool1.connect(investors[1]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
+            // await expect(pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
+            // await expect(pool1.connect(investors[1]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
             await expect(pool1.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool1,"AlreadySetRedeemableTGE").withArgs(true);
             await pool1.connect(admin1).setRedeemableTGEIDOToken(false);
 
@@ -1255,7 +1255,7 @@ describe("Ignition Pool",()=>{
             ]
 
             const allocationList = PAIDBalanceList.map((balance)=>{
-                return BigNumber.from((balance / 75000).toFixed())
+                return BigNumber.from(Math.floor(balance / 75000).toString())
             })
 
             const allocationForGalaxyPool = allocationList.reduce(

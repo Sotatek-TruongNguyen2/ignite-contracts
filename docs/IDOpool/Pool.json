@@ -41,7 +41,7 @@
                     "type": "uint16"
                 }
             },
-            "details": "percentage denominator"
+            "details": "Percentage denominator"
         },
         "TGEDate()": {
             "stateMutability": "view",
@@ -85,7 +85,7 @@
                     "type": "bytes32"
                 }
             },
-            "details": "keccak256(\"WHALE\")"
+            "details": "keccak256(\"WHALE\") "
         },
         "buyTokenInCrowdfundingPool(bytes32[],uint256)": {
             "stateMutability": "nonpayable",
@@ -233,7 +233,7 @@
                     "type": "uint16"
                 }
             },
-            "details": "Proportion of crowdfunding pool amount for early access"
+            "details": "Proportion of crowdfunding pool amount for early access    "
         },
         "galaxyParticipationFeePercentage()": {
             "stateMutability": "view",
@@ -330,7 +330,7 @@
                     "type": "uint256"
                 }
             },
-            "details": "Max purchase amount for early access  = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion"
+            "details": "Max purchase amount for early access = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion"
         },
         "maxPurchaseAmountForGalaxyPool()": {
             "stateMutability": "view",
@@ -341,7 +341,7 @@
                     "type": "uint256"
                 }
             },
-            "details": "Max purchase amount for galaxy pool  = total raise amount * galaxy pool proportion"
+            "details": "Max purchase amount for galaxy pool = total raise amount * galaxy pool proportion"
         },
         "maxPurchaseAmountForKYCUser()": {
             "stateMutability": "view",
@@ -1090,10 +1090,6 @@
         },
         "NotValidSignature": {
             "code": "error NotValidSignature()",
-            "inputs": {}
-        },
-        "NotYetTimeToRedeemTGE": {
-            "code": "error NotYetTimeToRedeemTGE()",
             "inputs": {}
         },
         "RedeemExceedMaxTGEAmount": {

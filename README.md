@@ -8,7 +8,7 @@
 
 # Note when calling function to buy token:
 
-- If purchase token is USDC, we can use buyToken...WithPermit() functions
+- If purchase token is USDC in ETH/Goerli, we can use buyToken...WithPermit() functions
 
 - DAI token also has permit function, but parameters of this function is different from permit function of ERC20 token stardard of openzeppelin.
 
@@ -52,10 +52,10 @@ Investor | Group | Leaves | Note | | Investor | Group | Leaves | Note
 :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--:
 (1) | (x) | (a) | | | (3) | (x) | | **Can not happen**
 (1) | (y) | (b) | | | (3) | (y) | | **Can not happen**
-(1) | (z) | (e) | Can not need leaf | | (3) | (z) | (e) | Can not need leaf
+(1) | (z) | (e) | Can not need proof | | (3) | (z) | (e) | Can not need proof
 (2) | (x) | (c) | | | (4) | (x) | | **Can not happen**
 (2) | (y) | (d) | | | (4) | (y) | | **Can not happen**
-(2) | (z) | | Do not need leaf | | (4) | (z) | | Do not need leaf
+(2) | (z) | | Do not need proof | | (4) | (z) | | Do not need proof
 
 
 # Calculate rate and decimal variable in Pool contract

@@ -69,7 +69,7 @@ function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 
 
 
-*percentage denominator*
+*Percentage denominator*
 
 
 #### Returns
@@ -137,7 +137,7 @@ function WHALE() external view returns (bytes32)
 
 
 
-*keccak256(&quot;WHALE&quot;)*
+*keccak256(&quot;WHALE&quot;) *
 
 
 #### Returns
@@ -291,7 +291,7 @@ function earlyAccessProportion() external view returns (uint16)
 
 
 
-*Proportion of crowdfunding pool amount for early access*
+*Proportion of crowdfunding pool amount for early access    *
 
 
 #### Returns
@@ -421,7 +421,7 @@ function maxPurchaseAmountForEarlyAccess() external view returns (uint256)
 
 
 
-*Max purchase amount for early access  = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion*
+*Max purchase amount for early access = (total raise amount - total raise amount * galaxy pool proportion) * early access proportion*
 
 
 #### Returns
@@ -438,7 +438,7 @@ function maxPurchaseAmountForGalaxyPool() external view returns (uint256)
 
 
 
-*Max purchase amount for galaxy pool  = total raise amount * galaxy pool proportion*
+*Max purchase amount for galaxy pool = total raise amount * galaxy pool proportion*
 
 
 #### Returns
@@ -1447,17 +1447,6 @@ error NotUpdateValidTime(uint256 whaleOpenTime, uint256 whaleCloseTime, uint256 
 
 ```solidity
 error NotValidSignature()
-```
-
-
-
-
-
-
-### NotYetTimeToRedeemTGE
-
-```solidity
-error NotYetTimeToRedeemTGE()
 ```
 
 

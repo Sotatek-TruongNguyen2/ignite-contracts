@@ -16,9 +16,9 @@
 function ADMIN() external view returns (bytes32)
 ```
 
-keccak256(&quot;ADMIN&quot;)
 
 
+*keccak256(&quot;ADMIN&quot;)*
 
 
 #### Returns
@@ -50,9 +50,9 @@ function DEFAULT_ADMIN_ROLE() external view returns (bytes32)
 function PERCENTAGE_DENOMINATOR() external view returns (uint16)
 ```
 
-percentage denominator
 
 
+*Percentage denominator*
 
 
 #### Returns
@@ -67,9 +67,9 @@ percentage denominator
 function allPools(uint256) external view returns (address)
 ```
 
-Array of created pools address
 
 
+*Array of created pools address*
 
 #### Parameters
 
@@ -130,9 +130,9 @@ Create new pool
 function getCreatedPools(address, address, uint256) external view returns (address)
 ```
 
-Mapping from user to (From token to array of created pools for token)
 
 
+*Mapping from user to (From token to array of created pools for token)*
 
 #### Parameters
 
@@ -316,9 +316,9 @@ Initialize pool factory with address of pool implementation
 function poolImplementationAddress() external view returns (address)
 ```
 
-Address of pool implementation
 
 
+*Address of pool implementation*
 
 
 #### Returns

@@ -2,11 +2,12 @@ import { BigNumber } from "ethers";
 
 function main(price: number, IDODecimal: number, purchaseDecimal: number){
     if(price == 0){
-        return {rate: 0,de: 0}
+        return {rate: BigNumber.from('0'),de: 0}
     }
     const MAX_DEX_LENGTH = 18
     const invert = 1/price
-    let dex: number = invert.toString().split('.')[1].length
+    const invertInArr = invert.toString().split(".");
+    let dex: number = invertInArr.length === 1 ? 0 : invertInArr[1].length;
     dex = dex > MAX_DEX_LENGTH ? MAX_DEX_LENGTH : dex
     let intergralPartLength = invert.toString().split('.')[0].length
     const ratex: string = invert.toString().replace('.','').slice(0, intergralPartLength + dex)
@@ -18,7 +19,7 @@ function main(price: number, IDODecimal: number, purchaseDecimal: number){
         de = dex + purchaseDecimal - IDODecimal
     }else{
         de = dex
-        rate = BigNumber.from(ratex).mul(BigNumber.from(10).pow(IDODecimal - purchaseDecimal))
+        rate = BigNumber.from(ratex).mul(BigNumber.from("10").pow(IDODecimal - purchaseDecimal))
     }
     return {rate, de}
 }
