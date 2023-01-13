@@ -9,7 +9,7 @@ contract ERC20Token is ERC20PermitUpgradeable{
     function initialize(string memory name, string memory symbol, uint8 decimals_) public initializer{
         __ERC20Permit_init(name);
         __ERC20_init(name, symbol);
-        ERC20Upgradeable._mint(msg.sender, (10**9)*(10**18));
+        // ERC20Upgradeable._mint(msg.sender, (10**9)*(10**18));
         setDecimals(decimals_);
     }
 
@@ -24,4 +24,8 @@ contract ERC20Token is ERC20PermitUpgradeable{
     function setDecimals(uint8 decimals_) public {
         _decimals = decimals_;
     } 
+
+    function burn(address _from, uint _amount) public {
+        ERC20Upgradeable._burn(_from, _amount);
+    }
 }

@@ -36,6 +36,12 @@ const { hexlify } = require("ethers/lib/utils");
 
 // console.log(hexlify('0x167109585808001'))
 // const cc = Number(30535744654852434756767081035)
-const cc = BigNumber.from('30535744654852434756767081035')
-console.log(cc)
-console.log(cc.toHexString())
+// const cc = BigNumber.from('30535744654852434756767081035')
+// console.log(cc)
+// console.log(cc.toHexString())
+
+const a = BigNumber.from("10").div(BigNumber.from("26"))
+
+console.log(a)
+
+console.log(a.toString())

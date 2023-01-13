@@ -260,7 +260,7 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: BSC_API_KEY,
+    apiKey: AVALANCHE_API_KEY,
   },
   watcher: {
     compile: {
