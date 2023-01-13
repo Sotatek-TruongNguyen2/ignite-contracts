@@ -14,7 +14,7 @@
 
 # Create Merkle tree:
 
-- Leaf = { address + hash("User type") + max purchase KYC/notKYC amount + max purchase for each user per allocation }
+- Leaf = { address + hash("User type") + max purchase KYC/notKYC amount + max purchase for each user base on allocation }
 
 - Type of investors:
   
