@@ -1340,6 +1340,18 @@ describe("Ignition Pool",()=>{
                   ["address", "bytes32", "uint256","uint256"],
                   [obj.candidate, obj.userType, obj.maxPurchaseWhetherOrNotKYC, obj.maxPurchaseBaseOnAllocation]
                 );
+                // let leafNodeString = solidityPack(
+                //     ["address", "bytes32", "uint256","uint256"],
+                //     [obj.candidate, obj.userType, obj.maxPurchaseWhetherOrNotKYC.toString(), obj.maxPurchaseBaseOnAllocation.toString()]
+                //   );
+                // console.log(leafNode)
+                // console.log(leafNodeString)
+                // console.log(obj.candidate)
+                // console.log(obj.userType)
+                // console.log(obj.maxPurchaseWhetherOrNotKYC)
+                // console.log(obj.maxPurchaseBaseOnAllocation)
+
+                // process.exit(1)
                 return ethers.utils.solidityKeccak256(["bytes"], [leafNode]);
             });
 

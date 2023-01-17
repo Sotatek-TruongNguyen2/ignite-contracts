@@ -20,7 +20,7 @@ function main(){
         "NotYetTimeToRedeemTGE()",
         "TimeOutToSetPoolStatus()",
         "RedeemExceedMaxTGEAmount()",
-        "NotInWhaleList(address buyer)",
+        "NotInWhaleList(address)",
         "NotAllowedToRedeemTGEIDOAmount()",
         "ExceedMaxPurchaseAmountForUser()",
         "NotEnoughConditionToWithdrawIDOToken()",
@@ -33,7 +33,9 @@ function main(){
         "ExceedMaxPurchaseAmountForEarlyAccess(address,uint256)",
         "NotEnoughAllowance(address,address,uint256,uint256)",
         "NotUpdateValidTime(uint256,uint256,uint256,uint256)",
-        "TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)"
+        "NotUpdateValidTime(uint64,uint64,uint64,uint64)",
+        "TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)",
+        "getUserRoles(address)"
     ]
 
     for (let i=0;i<errArray.length;i++){
@@ -61,7 +63,7 @@ e282c0ba NotValidSignature()
 0a919d33 NotYetTimeToRedeemTGE()
 002ff3b2 TimeOutToSetPoolStatus()
 370df5d4 RedeemExceedMaxTGEAmount()
-9f5d226b NotInWhaleList(address buyer)
+2e4f414f NotInWhaleList(address)
 1b8b49f9 NotAllowedToRedeemTGEIDOAmount()
 566f8006 ExceedMaxPurchaseAmountForUser()
 b5d02297 NotEnoughConditionToWithdrawIDOToken()
