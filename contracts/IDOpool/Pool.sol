@@ -347,11 +347,12 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _validAddress(address(IDOToken));
         _validAddress(_withdrawIDOTokenRecipient);
         if(paused() == true || block.timestamp > communityCloseTime){
-            uint remainAmount = IDOToken.balanceOf(address(this));
+            uint IDOPurchasedAmount = getIDOTokenAmountByOfferedCurrency(purchasedAmount);
+            uint remainAmount = IDOToken.balanceOf(address(this)) - IDOPurchasedAmount;
             if(remainAmount > 0){
                 IDOToken.safeTransfer(_withdrawIDOTokenRecipient, remainAmount);
-                emit WithdrawIDOToken(_withdrawIDOTokenRecipient, address(IDOToken), remainAmount);
             }
+            emit WithdrawIDOToken(_withdrawIDOTokenRecipient, address(IDOToken), remainAmount);
         }else{
             revert NotEnoughConditionToWithdrawIDOToken();
         }
@@ -368,8 +369,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             uint purchaseAmount = purchaseToken.balanceOf(address(this));
             if(purchaseAmount > 0){
                 purchaseToken.safeTransfer(_withdrawPurchaseTokenRecipient, purchaseAmount);
-                emit WithdrawPurchaseToken(_withdrawPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
             }
+            emit WithdrawPurchaseToken(_withdrawPurchaseTokenRecipient, address(purchaseToken), purchaseAmount);
         }else{
             revert NotEnoughConditionToWithdrawPurchaseToken();
         }
@@ -405,6 +406,15 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
         TGERedeemable = _TGERedeemableStatus;
         emit SetTGERedeemable(_TGERedeemableStatus);
+    }
+
+    /**
+     * @dev Get IDO token amount base on amount of purchase token
+     * @param _amount Amount of purchase token
+     * @return Return amount of respective IDO token
+     */
+    function getIDOTokenAmountByOfferedCurrency(uint _amount) public view returns(uint){
+        return _amount * offeredCurrency.rate / (10 ** offeredCurrency.decimal);
     }
 
     /**
@@ -523,7 +533,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _forwardPurchaseTokenFunds(buyer, _purchaseAmount);
 
         if(address(IDOToken) != address(0) || offeredCurrency.rate != 0){
-            uint IDOTokenAmount = _getIDOTokenAmountByOfferedCurrency(_purchaseAmount);
+            uint IDOTokenAmount = getIDOTokenAmountByOfferedCurrency(_purchaseAmount);
             uint TGEIDOTokenAmount = IDOTokenAmount * TGEPercentage / PERCENTAGE_DENOMINATOR;
             uint airdropTokenAmount = IDOTokenAmount - TGEIDOTokenAmount;
             _updatePurchasingState(_purchaseAmount, airdropTokenAmount, TGEIDOTokenAmount);
@@ -570,15 +580,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
      */
     function _deliverTGEIDOTokens(address buyer, uint _TGETokenAmount) internal {
         IDOToken.safeTransfer(buyer, _TGETokenAmount);
-    }
-
-    /**
-     * @dev Get IDO token amount base on amount of purchase token
-     * @param _amount Amount of purchase token
-     * @return Return amount of respective IDO token
-     */
-    function _getIDOTokenAmountByOfferedCurrency(uint _amount) internal view returns(uint){
-        return _amount * offeredCurrency.rate / 10 ** offeredCurrency.decimal;
     }
 
     /**

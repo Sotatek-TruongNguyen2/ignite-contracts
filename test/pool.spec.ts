@@ -724,10 +724,12 @@ describe("Ignition Pool",()=>{
 
             // withdraw IDO token by admin
             const balanceOfIDOTokenInPool0 = await IDOTokens[0].balanceOf(pool0.address)
+            const purchasedAmount = await pool0.purchasedAmount()
+            const IDOPurchasedAmount = await pool0.getIDOTokenAmountByOfferedCurrency(purchasedAmount)
             const balanceOfOwnerBeforeWithdrawIDOToken = await IDOTokens[0].balanceOf(owner.address)
             expect(await pool0.connect(admin1).withdrawIDOToken(owner.address)).to.be.emit(pool0, "WithdrawIDOToken").withArgs(anyValue, anyValue, anyValue)
             const balanceOfOwnerAfterWithdrawIDOToken = await IDOTokens[0].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInPool0)
+            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInPool0.sub(IDOPurchasedAmount))
         })
     })
 
@@ -1198,10 +1200,12 @@ describe("Ignition Pool",()=>{
 
             // withdraw IDO token by admin
             const balanceOfIDOTokenInpool1 = await IDOTokens[1].balanceOf(pool1.address)
+            const purchasedAmount = await pool1.purchasedAmount()
+            const IDOPurchasedAmount = await pool1.getIDOTokenAmountByOfferedCurrency(purchasedAmount)
             const balanceOfOwnerBeforeWithdrawIDOToken = await IDOTokens[1].balanceOf(owner.address)
             expect(await pool1.connect(admin1).withdrawIDOToken(owner.address)).to.be.emit(pool1, "WithdrawIDOToken").withArgs(anyValue, anyValue, anyValue)
             const balanceOfOwnerAfterWithdrawIDOToken = await IDOTokens[1].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInpool1)
+            expect(balanceOfOwnerAfterWithdrawIDOToken.sub(balanceOfOwnerBeforeWithdrawIDOToken)).to.be.equal(balanceOfIDOTokenInpool1.sub(IDOPurchasedAmount))
         })
     })
 
@@ -1550,10 +1554,12 @@ describe("Ignition Pool",()=>{
             
             // withdraw purchase token by admin
             const balanceOfPurchaseTokenInpool2 = await purchaseTokens[2].balanceOf(pool2.address)
+            const purchasedAmount = await pool2.purchasedAmount()
+            const IDOPurchasedAmount = await pool2.getIDOTokenAmountByOfferedCurrency(purchasedAmount)
             const balanceOfOwnerBeforeWithdrawPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
             expect(await pool2.connect(admin1).withdrawPurchaseToken(owner.address)).to.be.emit(pool2, "WithdrawPurchaseToken").withArgs(owner.address, purchaseTokens[2].address, anyValue)
             const balanceOfOwnerAfterWithdrawPurchaseToken = await purchaseTokens[2].balanceOf(owner.address)
-            expect(balanceOfOwnerAfterWithdrawPurchaseToken.sub(balanceOfOwnerBeforeWithdrawPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool2)
+            expect(balanceOfOwnerAfterWithdrawPurchaseToken.sub(balanceOfOwnerBeforeWithdrawPurchaseToken)).to.be.equal(balanceOfPurchaseTokenInpool2.sub(IDOPurchasedAmount))
             expect(await purchaseTokens[2].balanceOf(pool2.address)).to.be.equal(0)
             
             // revert withdraw IDO token by admin

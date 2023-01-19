@@ -76,6 +76,8 @@ b17009d3 ExceedTotalRaiseAmount(address,uint256)
 30b052c3 ExceedMaxPurchaseAmountForEarlyAccess(address,uint256)
 27f700a8 NotEnoughAllowance(address,address,uint256,uint256)
 7b30ef5a NotUpdateValidTime(uint256,uint256,uint256,uint256)
+6e068e0d NotUpdateValidTime(uint64,uint64,uint64,uint64)
 c9b550a6 TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)
+06a36aee getUserRoles(address)
 
  */
