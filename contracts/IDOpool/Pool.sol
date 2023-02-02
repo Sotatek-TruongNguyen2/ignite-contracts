@@ -107,6 +107,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     /// @dev Mapping from User to TGE amount
     mapping(address => uint) public userIDOTGEAmount;
 
+    /// @dev Mapping from User to redeemed or not
+    mapping(address => bool) public redeemed;
+
     event UpdateRoot(bytes32 root);
     event SetTGERedeemable(bool redeemable);
     event SetIDOTokenAddress(address IDOToken);
@@ -115,7 +118,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     event UpdateOpenPoolStatus(address indexed pool, bool status);
     event UpdateOfferedCurrencyRateAndDecimal(uint _rate, uint _decimal);
     event WithdrawIDOToken(address withdrawIDOTokenRecipient, address IDOToken, uint remainAmount);
-    event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount);
+    event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount, uint8 poolType);
     event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
     event UpdateTime(uint64 whaleOpenTime, uint64 whaleCloseTime, uint64 communityOpenTime, uint64 communityCloseTime);
     event PoolCreatedChild1(address IDOToken, address purchaseToken, uint maxPurchaseAmountForKYCUser, uint maxPurchaseAmountForNotKYCUser, uint64 TGEDate, uint16 TGEPercentage, uint16 galaxyParticipationFeePercentage, uint16 crowdfundingParticipationFeePercentage);
@@ -126,7 +129,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
     error ZeroAddress();
     error NotValidSignature();
     error TimeOutToSetPoolStatus();
-    error RedeemExceedMaxTGEAmount();
+    error Redeemed();
     error NotInWhaleList(address buyer);
     error NotAllowedToRedeemTGEIDOAmount();
     error ExceedMaxPurchaseAmountForUser();
@@ -267,7 +270,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         }
         _verifyAllowance(_msgSender(), _purchaseAmount);
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
-        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage, 1);
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
@@ -281,7 +284,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
-            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage, 2);
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
         }else if(_validCommunitySession()){
             _preValidatePurchase(_purchaseAmount);
@@ -308,7 +311,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             revert TimeOutToBuyToken(whaleOpenTime, whaleCloseTime, communityOpenTime, communityCloseTime, block.timestamp, _msgSender());
         }
         _preValidatePurchaseInGalaxyPool(_purchaseAmount,_maxPurchaseBaseOnAllocations);
-        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage);
+        _internalWhaleBuyToken(proof, _purchaseAmount, _maxPurchaseBaseOnAllocations, galaxyParticipationFeePercentage, 1);
         _updatePurchasingInGalaxyPoolState(_purchaseAmount);
     }
 
@@ -328,7 +331,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
         _verifyAllowance(_msgSender(), _purchaseAmount);
         if(_validWhaleSession()){
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
-            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage);
+            _internalWhaleBuyToken(proof, _purchaseAmount, 0, crowdfundingParticipationFeePercentage, 2);
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
         }else if(_validCommunitySession()){
             _preValidatePurchase(_purchaseAmount);
@@ -378,21 +381,22 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
 
     /**
      * @notice Investor redeem IDO token after TGE date
-     * @param _IDORedeemAmount Amount of IDO token is wanted to redeem
      */
-    function redeemTGEIDOToken(uint _IDORedeemAmount) external {
+    function redeemTGEIDOToken() external nonReentrant{
         _validAddress(address(IDOToken));
         if(TGERedeemable == false){
             revert NotAllowedToRedeemTGEIDOAmount();
         }
 
-        uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
-        if(_IDORedeemAmount > IDOTGEAmount){
-            revert RedeemExceedMaxTGEAmount();
+        if(redeemed[_msgSender()] == true){
+            revert Redeemed();
         }
-        userIDOTGEAmount[_msgSender()] -= _IDORedeemAmount;
-        _deliverTGEIDOTokens(_msgSender(), _IDORedeemAmount);
-        emit RedeemTGEAmount(_msgSender(), _IDORedeemAmount);
+
+        uint IDOTGEAmount = userIDOTGEAmount[_msgSender()];
+        redeemed[_msgSender()] = true;
+        
+        _deliverTGEIDOTokens(_msgSender(), IDOTGEAmount);
+        emit RedeemTGEAmount(_msgSender(), IDOTGEAmount);
     }
 
     /**
@@ -453,12 +457,13 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
      * @param _purchaseAmount Purchase amount of investor
      * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocation of whale
      * @param _participationFeePercentage Fee percentage when buying token
+     * @param _poolType 1 for galaxy pool, 2 for early access and 3 for normal user in crowdfunding pool
      */
-    function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _participationFeePercentage) internal {
+    function _internalWhaleBuyToken(bytes32[] memory proof, uint _purchaseAmount, uint _maxPurchaseBaseOnAllocations, uint _participationFeePercentage, uint8 _poolType) internal {
         if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForKYCUser, _maxPurchaseBaseOnAllocations, proof)){
-            _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, true);
+            _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, true, _poolType);
         }else if(_verifyUser(_msgSender(), WHALE, maxPurchaseAmountForNotKYCUser, _maxPurchaseBaseOnAllocations, proof)){
-            _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, false);
+            _internalBuyToken(_msgSender(), _purchaseAmount, _participationFeePercentage, false, _poolType);
         }else{
             revert NotInWhaleList(_msgSender());
         }
@@ -470,10 +475,11 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
      * @param _purchaseAmount Purchase amount of investor
      */
     function _internalNormalUserBuyToken(bytes32[] memory proof, uint _purchaseAmount) internal{
+        uint8 poolType = 3;
         if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
-            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, true);
+            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, true, poolType);
         }else {
-            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, false);
+            _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, false, poolType);
         }
     }
     
@@ -515,8 +521,9 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
      * @param _purchaseAmount Purchase amount of investor
      * @param _participationFeePercentage Fee percentage when buying token
      * @param _KYCStatus True if investor KYC and vice versa
+     * @param _poolType 1 for galaxy pool, 2 for early access and 3 for normal user in crowdfunding pool
      */
-    function _internalBuyToken(address buyer, uint _purchaseAmount, uint _participationFeePercentage, bool _KYCStatus) internal{
+    function _internalBuyToken(address buyer, uint _purchaseAmount, uint _participationFeePercentage, bool _KYCStatus, uint8 _poolType) internal{
 
         if(_KYCStatus == true &&  userPurchasedAmount[_msgSender()] + _purchaseAmount > maxPurchaseAmountForKYCUser){
             revert ExceedMaxPurchaseAmountForKYCUser(_msgSender(), _purchaseAmount);
@@ -541,7 +548,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initial
             _updatePurchasingState(_purchaseAmount, 0, 0);
         }
 
-        emit BuyToken(_msgSender(), address(this), address(IDOToken), _purchaseAmount);
+        emit BuyToken(_msgSender(), address(this), address(IDOToken), _purchaseAmount, _poolType);
     }
 
     /**

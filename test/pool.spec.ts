@@ -701,7 +701,7 @@ describe("Ignition Pool",()=>{
             // console.log(await pool0.userIDOTGEAmount(investors[5].address))
             // console.log(await pool0.userIDOTGEAmount(investors[6].address))
 
-            await expect(pool0.connect(investors[0]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool0, "NotAllowedToRedeemTGEIDOAmount")
+            await expect(pool0.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool0, "NotAllowedToRedeemTGEIDOAmount")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
             // await expect(pool0.connect(investors[1]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToRedeemTGE")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(false)
@@ -709,10 +709,10 @@ describe("Ignition Pool",()=>{
             await time.increaseTo(await pool0.TGEDate())
             await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
             const userIDOTGEAmount0 = await pool0.userIDOTGEAmount(investors[0].address);
-            expect(await pool0.connect(investors[0]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[0].address))).to.be.emit(pool0, "RedeemTGEAmount").withArgs(anyValue, anyValue)
+            expect(await pool0.connect(investors[0]).redeemTGEIDOToken()).to.be.emit(pool0, "RedeemTGEAmount").withArgs(anyValue, anyValue)
             expect(await IDOTokens[0].balanceOf(investors[0].address)).to.be.equal(userIDOTGEAmount0)
 
-            await expect(pool0.connect(investors[0]).redeemTGEIDOToken(parseUnits('10',6))).to.be.revertedWithCustomError(pool0,'RedeemExceedMaxTGEAmount')
+            await expect(pool0.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool0,'Redeemed')
 
             // withdraw purchase token by admin
             const balanceOfPurchaseTokenInPool0 = await purchaseTokens[0].balanceOf(pool0.address)
@@ -1184,10 +1184,10 @@ describe("Ignition Pool",()=>{
             await pool1.connect(admin1).setRedeemableTGEIDOToken(true);
 
             const userIDOTGEAmount0 = await pool1.userIDOTGEAmount(investors[0].address);
-            expect(await pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.emit(pool1, "RedeemTGEAmount").withArgs(anyValue, anyValue)
+            expect(await pool1.connect(investors[0]).redeemTGEIDOToken()).to.be.emit(pool1, "RedeemTGEAmount").withArgs(anyValue, anyValue)
             expect(await IDOTokens[1].balanceOf(investors[0].address)).to.be.equal(userIDOTGEAmount0)
 
-            await expect(pool1.connect(investors[0]).redeemTGEIDOToken(parseUnits('10',16))).to.be.revertedWithCustomError(pool1,'RedeemExceedMaxTGEAmount')
+            await expect(pool1.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool1,'Redeemed')
 
             // withdraw purchase token by admin
             const balanceOfPurchaseTokenInpool1 = await purchaseTokens[1].balanceOf(pool1.address)
@@ -1547,9 +1547,9 @@ describe("Ignition Pool",()=>{
             // console.log(await pool2.userIDOTGEAmount(investors[5].address))
             // console.log(await pool2.userIDOTGEAmount(investors[6].address))
             
-            await expect(pool2.connect(investors[0]).redeemTGEIDOToken(await pool2.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            await expect(pool2.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool2, "ZeroAddress")
             await expect(pool2.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
-            await expect(pool2.connect(investors[1]).redeemTGEIDOToken(await pool2.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool2, "ZeroAddress")
+            await expect(pool2.connect(investors[1]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool2, "ZeroAddress")
 
             
             // withdraw purchase token by admin

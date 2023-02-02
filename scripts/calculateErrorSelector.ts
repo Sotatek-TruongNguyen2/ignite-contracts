@@ -19,7 +19,7 @@ function main(){
         "NotValidSignature()",
         "NotYetTimeToRedeemTGE()",
         "TimeOutToSetPoolStatus()",
-        "RedeemExceedMaxTGEAmount()",
+        "Redeemed()",
         "NotInWhaleList(address)",
         "NotAllowedToRedeemTGEIDOAmount()",
         "ExceedMaxPurchaseAmountForUser()",
@@ -33,7 +33,6 @@ function main(){
         "ExceedMaxPurchaseAmountForEarlyAccess(address,uint256)",
         "NotEnoughAllowance(address,address,uint256,uint256)",
         "NotUpdateValidTime(uint256,uint256,uint256,uint256)",
-        "NotUpdateValidTime(uint64,uint64,uint64,uint64)",
         "TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)",
         "getUserRoles(address)"
     ]
@@ -62,7 +61,7 @@ d92e233d ZeroAddress()
 e282c0ba NotValidSignature()
 0a919d33 NotYetTimeToRedeemTGE()
 002ff3b2 TimeOutToSetPoolStatus()
-370df5d4 RedeemExceedMaxTGEAmount()
+b8cac300 Redeemed()
 2e4f414f NotInWhaleList(address)
 1b8b49f9 NotAllowedToRedeemTGEIDOAmount()
 566f8006 ExceedMaxPurchaseAmountForUser()
@@ -76,7 +75,6 @@ b17009d3 ExceedTotalRaiseAmount(address,uint256)
 30b052c3 ExceedMaxPurchaseAmountForEarlyAccess(address,uint256)
 27f700a8 NotEnoughAllowance(address,address,uint256,uint256)
 7b30ef5a NotUpdateValidTime(uint256,uint256,uint256,uint256)
-6e068e0d NotUpdateValidTime(uint64,uint64,uint64,uint64)
 c9b550a6 TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)
 06a36aee getUserRoles(address)
 
