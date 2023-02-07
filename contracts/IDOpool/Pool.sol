@@ -5,12 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../utils/Pausable.sol";
 import "../utils/ReentrancyGuard.sol";
 import "../extensions/IgnitionList.sol";
-import "../utils/AccessControl.sol";
 import "../libraries/SafeCast.sol";
 import "../interfaces/IPoolFactory.sol";
 import "../utils/Initializable.sol";
 
-contract Pool is Pausable, ReentrancyGuard, IgnitionList, AccessControl, Initializable {
+contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
     using SafeERC20 for IERC20;
     using SafeCast for uint;
 
