@@ -45,6 +45,8 @@
   + (d) { address + hash(WHALE) + max purchase **NOT** KYC amount + 0 }
 
   + (e) { address + **hash(NORMAL_USER)** + max purchase KYC amount + 0 }
+
+  + (f) { address + **hash(NORMAL_USER)** + max purchase **NOT** KYC amount + 0}
   
 - Mapping between leaves, investors and pools:
 
@@ -52,10 +54,10 @@ Investor | Group | Leaves | Note | | Investor | Group | Leaves | Note
 :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--:
 (1) | (x) | (a) | | | (3) | (x) | | **Can not happen**
 (1) | (y) | (b) | | | (3) | (y) | | **Can not happen**
-(1) | (z) | (e) | Can not need proof | | (3) | (z) | (e) | Can not need proof
+(1) | (z) | (e) | Can use leaf (f) | | (3) | (z) | (e) | Can use leaf (f)
 (2) | (x) | (c) | | | (4) | (x) | | **Can not happen**
 (2) | (y) | (d) | | | (4) | (y) | | **Can not happen**
-(2) | (z) | | Do not need proof | | (4) | (z) | | Do not need proof
+(2) | (z) | (f) | | | (4) | (z) | (f) | 
 
 
 # Calculate rate and decimal variable in Pool contract

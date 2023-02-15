@@ -111,11 +111,8 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
 
     event UpdateRoot(bytes32 root);
     event SetTGERedeemable(bool redeemable);
-    event SetIDOTokenAddress(address IDOToken);
     event RedeemTGEAmount(address buyer, uint redeemAmount);
-    event UpdateFeeRecipient(address indexed feeRecipient);
     event UpdateOpenPoolStatus(address indexed pool, bool status);
-    event UpdateOfferedCurrencyRateAndDecimal(uint _rate, uint _decimal);
     event WithdrawIDOToken(address withdrawIDOTokenRecipient, address IDOToken, uint remainAmount);
     event BuyToken(address indexed buyer, address indexed pool, address indexed IDOToken, uint purchaseAmount, uint8 poolType);
     event WithdrawPurchaseToken(address withdrawPurchaseTokenRecipient, address purchaseToken, uint purchaseAmount);
@@ -127,7 +124,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
     error ZeroAmount();
     error ZeroAddress();
     error NotValidSignature();
-    error TimeOutToSetPoolStatus();
     error Redeemed();
     error NotInWhaleList(address buyer);
     error NotAllowedToRedeemTGEIDOAmount();
@@ -137,7 +133,6 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
     error AlreadySetRedeemableTGE(bool presentStatus);
     error ExceedTotalRaiseAmount(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForKYCUser(address buyer, uint purchaseAmount);
-    error ExceedMaxPurchaseAmountForGalaxyPool(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForNotKYCUser(address buyer, uint purchaseAmount);
     error ExceedMaxPurchaseAmountForEarlyAccess(address buyer, uint purchaseAmount);
     error NotEnoughAllowance(address buyer, address purchaseToken, uint allowance, uint amount);
@@ -477,8 +472,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
         uint8 poolType = 3;
         if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForKYCUser, 0, proof)){
             _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, true, poolType);
-        }else {
+        }else if(_verifyUser(_msgSender(), NORMAL_USER, maxPurchaseAmountForNotKYCUser, 0, proof)) {
             _internalBuyToken(_msgSender(), _purchaseAmount, crowdfundingParticipationFeePercentage, false, poolType);
+        }else{
+            revert NotInWhaleList(_msgSender());
         }
     }
     

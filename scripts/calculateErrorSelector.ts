@@ -34,7 +34,8 @@ function main(){
         "NotEnoughAllowance(address,address,uint256,uint256)",
         "NotUpdateValidTime(uint256,uint256,uint256,uint256)",
         "TimeOutToBuyToken(uint256,uint256,uint256,uint256,uint256,address)",
-        "getUserRoles(address)"
+        "getUserRoles(address)",
+        "withdrawIDOToken(address)"
     ]
 
     for (let i=0;i<errArray.length;i++){

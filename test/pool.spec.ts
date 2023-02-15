@@ -83,7 +83,7 @@ describe("Ignition Pool",()=>{
         erc20TokenFactory = await new ERC20TokenFactory__factory(owner).deploy(erc20Sample.address)
 
         // Create purchase token
-        await erc20TokenFactory.connect(owner).createToken("PurchaseToken0","PurchaseToken0", 6)
+        await erc20TokenFactory.connect(owner).createToken("USDT","USDT", 6)
         const purchaseToken0Address = await erc20TokenFactory.currentToken()
         const purchaseToken0 = new ERC20Token__factory(owner).attach(purchaseToken0Address)
 
@@ -498,6 +498,48 @@ describe("Ignition Pool",()=>{
                     userType: NORMAL_USER_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForKYCUser.hex),
                     maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[0].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[1].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[2].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[3].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[4].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[5].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[6].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo0.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
                 }
             ]
             
@@ -591,7 +633,9 @@ describe("Ignition Pool",()=>{
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
             await time.increaseTo(await pool0.whaleOpenTime())
             await expect(pool0.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90',6), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0, 'NotEnoughAllowance')
-            await purchaseTokens[0].connect(investors[0]).approve(pool0.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
+            await purchaseTokens[0].connect(investors[0]).approve(pool0.address, ethers.constants.MaxUint256)
+            await expect(purchaseTokens[0].connect(investors[0]).approve(pool0.address, ethers.constants.MaxUint256)).to.be.revertedWith("Approve USDT fail")
+            // await purchaseTokens[0].connect(investors[0]).approve(pool0.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
             expect(await pool0.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90',6), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool0, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool0.purchasedAmount()).to.be.equal(Number(parseUnits('90',6)))
             // expect(Number((await IDOTokens[0].balanceOf(investors[0].address)).div(parseUnits('1',18)))).to.be.equal(90/poolInfoList[0].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[0].TGEPercentage))
@@ -603,7 +647,8 @@ describe("Ignition Pool",()=>{
             const proof1 = getProof(leafInfo1)
 
             // revert buy more than max purchase amount for KYC user (investor1, WHALE, KYC user, galaxy pool)
-            await purchaseTokens[0].connect(investors[1]).approve(pool0.address, BigNumber.from(leafInfo1.maxPurchaseBaseOnAllocation))
+            await purchaseTokens[0].connect(investors[1]).approve(pool0.address, ethers.constants.MaxUint256)
+            // await purchaseTokens[0].connect(investors[1]).approve(pool0.address, BigNumber.from(leafInfo1.maxPurchaseBaseOnAllocation))
             await expect(pool0.connect(investors[1]).buyTokenInGalaxyPool(proof1, parseUnits('11000',6), leafInfo1.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0,"ExceedMaxPurchaseAmountForKYCUser").withArgs(investors[1].address, parseUnits('11000',6))
 
             // get proof for investor2 in galaxy pool
@@ -611,7 +656,8 @@ describe("Ignition Pool",()=>{
             const proof4 = getProof(leafInfo4)
 
             // buy successfully (investor2, WHALE, Not KYC user, galaxy pool)
-            await purchaseTokens[0].connect(investors[2]).approve(pool0.address, BigNumber.from(leafInfo4.maxPurchaseBaseOnAllocation))
+            await purchaseTokens[0].connect(investors[2]).approve(pool0.address, ethers.constants.MaxUint256)
+            // await purchaseTokens[0].connect(investors[2]).approve(pool0.address, BigNumber.from(leafInfo4.maxPurchaseBaseOnAllocation))
             expect(await pool0.connect(investors[2]).buyTokenInGalaxyPool(proof4, parseUnits('870', 6), leafInfo4.maxPurchaseBaseOnAllocation)).to.be.emit(pool0, "BuyToken").withArgs(investors[2].address, anyValue, anyValue, anyValue) // 900 purchaseToken0
 
             // buy successfully twice (investor2, WHALE, Not KYC user, galaxy pool)
@@ -625,7 +671,8 @@ describe("Ignition Pool",()=>{
             const proof8 = getProof(leafInfo8)
 
             // revert normal, KYC user buy in galaxy pool (investor4, NORMAL, KYC user, galaxy pool)
-            await purchaseTokens[0].connect(investors[5]).approve(pool0.address, parseUnits('1000000',20))
+            await purchaseTokens[0].connect(investors[5]).approve(pool0.address, ethers.constants.MaxUint256)
+            // await purchaseTokens[0].connect(investors[5]).approve(pool0.address, parseUnits('1000000',20))
             await expect(pool0.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, leafInfo8.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool0, "ExceedMaxPurchaseAmountForUser")
             await expect(pool0.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, 10)).to.be.revertedWithCustomError(pool0, "NotInWhaleList").withArgs(investors[5].address)
 
@@ -634,7 +681,7 @@ describe("Ignition Pool",()=>{
             const proof0EA = getProof(leaf0EA)
 
             // buy successfully (investor0, WHALE, KYC User, early access)
-            await purchaseTokens[0].connect(investors[0]).approve(pool0.address, parseUnits('1000000',20))
+            // await purchaseTokens[0].connect(investors[0]).approve(pool0.address, parseUnits('1000000',20))
             const balanceOfInvestor0BeforeBuyToken = await purchaseTokens[0].balanceOf(investors[0].address)
             const balanceOfPool0BeforeBuyToken = await purchaseTokens[0].balanceOf(pool0.address)
             expect(await pool0.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100',6))).to.be.emit(pool0, "BuyToken").withArgs(investors[0].address, pool0.address, anyValue, anyValue)
@@ -660,7 +707,8 @@ describe("Ignition Pool",()=>{
             const proof7EA = getProof(leaf7EA)
 
             // buy successfully (investor3, WHALE, Not KYC User, early access)
-            await purchaseTokens[0].connect(investors[3]).approve(pool0.address, parseUnits('10',20))
+            await purchaseTokens[0].connect(investors[3]).approve(pool0.address, ethers.constants.MaxUint256)
+            // await purchaseTokens[0].connect(investors[3]).approve(pool0.address, parseUnits('10',20))
             expect(await pool0.connect(investors[3]).buyTokenInCrowdfundingPool(proof7EA, parseUnits('10',6))).to.be.emit(pool0, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
 
             // revert buy (investor5, NORMAL, KYC User, early access)
@@ -686,24 +734,19 @@ describe("Ignition Pool",()=>{
             await expect(pool0.connect(investors[0]).buyTokenInCrowdfundingPool(proof9NU, parseUnits('100', 6))).to.be.revertedWithCustomError(pool0, "ExceedMaxPurchaseAmountForKYCUser")
 
             // buy successfully (investor6, NORMAL, Not KYC user, community pool)
-            await purchaseTokens[0].connect(investors[6]).approve(pool0.address, parseUnits('100',20));
-            expect(await pool0.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('100',6))).to.be.emit(pool0, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
+            await purchaseTokens[0].connect(investors[6]).approve(pool0.address, ethers.constants.MaxUint256);
+            // await purchaseTokens[0].connect(investors[6]).approve(pool0.address, parseUnits('100',20));
+            const leaf17 = buyWhiteList[17]
+            const proof17 = getProof(leaf17)
+
+            expect(await pool0.connect(investors[6]).buyTokenInCrowdfundingPool(proof17, parseUnits('100',6))).to.be.emit(pool0, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
         
             await time.increaseTo(await pool0.communityCloseTime())
             // revert buy because out of time
-            await expect(pool0.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('10',6))).to.be.revertedWithCustomError(pool0, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
-
-            // console.log(await pool0.userIDOTGEAmount(investors[0].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[1].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[2].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[3].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[4].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[5].address))
-            // console.log(await pool0.userIDOTGEAmount(investors[6].address))
+            await expect(pool0.connect(investors[6]).buyTokenInCrowdfundingPool(proof17, parseUnits('10',6))).to.be.revertedWithCustomError(pool0, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
 
             await expect(pool0.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool0, "NotAllowedToRedeemTGEIDOAmount")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(true)
-            // await expect(pool0.connect(investors[1]).redeemTGEIDOToken(await pool0.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool0, "NotYetTimeToRedeemTGE")
             await pool0.connect(admin1).setRedeemableTGEIDOToken(false)
             
             await time.increaseTo(await pool0.TGEDate())
@@ -894,6 +937,48 @@ describe("Ignition Pool",()=>{
                     userType: NORMAL_USER_HASH,
                     maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForKYCUser.hex),
                     maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[0].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[1].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[2].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[3].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[4].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[5].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
+                },
+                {
+                    candidate: investors[6].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: Number(poolInfo1.maxPurchaseAmountForNotKYCUser.hex),
+                    maxPurchaseBaseOnAllocation: 0
                 }
             ]
             
@@ -1001,7 +1086,8 @@ describe("Ignition Pool",()=>{
             await time.increaseTo(await pool1.whaleOpenTime())
             
             // buy successfully without permit function (investor0, WHALE, KYC user, galaxy pool)
-            await purchaseTokens[1].connect(investors[0]).approve(pool1.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
+            // await purchaseTokens[1].connect(investors[0]).approve(pool1.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(1000))
+            await purchaseTokens[1].connect(investors[0]).approve(pool1.address, ethers.constants.MaxUint256)
             expect(await pool1.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90',purchaseToken1Decimal), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool1, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool1.purchasedAmount()).to.be.equal(Number(parseUnits('90',purchaseToken1Decimal)))
             expect(await pool1.userIDOTGEAmount(investors[0].address)).to.be.equal(parseUnits((Math.floor(90*(10**6)/poolInfoList[1].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[1].TGEPercentage))).toString(),0))
@@ -1131,9 +1217,12 @@ describe("Ignition Pool",()=>{
             await expect(pool1.connect(investors[0]).buyTokenInCrowdfundingPoolWithPermit(proof9NU, parseUnits('30000', purchaseToken1Decimal), allowance9NU, deadline0, signature9NU)).to.be.revertedWithCustomError(pool1, 'ExceedMaxPurchaseAmountForKYCUser')
             
             // buy successfully (investor6, NORMAL, Not KYC user, community pool)
+            const leaf17 = buyWhiteList[17]
+            const proof17 = getProof(leaf17)
+
             const allowance12NU = parseUnits('3000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('3000', purchaseToken1Decimal))
             const signature12NU = await signPermit(investors[6], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance12NU, await purchaseTokens[1].nonces(investors[6].address), deadline0)
-            expect(await pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU)).to.be.emit(pool1, 'BuyToken')
+            expect(await pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit(proof17, parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU)).to.be.emit(pool1, 'BuyToken')
             
             const leaf8NU = buyWhiteList[8]
             const proof8NU = getProof(leaf8NU)
@@ -1143,39 +1232,51 @@ describe("Ignition Pool",()=>{
 
             const allowance14NU = parseUnits('14998', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14998', purchaseToken1Decimal))
             const signature14NU = await signPermit(investors[7], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance14NU, await purchaseTokens[1].nonces(investors[7].address), deadline0)
-            await pool1.connect(investors[7]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14998', purchaseToken1Decimal), allowance14NU, deadline0, signature14NU)
-            
+            await expect(pool1.connect(investors[7]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14998', purchaseToken1Decimal), allowance14NU, deadline0, signature14NU)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
+
             const allowance15NU = parseUnits('14999', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('14999', purchaseToken1Decimal))
             const signature15NU = await signPermit(investors[8], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance15NU, await purchaseTokens[1].nonces(investors[8].address), deadline0)
-            await pool1.connect(investors[8]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14999', purchaseToken1Decimal), allowance15NU, deadline0, signature15NU)
+            await expect(pool1.connect(investors[8]).buyTokenInCrowdfundingPoolWithPermit(proof8NU,parseUnits('14999', purchaseToken1Decimal), allowance15NU, deadline0, signature15NU)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
+            await expect(pool1.connect(investors[8]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('14999', purchaseToken1Decimal), allowance15NU, deadline0, signature15NU)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
             
             const allowance16NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
             const signature16NU = await signPermit(investors[9], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance16NU, await purchaseTokens[1].nonces(investors[9].address), deadline0)
-            await expect(pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([], 0, allowance16NU, deadline0, signature16NU)).to.be.revertedWithCustomError(pool1, 'ZeroAmount')
-            await pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance16NU, deadline0, signature16NU)
+            // await expect(pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([], 0, allowance16NU, deadline0, signature16NU)).to.be.revertedWithCustomError(pool1, 'ZeroAmount')
+            await expect(pool1.connect(investors[9]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance16NU, deadline0, signature16NU)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
 
             const allowance17NU = parseUnits('15000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('15000', purchaseToken1Decimal))
             const signature17NU = await signPermit(investors[10], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance17NU, await purchaseTokens[1].nonces(investors[10].address), deadline0)
-            await expect(pool1.connect(investors[10]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance17NU, deadline0, signature17NU)).to.be.revertedWithCustomError(pool1, 'ExceedTotalRaiseAmount')
+            await expect(pool1.connect(investors[10]).buyTokenInCrowdfundingPoolWithPermit([],parseUnits('15000', purchaseToken1Decimal), allowance17NU, deadline0, signature17NU)).to.be.revertedWithCustomError(pool1, 'NotInWhaleList')
 
+            const allowance9NU2 = parseUnits('20000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('20000', purchaseToken1Decimal))
+            const signature9NU2 = await signPermit(investors[0], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance9NU2, await purchaseTokens[1].nonces(investors[0].address), deadline0)
+
+            const leaf9NK = buyWhiteList[9]
+            const proof9NK = getProof(leaf9NK)
+            expect(await pool1.connect(investors[0]).buyTokenInCrowdfundingPoolWithPermit(proof9NK, parseUnits('20000', purchaseToken1Decimal), allowance9NU2, deadline0, signature9NU2)).to.be.emit(pool1, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue)
+
+            const allowance10NU2 = parseUnits('29990', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('29990', purchaseToken1Decimal))
+            const signature10NU2 = await signPermit(investors[1], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance10NU2, await purchaseTokens[1].nonces(investors[1].address), deadline0)
+
+            const leaf10NU2 = buyWhiteList[10]
+            const proof10NU2 = getProof(leaf10NU2)
+            expect(await pool1.connect(investors[1]).buyTokenInCrowdfundingPoolWithPermit(proof10NU2, parseUnits('29990', purchaseToken1Decimal), allowance10NU2, deadline0, signature10NU2)).to.be.emit(pool1, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue)
+
+            
+            const allowance13NU2 = parseUnits('12000', purchaseToken1Decimal).mul(poolInfoList[1].crowdfundingParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR).add(parseUnits('12000', purchaseToken1Decimal))
+            const signature13NU2 = await signPermit(investors[2], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance13NU2, await purchaseTokens[1].nonces(investors[1].address), deadline0)
+            
+            const leaf13NU2 = buyWhiteList[10]
+            const proof13NU2 = getProof(leaf13NU2)
+            await expect(pool1.connect(investors[2]).buyTokenInCrowdfundingPoolWithPermit(proof13NU2, parseUnits('12000', purchaseToken1Decimal), allowance13NU2, deadline0, signature13NU2)).to.be.revertedWithCustomError(pool1, "ExceedTotalRaiseAmount")
+            
             await time.increaseTo(await pool1.communityCloseTime())
             // revert buy because out of time
             const signature12NU12 = await signPermit(investors[6], purchaseToken1Name, purchaseToken1Addr, pool1.address, allowance12NU, await purchaseTokens[1].nonces(investors[6].address), deadline0)
-            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12.substring(0,64))).to.be.revertedWithCustomError(pool1, 'NotValidSignature')
-            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit([], parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12)).to.be.revertedWithCustomError(pool1, "TimeOutToBuyToken")
-
-            
-            // console.log(await pool1.userIDOTGEAmount(investors[0].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[1].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[2].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[3].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[4].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[5].address))
-            // console.log(await pool1.userIDOTGEAmount(investors[6].address))
+            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit(proof17, parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12.substring(0,64))).to.be.revertedWithCustomError(pool1, 'NotValidSignature')
+            await expect(pool1.connect(investors[6]).buyTokenInCrowdfundingPoolWithPermit(proof17, parseUnits('3000', purchaseToken1Decimal), allowance12NU, deadline0, signature12NU12)).to.be.revertedWithCustomError(pool1, "TimeOutToBuyToken")
 
             await pool1.connect(admin1).setRedeemableTGEIDOToken(true);
-            // await expect(pool1.connect(investors[0]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[0].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
-            // await expect(pool1.connect(investors[1]).redeemTGEIDOToken(await pool1.userIDOTGEAmount(investors[1].address))).to.be.revertedWithCustomError(pool1, "NotYetTimeToRedeemTGE")
             await expect(pool1.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool1,"AlreadySetRedeemableTGE").withArgs(true);
             await pool1.connect(admin1).setRedeemableTGEIDOToken(false);
 
@@ -1336,6 +1437,48 @@ describe("Ignition Pool",()=>{
                     userType: NORMAL_USER_HASH,
                     maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForKYCUser,
                     maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[0].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[1].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[2].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[3].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[4].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[5].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
+                },
+                {
+                    candidate: investors[6].address,
+                    userType: NORMAL_USER_HASH,
+                    maxPurchaseWhetherOrNotKYC: poolInfoList[2].maxPurchaseAmountForNotKYCUser,
+                    maxPurchaseBaseOnAllocation: BigNumber.from('0')
                 }
             ]
             
@@ -1344,18 +1487,6 @@ describe("Ignition Pool",()=>{
                   ["address", "bytes32", "uint256","uint256"],
                   [obj.candidate, obj.userType, obj.maxPurchaseWhetherOrNotKYC, obj.maxPurchaseBaseOnAllocation]
                 );
-                // let leafNodeString = solidityPack(
-                //     ["address", "bytes32", "uint256","uint256"],
-                //     [obj.candidate, obj.userType, obj.maxPurchaseWhetherOrNotKYC.toString(), obj.maxPurchaseBaseOnAllocation.toString()]
-                //   );
-                // console.log(leafNode)
-                // console.log(leafNodeString)
-                // console.log(obj.candidate)
-                // console.log(obj.userType)
-                // console.log(obj.maxPurchaseWhetherOrNotKYC)
-                // console.log(obj.maxPurchaseBaseOnAllocation)
-
-                // process.exit(1)
                 return ethers.utils.solidityKeccak256(["bytes"], [leafNode]);
             });
 
@@ -1365,7 +1496,7 @@ describe("Ignition Pool",()=>{
 
             const buyRootHash = hexlify(buyMerkleTree.getRoot());
 
-            function getProof(leafInfo: {candidate: string, userType: string, maxPurchaseWhetherOrNotKYC: BigNumber, maxPurchaseBaseOnAllocation: BigNumber}){
+            function getProof(leafInfo: {candidate: string, userType: string, maxPurchaseWhetherOrNotKYC: BigNumber, maxPurchaseBaseOnAllocation: BigNumber | number}){
                 const leaf = solidityPack(
                     ["address", "bytes32", "uint256","uint256"],
                     [leafInfo.candidate, leafInfo.userType, leafInfo.maxPurchaseWhetherOrNotKYC, leafInfo.maxPurchaseBaseOnAllocation]
@@ -1441,10 +1572,10 @@ describe("Ignition Pool",()=>{
             // buy successfully (investor0, WHALE, KYC user, galaxy pool)
             await time.increaseTo(await pool2.whaleOpenTime())
             await expect(pool2.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90', 18), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2, 'NotEnoughAllowance')
-            await purchaseTokens[2].connect(investors[0]).approve(pool2.address, BigNumber.from(leafInfo0.maxPurchaseBaseOnAllocation).add(leafInfo0.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
+            await purchaseTokens[2].connect(investors[0]).approve(pool2.address, ethers.constants.MaxUint256)
+            await expect(pool2.connect(investors[0]).buyTokenInGalaxyPool(proof0, BigNumber.from("0"), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2, "ZeroAmount")
             expect(await pool2.connect(investors[0]).buyTokenInGalaxyPool(proof0, parseUnits('90', 18), leafInfo0.maxPurchaseBaseOnAllocation)).to.be.emit(pool2, "BuyToken").withArgs(investors[0].address, anyValue, anyValue, anyValue) // 90 purchaseToken0
             expect(await pool2.purchasedAmount()).to.be.equal(parseUnits('90', 18))
-            // expect(Number((await IDOTokens[0].balanceOf(investors[0].address)).div(parseUnits('1',18)))).to.be.equal(90/poolInfoList[2].price/PERCENTAGE_DENOMINATOR*Number(poolInfoList[2].TGEPercentage))
             expect(await pool2.userIDOTGEAmount(investors[0].address)).to.be.equal(0)
             expect(await pool2.userPurchasedAmount(investors[0].address)).to.be.equal(parseUnits('90', 18))
             // get proof for investor1 in galaxy pool
@@ -1452,7 +1583,7 @@ describe("Ignition Pool",()=>{
             const proof1 = getProof(leafInfo1)
 
             // revert buy more than max purchase amount for KYC user (investor1, WHALE, KYC user, galaxy pool)
-            await purchaseTokens[2].connect(investors[1]).approve(pool2.address, BigNumber.from(leafInfo1.maxPurchaseBaseOnAllocation).add(leafInfo1.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
+            await purchaseTokens[2].connect(investors[1]).approve(pool2.address, ethers.constants.MaxUint256)
             await expect(pool2.connect(investors[1]).buyTokenInGalaxyPool(proof1, parseUnits('11000',18), leafInfo1.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2,"ExceedMaxPurchaseAmountForKYCUser").withArgs(investors[1].address, parseUnits('11000',18))
             
             // get proof for investor2 in galaxy pool
@@ -1460,7 +1591,7 @@ describe("Ignition Pool",()=>{
             const proof4 = getProof(leafInfo4)
             
             // buy successfully (investor2, WHALE, Not KYC user, galaxy pool)
-            await purchaseTokens[2].connect(investors[2]).approve(pool2.address, BigNumber.from(leafInfo4.maxPurchaseBaseOnAllocation).add(leafInfo4.maxPurchaseBaseOnAllocation.mul(poolInfoList[2].galaxyParticipationFeePercentage).div(PERCENTAGE_DENOMINATOR)).add(1000))
+            await purchaseTokens[2].connect(investors[2]).approve(pool2.address, ethers.constants.MaxUint256)
             expect(await pool2.connect(investors[2]).buyTokenInGalaxyPool(proof4, parseUnits('870', 18), leafInfo4.maxPurchaseBaseOnAllocation)).to.be.emit(pool2, "BuyToken").withArgs(investors[2].address, anyValue, anyValue, anyValue) // 900 purchaseToken0
             
             // buy successfully twice (investor2, WHALE, Not KYC user, galaxy pool)
@@ -1474,7 +1605,7 @@ describe("Ignition Pool",()=>{
             const proof8 = getProof(leafInfo8)
             
             // revert normal, KYC user buy in galaxy pool (investor4, NORMAL, KYC user, galaxy pool)
-            await purchaseTokens[2].connect(investors[5]).approve(pool2.address, parseUnits('1000000',20))
+            await purchaseTokens[2].connect(investors[5]).approve(pool2.address, ethers.constants.MaxUint256)
             await expect(pool2.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, leafInfo8.maxPurchaseBaseOnAllocation)).to.be.revertedWithCustomError(pool2, "ExceedMaxPurchaseAmountForUser")
             await expect(pool2.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, 10)).to.be.revertedWithCustomError(pool2, "NotInWhaleList").withArgs(investors[5].address)
             
@@ -1483,7 +1614,6 @@ describe("Ignition Pool",()=>{
             const proof0EA = getProof(leaf0EA)
             
             // buy successfully (investor0, WHALE, KYC User, early access)
-            await purchaseTokens[2].connect(investors[0]).approve(pool2.address, parseUnits('1000000',20))
             const balanceOfInvestor0BeforeBuyToken = await purchaseTokens[2].balanceOf(investors[0].address)
             const balanceOfpool2BeforeBuyToken = await purchaseTokens[2].balanceOf(pool2.address)
             expect(await pool2.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100', 18))).to.be.emit(pool2, "BuyToken").withArgs(investors[0].address, pool2.address, anyValue, anyValue)
@@ -1509,7 +1639,8 @@ describe("Ignition Pool",()=>{
             const proof7EA = getProof(leaf7EA)
             
             // buy successfully (investor3, WHALE, Not KYC User, early access)
-            await purchaseTokens[2].connect(investors[3]).approve(pool2.address, parseUnits('10',20))
+            await purchaseTokens[2].connect(investors[3]).approve(pool2.address, ethers.constants.MaxUint256)
+            // await purchaseTokens[2].connect(investors[3]).approve(pool2.address, parseUnits('10',20))
             expect(await pool2.connect(investors[3]).buyTokenInCrowdfundingPool(proof7EA, parseUnits('10',18))).to.be.emit(pool2, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
             
             // revert buy (investor5, NORMAL, KYC User, early access)
@@ -1532,21 +1663,17 @@ describe("Ignition Pool",()=>{
             const proof9NU = getProof(leaf9NU)
             
             // buy successfully (investor6, NORMAL, Not KYC user, community pool)
-            await purchaseTokens[2].connect(investors[6]).approve(pool2.address, parseUnits('100',20));
-            expect(await pool2.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('100',6))).to.be.emit(pool2, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
+            await purchaseTokens[2].connect(investors[6]).approve(pool2.address, ethers.constants.MaxUint256);
+            // await purchaseTokens[2].connect(investors[6]).approve(pool2.address, parseUnits('100',20));
+            const leaf17 = buyWhiteList[17]
+            const proof17 = getProof(leaf17)
+
+            expect(await pool2.connect(investors[6]).buyTokenInCrowdfundingPool(proof17, parseUnits('100',6))).to.be.emit(pool2, "BuyToken").withArgs(anyValue, anyValue, anyValue, anyValue);
             
             await time.increaseTo(await pool2.communityCloseTime())
             // revert buy because out of time
-            await expect(pool2.connect(investors[6]).buyTokenInCrowdfundingPool([], parseUnits('10',6))).to.be.revertedWithCustomError(pool2, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
-            
-            // console.log(await pool2.userIDOTGEAmount(investors[0].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[1].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[2].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[3].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[4].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[5].address))
-            // console.log(await pool2.userIDOTGEAmount(investors[6].address))
-            
+            await expect(pool2.connect(investors[6]).buyTokenInCrowdfundingPool(proof17, parseUnits('10',6))).to.be.revertedWithCustomError(pool2, "TimeOutToBuyToken").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, anyValue)
+
             await expect(pool2.connect(investors[0]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool2, "ZeroAddress")
             await expect(pool2.connect(admin1).setRedeemableTGEIDOToken(true)).to.be.revertedWithCustomError(pool2, "ZeroAddress")
             await expect(pool2.connect(investors[1]).redeemTGEIDOToken()).to.be.revertedWithCustomError(pool2, "ZeroAddress")

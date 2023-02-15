@@ -2,6 +2,7 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
+import "hardhat/console.sol";
 
 contract ERC20Token is ERC20PermitUpgradeable{
     uint8 _decimals = 18;
@@ -27,5 +28,17 @@ contract ERC20Token is ERC20PermitUpgradeable{
 
     function burn(address _from, uint _amount) public {
         ERC20Upgradeable._burn(_from, _amount);
+    }
+
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal override {
+        string memory symbol = symbol();
+        if(keccak256(abi.encodePacked(symbol)) == keccak256(abi.encodePacked("USDT"))){
+            require(!((amount != 0) && (allowance(msg.sender, spender) != 0)), "Approve USDT fail");
+        }
+        super._approve(owner, spender, amount);
     }
 }
