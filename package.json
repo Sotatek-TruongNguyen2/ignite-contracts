@@ -11,7 +11,9 @@
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:bsctest": "hardhat deploy --network binancetest",
     "deploy:mumbai": "hardhat deploy --network mumbai",
-    "deploy:fuji": "hardhat deploy --network fuji"
+    "deploy:fuji": "hardhat deploy --network fuji",
+    "deploy:mainnet": "hardhat deploy --network mainnet",
+    "deploy:binance": "hardhat deploy --network binance"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",

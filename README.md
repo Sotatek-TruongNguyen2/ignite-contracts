@@ -1,3 +1,58 @@
+# Step to deploy contracts
+
+1. Create .env file and fill with private key of deployer, infura key (if you do not use infura endpoint, you can change rpc endpoint of network in hardhat.config.ts)
+
+2. Deploy a sample contract for all IDO pools
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags POOL
+# For BSC
+yarn deploy:binance --tags POOL
+```
+
+3. Deploy contract pool factory (with upgradeable proxy pattern)
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags POOL_FACTORY_PROXY
+# For BSC
+yarn deploy:binance --tags POOL_FACTORY_PROXY
+```
+
+# Step to verify contracts
+
+1. Verify pool contract
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags VERIFICATION_POOL
+# For BSC
+yarn deploy:binance --tags VERIFICATION_POOL
+```
+
+2. Verify pool factory contract
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags VERIFICATION_POOL_FACTORY
+# For BSC
+yarn deploy:binance --tags VERIFICATION_POOL_FACTORY
+```
+
+# Step to deploy contracts again if changing pool contract
+
+1. Deploy new sample for IDO pool contract
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags POOL
+# For BSC
+yarn deploy:binance --tags POOL
+```
+
+2. Change pool implementation address in pool factory contract
+
 # Library:
 
 - merkletreejs {MerkleTree}
