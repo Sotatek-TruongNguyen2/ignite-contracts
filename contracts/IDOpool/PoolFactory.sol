@@ -31,8 +31,6 @@ contract PoolFactory is Initializable, AccessControl {
     error AlreadyAdmin();
     error ZeroOfferedRate();
     error AlreadyNotAdmin();
-    error NotValidGalaxyPoolProportion();
-    error NotValidEarlyAccessProportion();
 
     /**
      * @notice Grant admin role for new admin
@@ -130,7 +128,6 @@ contract PoolFactory is Initializable, AccessControl {
      * @return pool Address of new pool
      */
     function createPool(address[2] memory addrs, uint[14] memory uints, uint dbProjectId) external returns (address pool) {
-        _verifyPoolInfo(addrs, uints);
         address _IDOToken = addrs[0];
         bytes32 salt = keccak256(abi.encode(addrs, uints, _msgSender(), dbProjectId));
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
@@ -140,55 +137,6 @@ contract PoolFactory is Initializable, AccessControl {
         bytes32 poolInfoHash = keccak256(abi.encode(addrs, uints, dbProjectId));
         
         emit PoolCreated(poolInfoHash, pool);
-    }
-
-    /**
-     * @dev verify information of pool: galaxy pool proportion must be greater than 0% and smaller than 100%, 
-     * early access must be smaller than 100%, total raise must be greater than 0
-     * @param addrs Array of address includes: address of IDO token, address of purchase token
-     * @param uints Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage, 
-     * galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion,
-     * total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token
-     */
-    function _verifyPoolInfo(address[2] memory addrs, uint[14] memory uints) internal pure{
-        // address _IDOToken = addrs[0];
-        {
-            address _purchaseToken = addrs[1];
-            _validAddress(_purchaseToken);
-        }
-        {
-            /*
-            uint _maxPurchaseAmountForKYCUser = uints[0];
-            uint _maxPurchaseAmountForNotKYCUser = uints[1];
-            uint _TGEDate = uints[2];
-            uint _TGEPercentage = uints[3];
-            uint _galaxyParticipationFeePercentage = uints[4];
-            uint _crowdfundingParticipationFeePercentage = uints[5];
-            uint _galaxyPoolProportion = uints[6];
-            uint _earlyAccessProportion = uints[7];
-            uint _totalRaiseAmount = uints[8];
-            uint _whaleOpenTime = uints[9];
-            uint _whaleDuration = uints[10];
-            uint _communityDuration = uints[11];
-            uint _rate = uints[12];
-            uint _decimal = uints[13];
-            */
-
-            uint _galaxyPoolProportion = uints[6];
-            _validAmount(_galaxyPoolProportion);
-            if(_galaxyPoolProportion >= PERCENTAGE_DENOMINATOR){
-                revert NotValidGalaxyPoolProportion();
-            }
-
-            uint _earlyAccessProportion = uints[7];
-            if(_earlyAccessProportion >= PERCENTAGE_DENOMINATOR){
-                revert NotValidEarlyAccessProportion();
-            }
-
-            uint _totalRaiseAmount = uints[8];
-            _validAmount(_totalRaiseAmount);
-
-        }
     }
 
     /**

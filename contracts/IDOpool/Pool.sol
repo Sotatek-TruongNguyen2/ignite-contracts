@@ -125,7 +125,10 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
     error ZeroAddress();
     error NotValidSignature();
     error Redeemed();
+    error NotValidTGEPercentage();
     error NotInWhaleList(address buyer);
+    error NotValidGalaxyPoolProportion();
+    error NotValidEarlyAccessProportion();
     error NotAllowedToRedeemTGEIDOAmount();
     error ExceedMaxPurchaseAmountForUser();
     error NotEnoughConditionToWithdrawIDOToken();
@@ -158,6 +161,7 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
      * total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token
      */
     function initialize(address[2] memory addrs, uint[14] memory uints) external initializer{
+        _verifyPoolInfo(addrs, uints);
         {
             poolFactory = IPoolFactory(_msgSender());
         }
@@ -413,6 +417,60 @@ contract Pool is Pausable, ReentrancyGuard, IgnitionList, Initializable {
      */
     function getIDOTokenAmountByOfferedCurrency(uint _amount) public view returns(uint){
         return _amount * offeredCurrency.rate / (10 ** offeredCurrency.decimal);
+    }
+
+    /**
+     * @dev verify information of pool: galaxy pool proportion must be greater than 0% and smaller than 100%, 
+     * early access must be smaller than 100%, total raise must be greater than 0
+     * @param addrs Array of address includes: address of IDO token, address of purchase token
+     * @param uints Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage, 
+     * galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion,
+     * total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token
+     */
+    function _verifyPoolInfo(address[2] memory addrs, uint[14] memory uints) internal pure{
+        // address _IDOToken = addrs[0];
+        {
+            address _purchaseToken = addrs[1];
+            _validAddress(_purchaseToken);
+        }
+        {
+            /*
+            uint _maxPurchaseAmountForKYCUser = uints[0];
+            uint _maxPurchaseAmountForNotKYCUser = uints[1];
+            uint _TGEDate = uints[2];
+            uint _TGEPercentage = uints[3];
+            uint _galaxyParticipationFeePercentage = uints[4];
+            uint _crowdfundingParticipationFeePercentage = uints[5];
+            uint _galaxyPoolProportion = uints[6];
+            uint _earlyAccessProportion = uints[7];
+            uint _totalRaiseAmount = uints[8];
+            uint _whaleOpenTime = uints[9];
+            uint _whaleDuration = uints[10];
+            uint _communityDuration = uints[11];
+            uint _rate = uints[12];
+            uint _decimal = uints[13];
+            */
+
+            uint _TGEPercentage = uints[3];
+            if(_TGEPercentage > PERCENTAGE_DENOMINATOR){
+                revert NotValidTGEPercentage();
+            }
+
+            uint _galaxyPoolProportion = uints[6];
+            _validAmount(_galaxyPoolProportion);
+            if(_galaxyPoolProportion >= PERCENTAGE_DENOMINATOR){
+                revert NotValidGalaxyPoolProportion();
+            }
+
+            uint _earlyAccessProportion = uints[7];
+            if(_earlyAccessProportion >= PERCENTAGE_DENOMINATOR){
+                revert NotValidEarlyAccessProportion();
+            }
+
+            uint _totalRaiseAmount = uints[8];
+            _validAmount(_totalRaiseAmount);
+
+        }
     }
 
     /**

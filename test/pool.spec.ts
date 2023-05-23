@@ -17,7 +17,7 @@ import { ERC20TokenFactory__factory } from "../typechain-types/factories/contrac
 
 import { expect } from "chai"
 import { BigNumber } from "ethers"
-import { hexlify, keccak256, parseUnits, solidityKeccak256, solidityPack } from "ethers/lib/utils"
+import { hexlify, Interface, keccak256, parseUnits, solidityKeccak256, solidityPack } from "ethers/lib/utils"
 import MerkleTree from "merkletreejs"
 import { randomBytes } from "crypto"
 
@@ -302,7 +302,7 @@ describe("Ignition Pool",()=>{
         })
      
         it("Should create pool successfully; revert not valid pool info", async()=>{
-            const {jsonCopy, paddingTo32Bytes, owner, poolFactory, poolInfoList, collaborator0, zeroAddress} = await loadFixture(deployPoolFactoryFixture)
+            const {jsonCopy, paddingTo32Bytes, owner, pool, poolFactory, poolInfoList, collaborator0, zeroAddress} = await loadFixture(deployPoolFactoryFixture)
             const poolInfo1 = jsonCopy(poolInfoList[0])
             await poolFactory.connect(collaborator0).createPool([poolInfo1.IDOToken, poolInfo1.purchaseToken],
                 [poolInfo1.maxPurchaseAmountForKYCUser, poolInfo1.maxPurchaseAmountForNotKYCUser, poolInfo1.TGEDate, poolInfo1.TGEPercentage, poolInfo1.galaxyParticipationFeePercentage, poolInfo1.crowdfundingParticipationFeePercentage,
@@ -336,7 +336,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidGalaxyPoolProportion")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(pool,"NotValidGalaxyPoolProportion")
                 // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                 //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                 //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
@@ -348,7 +348,7 @@ describe("Ignition Pool",()=>{
                 await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
-                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"NotValidEarlyAccessProportion")
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(pool,"NotValidEarlyAccessProportion")
                 // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                 //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                 //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
@@ -362,6 +362,20 @@ describe("Ignition Pool",()=>{
                     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
                     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
                     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
+                
+                // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                //     poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                //     poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], paddingTo32Bytes('0x1671095858080'))).to.be.revertedWithCustomError(poolFactory,"ZeroAmount")
+    
+            }
+            {
+                let poolInfo4 = jsonCopy(poolInfoList[4])
+                poolInfo4.TGEPercentage = BigNumber.from(10100)
+                await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
+                    [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
+                    poolInfo4.galaxyPoolProportion, poolInfo4.earlyAccessProportion, poolInfo4.totalRaiseAmount, poolInfo4.whaleOpenTime, poolInfo4.whaleDuration,
+                    poolInfo4.communityDuration, poolInfo4.rate, poolInfo4.decimal], 1671095858080)).to.be.revertedWithCustomError(pool, 'NotValidTGEPercentage')
                 
                 // await expect(poolFactory.connect(owner).createPool([poolInfo4.IDOToken, poolInfo4.purchaseToken],
                 //     [poolInfo4.maxPurchaseAmountForKYCUser, poolInfo4.maxPurchaseAmountForNotKYCUser, poolInfo4.TGEDate, poolInfo4.TGEPercentage, poolInfo4.galaxyParticipationFeePercentage, poolInfo4.crowdfundingParticipationFeePercentage,
