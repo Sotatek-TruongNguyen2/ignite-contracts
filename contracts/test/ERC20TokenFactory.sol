@@ -5,7 +5,6 @@ import "./ERC20Token.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract ERC20TokenFactory {
-
     address public mockTokenAddress;
     address public currentToken;
 
@@ -19,8 +18,11 @@ contract ERC20TokenFactory {
         mockTokenAddress = _newMockTokenAddress;
     }
 
-    function createToken(string memory name, string memory symbol, uint8 decimal_) public returns(address) {
-
+    function createToken(
+        string memory name,
+        string memory symbol,
+        uint8 decimal_
+    ) public returns (address) {
         currentToken = Clones.clone(mockTokenAddress);
 
         ERC20Token token = ERC20Token(currentToken);

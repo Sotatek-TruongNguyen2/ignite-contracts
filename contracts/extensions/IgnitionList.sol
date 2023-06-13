@@ -14,7 +14,14 @@ contract IgnitionList {
         bytes32[] memory proof
     ) internal view returns (bool) {
         // leaf = {address + hash("User type") + max purchase KYC/notKYC amount + max purchase for each user per allocation}
-        bytes32 leaf = keccak256(abi.encodePacked(_candidate, _userType, _maxPurchaseWhetherOrNotKYCAmount, _maxPurchaseBaseOnAllocations));
+        bytes32 leaf = keccak256(
+            abi.encodePacked(
+                _candidate,
+                _userType,
+                _maxPurchaseWhetherOrNotKYCAmount,
+                _maxPurchaseBaseOnAllocations
+            )
+        );
         return MerkleProof.verify(proof, root, leaf);
     }
 }

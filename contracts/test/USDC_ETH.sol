@@ -1,6 +1,6 @@
 /**
  *Submitted for verification at Etherscan.io on 2021-04-17
-*/
+ */
 
 // File: @openzeppelin/contracts/math/SafeMath.sol
 
@@ -201,9 +201,10 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
+    function transfer(
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -212,10 +213,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(
+        address owner,
+        address spender
+    ) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -618,8 +619,11 @@ pragma solidity 0.6.12;
  * @title FiatToken
  * @dev ERC20 Token backed by fiat reserves
  */
-contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
-// , Blacklistable 
+contract FiatTokenV1 is
+    AbstractFiatTokenV1,
+    Ownable,
+    Pausable
+    // , Blacklistable
 {
     using SafeMath for uint256;
 
@@ -696,13 +700,18 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * to the minterAllowance of the caller.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mint(address _to, uint256 _amount)
+    function mint(
+        address _to,
+        uint256 _amount
+    )
         external
         whenNotPaused
         onlyMinters
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(_to)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(_to)
+            bool
+        )
     {
         require(_to != address(0), "FiatToken: mint to the zero address");
         require(_amount > 0, "FiatToken: mint amount not greater than 0");
@@ -755,19 +764,17 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @param spender   Spender's address
      * @return Allowance amount
      */
-    function allowance(address owner, address spender)
-        external
-        override
-        view
-        returns (uint256)
-    {
+    function allowance(
+        address owner,
+        address spender
+    ) external view override returns (uint256) {
         return allowed[owner][spender];
     }
 
     /**
      * @dev Get totalSupply of token
      */
-    function totalSupply() external override view returns (uint256) {
+    function totalSupply() external view override returns (uint256) {
         return totalSupply_;
     }
 
@@ -775,12 +782,9 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @dev Get token balance of an account
      * @param account address The account
      */
-    function balanceOf(address account)
-        external
-        override
-        view
-        returns (uint256)
-    {
+    function balanceOf(
+        address account
+    ) external view override returns (uint256) {
         return balances[account];
     }
 
@@ -791,13 +795,18 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @param value     Allowance amount
      * @return True if successful
      */
-    function approve(address spender, uint256 value)
+    function approve(
+        address spender,
+        uint256 value
+    )
         external
         override
         whenNotPaused
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(spender)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(spender)
+            bool
+        )
     {
         _approve(msg.sender, spender, value);
         return true;
@@ -835,10 +844,12 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
         external
         override
         whenNotPaused
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(from)
-        // notBlacklisted(to)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(from)
+            // notBlacklisted(to)
+            bool
+        )
     {
         require(
             value <= allowed[from][msg.sender],
@@ -855,13 +866,18 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @param value Transfer amount
      * @return True if successful
      */
-    function transfer(address to, uint256 value)
+    function transfer(
+        address to,
+        uint256 value
+    )
         external
         override
         whenNotPaused
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(to)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(to)
+            bool
+        )
     {
         _transfer(msg.sender, to, value);
         return true;
@@ -896,12 +912,10 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @param minterAllowedAmount The minting amount allowed for the minter
      * @return True if the operation was successful.
      */
-    function configureMinter(address minter, uint256 minterAllowedAmount)
-        external
-        whenNotPaused
-        onlyMasterMinter
-        returns (bool)
-    {
+    function configureMinter(
+        address minter,
+        uint256 minterAllowedAmount
+    ) external whenNotPaused onlyMasterMinter returns (bool) {
         minters[minter] = true;
         minterAllowed[minter] = minterAllowedAmount;
         emit MinterConfigured(minter, minterAllowedAmount);
@@ -913,11 +927,9 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * @param minter The address of the minter to remove
      * @return True if the operation was successful.
      */
-    function removeMinter(address minter)
-        external
-        onlyMasterMinter
-        returns (bool)
-    {
+    function removeMinter(
+        address minter
+    ) external onlyMasterMinter returns (bool) {
         minters[minter] = false;
         minterAllowed[minter] = 0;
         emit MinterRemoved(minter);
@@ -930,11 +942,12 @@ contract FiatTokenV1 is AbstractFiatTokenV1, Ownable, Pausable
      * amount is less than or equal to the minter's account balance
      * @param _amount uint256 the amount of tokens to be burned
      */
-    function burn(uint256 _amount)
+    function burn(
+        uint256 _amount
+    )
         external
         whenNotPaused
-        onlyMinters
-        // notBlacklisted(msg.sender)
+        onlyMinters // notBlacklisted(msg.sender)
     {
         uint256 balance = balances[msg.sender];
         require(_amount > 0, "FiatToken: burn amount not greater than 0");
@@ -987,8 +1000,7 @@ library Address {
         // for accounts without code, i.e. `keccak256('')`
         bytes32 codehash;
 
-            bytes32 accountHash
-         = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
+        bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
         // solhint-disable-next-line no-inline-assembly
         assembly {
             codehash := extcodehash(account)
@@ -1019,7 +1031,7 @@ library Address {
         );
 
         // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
-        (bool success, ) = recipient.call{ value: amount }("");
+        (bool success, ) = recipient.call{value: amount}("");
         require(
             success,
             "Address: unable to send value, recipient may have reverted"
@@ -1044,10 +1056,10 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data)
-        internal
-        returns (bytes memory)
-    {
+    function functionCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
         return functionCall(target, data, "Address: low-level call failed");
     }
 
@@ -1118,9 +1130,9 @@ library Address {
         require(isContract(target), "Address: call to non-contract");
 
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = target.call{
-            value: weiValue
-        }(data);
+        (bool success, bytes memory returndata) = target.call{value: weiValue}(
+            data
+        );
         if (success) {
             return returndata;
         } else {
@@ -1157,11 +1169,7 @@ library SafeERC20 {
     using SafeMath for uint256;
     using Address for address;
 
-    function safeTransfer(
-        IERC20 token,
-        address to,
-        uint256 value
-    ) internal {
+    function safeTransfer(IERC20 token, address to, uint256 value) internal {
         _callOptionalReturn(
             token,
             abi.encodeWithSelector(token.transfer.selector, to, value)
@@ -1533,11 +1541,10 @@ library EIP712 {
      * @param version   Contract version
      * @return Domain separator
      */
-    function makeDomainSeparator(string memory name, string memory version)
-        internal
-        view
-        returns (bytes32)
-    {
+    function makeDomainSeparator(
+        string memory name,
+        string memory version
+    ) internal view returns (bytes32) {
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -1652,16 +1659,16 @@ pragma solidity 0.6.12;
  */
 abstract contract EIP3009 is AbstractFiatTokenV2, EIP712Domain {
     // keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
-    bytes32
-        public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = 0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
+    bytes32 public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
+        0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
 
     // keccak256("ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
-    bytes32
-        public constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH = 0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8;
+    bytes32 public constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH =
+        0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8;
 
     // keccak256("CancelAuthorization(address authorizer,bytes32 nonce)")
-    bytes32
-        public constant CANCEL_AUTHORIZATION_TYPEHASH = 0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429;
+    bytes32 public constant CANCEL_AUTHORIZATION_TYPEHASH =
+        0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429;
 
     /**
      * @dev authorizer address => nonce => bool (true if nonce is used)
@@ -1682,11 +1689,10 @@ abstract contract EIP3009 is AbstractFiatTokenV2, EIP712Domain {
      * @param nonce         Nonce of the authorization
      * @return True if the nonce is used
      */
-    function authorizationState(address authorizer, bytes32 nonce)
-        external
-        view
-        returns (bool)
-    {
+    function authorizationState(
+        address authorizer,
+        bytes32 nonce
+    ) external view returns (bool) {
         return _authorizationStates[authorizer][nonce];
     }
 
@@ -1815,10 +1821,10 @@ abstract contract EIP3009 is AbstractFiatTokenV2, EIP712Domain {
      * @param authorizer    Authorizer's address
      * @param nonce         Nonce of the authorization
      */
-    function _requireUnusedAuthorization(address authorizer, bytes32 nonce)
-        private
-        view
-    {
+    function _requireUnusedAuthorization(
+        address authorizer,
+        bytes32 nonce
+    ) private view {
         require(
             !_authorizationStates[authorizer][nonce],
             "FiatTokenV2: authorization is used or canceled"
@@ -1851,9 +1857,10 @@ abstract contract EIP3009 is AbstractFiatTokenV2, EIP712Domain {
      * @param authorizer    Authorizer's address
      * @param nonce         Nonce of the authorization
      */
-    function _markAuthorizationAsUsed(address authorizer, bytes32 nonce)
-        private
-    {
+    function _markAuthorizationAsUsed(
+        address authorizer,
+        bytes32 nonce
+    ) private {
         _authorizationStates[authorizer][nonce] = true;
         emit AuthorizationUsed(authorizer, nonce);
     }
@@ -1891,8 +1898,8 @@ pragma solidity 0.6.12;
  */
 abstract contract EIP2612 is AbstractFiatTokenV2, EIP712Domain {
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
-    bytes32
-        public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    bytes32 public constant PERMIT_TYPEHASH =
+        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
     mapping(address => uint256) private _permitNonces;
 
@@ -1994,12 +2001,17 @@ contract FiatTokenV2 is FiatTokenV1_1, EIP3009, EIP2612 {
      * @param increment Amount of increase in allowance
      * @return True if successful
      */
-    function increaseAllowance(address spender, uint256 increment)
+    function increaseAllowance(
+        address spender,
+        uint256 increment
+    )
         external
         whenNotPaused
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(spender)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(spender)
+            bool
+        )
     {
         _increaseAllowance(msg.sender, spender, increment);
         return true;
@@ -2011,12 +2023,17 @@ contract FiatTokenV2 is FiatTokenV1_1, EIP3009, EIP2612 {
      * @param decrement Amount of decrease in allowance
      * @return True if successful
      */
-    function decreaseAllowance(address spender, uint256 decrement)
+    function decreaseAllowance(
+        address spender,
+        uint256 decrement
+    )
         external
         whenNotPaused
-        // notBlacklisted(msg.sender)
-        // notBlacklisted(spender)
-        returns (bool)
+        returns (
+            // notBlacklisted(msg.sender)
+            // notBlacklisted(spender)
+            bool
+        )
     {
         _decreaseAllowance(msg.sender, spender, decrement);
         return true;
@@ -2044,9 +2061,10 @@ contract FiatTokenV2 is FiatTokenV1_1, EIP3009, EIP2612 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external whenNotPaused 
-    // notBlacklisted(from) notBlacklisted(to)
-     {
+    )
+        external
+        whenNotPaused // notBlacklisted(from) notBlacklisted(to)
+    {
         _transferWithAuthorization(
             from,
             to,
@@ -2084,9 +2102,10 @@ contract FiatTokenV2 is FiatTokenV1_1, EIP3009, EIP2612 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external whenNotPaused 
-    // notBlacklisted(from) notBlacklisted(to)
-     {
+    )
+        external
+        whenNotPaused // notBlacklisted(from) notBlacklisted(to)
+    {
         _receiveWithAuthorization(
             from,
             to,
@@ -2137,9 +2156,10 @@ contract FiatTokenV2 is FiatTokenV1_1, EIP3009, EIP2612 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external whenNotPaused
-    //  notBlacklisted(owner) notBlacklisted(spender) 
-     {
+    )
+        external
+        whenNotPaused //  notBlacklisted(owner) notBlacklisted(spender)
+    {
         _permit(owner, spender, value, deadline, v, r, s);
     }
 
