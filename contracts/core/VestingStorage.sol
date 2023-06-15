@@ -1,28 +1,41 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../interfaces/IERC20withDec.sol";
 
 contract VestingStorage {
-    /// @dev keccak256("OWNER")
-    bytes32 public constant OWNER =
-        0x6270edb7c868f86fda4adedba75108201087268ea345934db8bad688e1feb91b;
+    struct VestingAmountInfo {
+        uint totalAmount; // total amount will be claimed by investor
+        uint claimedAmount; // claimed amount
+    }
 
-    /// @dev Percentage denominator
+    /// @notice Percentage denominator
     uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
 
-    /// @dev Address of IDO token
-    IERC20 public IDOToken;
+    /// @notice Address of IDO token
+    IERC20withDec public IDOToken;
 
-    /// @dev Time for user to redeem IDO token
+    /// @notice Time for user to redeem IDO token
     uint64 public TGEDate;
 
-    /// @dev Percentage of IDO token amount of user, which can be redeemed after TGEDate
+    /// @notice Percentage of IDO token amount of user, which can be redeemed after TGEDate
     uint16 public TGEPercentage;
 
-    /// @dev Vesting cliff
+    /// @notice Vesting cliff
     uint64 public vestingCliff;
 
-    /// @dev Vesting duration
-    uint64 public vestingDuration;
+    /// @notice Vesting frequency
+    uint64 public vestingFrequency;
+
+    /// @notice Number of vesting release
+    uint public numberOfVestingRelease;
+
+    /// @notice vesting info of each user
+    mapping(address => VestingAmountInfo) public vestingAmountInfo;
+
+    /// @notice True if collaborator fund enough IDO token
+    bool public funded;
+
+    /// @notice True if admin allow user to claim
+    bool public claimable = true;
 }

@@ -35,20 +35,23 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: '0.8.10',
-            settings: {
-              optimizer: {
-                enabled: true,
-                runs: 100,
-              },
-              outputSelection: {
-                '*': {
-                  '*': ['storageLayout'],
-                },
-              },
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+          outputSelection: {
+            '*': {
+              '*': ['storageLayout'],
             },
+          },
+        },
       },
       {
         version: '0.6.12'
+      },
+      {
+        version: '0.4.17'
       }
     ]
   },
@@ -271,7 +274,7 @@ const config: HardhatUserConfig = {
     test: {
       tasks: [{ command: 'test', params: { testFiles: [''] } }],
       files: ['./test/**/*'],
-      verbose: true     
+      verbose: true
     }
   },
   contractSizer: {

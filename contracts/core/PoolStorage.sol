@@ -12,6 +12,13 @@ contract PoolStorage {
         uint decimal;
     }
 
+    /// @dev amount of purchase token, fee used to buy IDO token and withdrawn amount status if project failed
+    struct PurchaseAmount {
+        uint principal; // purchased amount(based on purchased token)
+        uint fee; // participation fee (based on purchased token)
+        uint withdrawn;
+    }
+
     /// @dev keccak256("WHALE")
     bytes32 public constant WHALE =
         0xed4b80c86c7954bdbf516c492acb4a2899eb0ee85b7c74e26d85e55a07562c95;
@@ -44,8 +51,11 @@ contract PoolStorage {
     /// @dev Max purchase amount for NOT KYC user
     uint public maxPurchaseAmountForNotKYCUser;
 
-    ///@dev Creation fee to create project
-    uint16 public creationFeePercentage;
+    /// @dev Token fee to create project
+    uint16 public tokenFeePercentage;
+
+    /// @dev True if token fee is claimed
+    bool public tokenFeeClaimedStatus;
 
     /// @dev Fee percentage when buying token in galaxy pool
     uint16 public galaxyParticipationFeePercentage;
@@ -58,9 +68,6 @@ contract PoolStorage {
 
     /// @dev Proportion of crowdfunding pool amount for early access
     uint16 public earlyAccessProportion;
-
-    /// @dev Status whether or not investor can redeem IDO token
-    bool public TGERedeemable;
 
     /// @dev Total raise amount of all pools
     uint public totalRaiseAmount;
@@ -77,18 +84,40 @@ contract PoolStorage {
     /// @dev Close time of crowdfunding pool
     uint64 public communityCloseTime;
 
-    /// @dev Purchased amount in galaxy pool
+    /// @dev Participation fee in all sub-pool
+    uint public participationFeeAmount;
+
+    /// @dev True if participation fee is claimed
+    bool public participationFeeClaimedStatus;
+
+    /// @dev Purchased amount in galaxy pool (based on purchase token), do not include participation fee
     uint public purchasedAmountInGalaxyPool;
 
-    /// @dev Purchased amount in early access
+    /// @dev Purchased amount in early access (based on purchase token), do not include participation fee
     uint public purchasedAmountInEarlyAccess;
 
-    /// @dev Purchased amount in all pools
+    /// @dev Purchased amount in all pools (based on purchase token), do not include participation fee
     uint public purchasedAmount;
 
-    /// @dev Mapping from User to purchased amount
-    mapping(address => uint) public userPurchasedAmount;
+    /// @dev Profit amount which is claimed by collaborator (exclude token fee)
+    uint public profitClaimedAmount;
+
+    /// @dev Mapping from User to purchased amount (based on purchase token)
+    mapping(address => PurchaseAmount) public userPurchasedAmount;
 
     /// @dev Vesting contract address
-    IVesting vesting;
+    IVesting public vesting;
+
+    /// @dev Name used for fund signature
+    string public constant name = "Pool";
+
+    /// @dev Version used for fund signature
+    string public constant version = "1";
+
+    // --- EIP712 niceties ---
+    bytes32 public DOMAIN_SEPARATOR;
+
+    // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,bytes32 symbolHash,uint8 decimals)");
+    bytes32 public constant FUND_TYPEHASH =
+        0x041776e07c284720eefe91849b7eb530d952f126b19af710c29ea3cc06693b97;
 }

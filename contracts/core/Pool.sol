@@ -1,26 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../utils/Pausable.sol";
-import "../utils/ReentrancyGuard.sol";
 import "../extensions/IgnitionList.sol";
 import "../libraries/SafeCast.sol";
-import "../utils/Initializable.sol";
 import "../interfaces/IPool.sol";
 import {Errors} from "../helpers/Errors.sol";
 import "../logics/PoolLogic.sol";
 import "./PoolStorage.sol";
 import "../interfaces/IVesting.sol";
+import "./BasePausable.sol";
+import "../libraries/ECDSA.sol";
+import "../logics/VestingLogic.sol";
 
-contract Pool is
-    Pausable,
-    ReentrancyGuard,
-    IgnitionList,
-    Initializable,
-    IPool,
-    PoolStorage
-{
+contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     using SafeERC20 for IERC20;
+    using SafeERC20 for IERC20withDec;
     using SafeCast for uint;
 
     event UpdateRoot(bytes32 root);
@@ -40,14 +34,13 @@ contract Pool is
         uint64 communityCloseTime
     );
 
+    event FundIDOToken(IERC20withDec _IDOToken);
+
     /**
      * @dev Check whether or not sender of transaction has admin role
      */
     modifier onlyAdmin() {
-        require(
-            ignitionFactory.hasRole(ignitionFactory.ADMIN(), _msgSender()),
-            Errors.CALLER_NOT_ADMIN
-        );
+        require(ignitionFactory.isOwner(_msgSender()), Errors.CALLER_NOT_ADMIN);
         _;
     }
 
@@ -73,13 +66,16 @@ contract Pool is
      * - TGE date,
      * - TGE percentage,
      * - vesting cliff,
-     * - vesting duration
+     * - vesting frequency,
+     * - number of vesting release
      */
     function initialize(
         address[2] memory addrs,
-        uint[17] memory uints
+        uint[18] memory uints,
+        address owner
     ) external initializer {
-        _verifyPoolInfo(addrs, uints);
+        __BasePausable__init(owner);
+        PoolLogic._verifyPoolInfo(addrs, uints);
         {
             ignitionFactory = IIgnitionFactory(_msgSender());
         }
@@ -88,7 +84,8 @@ contract Pool is
             uints[13],
             uints[14],
             uints[15],
-            uints[16]
+            uints[16],
+            uints[17]
         );
         {
             purchaseToken = IERC20(addrs[1]);
@@ -98,7 +95,7 @@ contract Pool is
             maxPurchaseAmountForNotKYCUser = uints[1];
         }
         {
-            creationFeePercentage = SafeCast.toUint16(uints[2]);
+            tokenFeePercentage = SafeCast.toUint16(uints[2]);
             galaxyParticipationFeePercentage = SafeCast.toUint16(uints[3]);
             crowdfundingParticipationFeePercentage = SafeCast.toUint16(
                 uints[4]
@@ -131,6 +128,18 @@ contract Pool is
             offeredCurrency.rate = _rate;
             offeredCurrency.decimal = _decimal;
         }
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                block.chainid,
+                address(this)
+            )
+        );
     }
 
     /**
@@ -144,12 +153,13 @@ contract Pool is
     }
 
     /**
-     * @notice Close pool: cancel project, nobody can buy token
+     * @notice Cancel pool: cancel project, nobody can buy token
      * @dev Only admin can call it
      */
-    function closePool() external onlyAdmin {
+    function cancelPool(bool _permanentDelete) external onlyAdmin {
         _pause();
-        emit UpdateOpenPoolStatus(address(this), false);
+        vesting.setClaimableStatus(false);
+        emit UpdateOpenPoolStatus(address(this), _permanentDelete);
     }
 
     /**
@@ -162,9 +172,11 @@ contract Pool is
         uint64 _newWhaleCloseTime,
         uint64 _newCommunityCloseTime
     ) external onlyAdmin {
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
         require(
             whaleOpenTime < _newWhaleCloseTime &&
-                _newWhaleCloseTime < _newCommunityCloseTime,
+                _newWhaleCloseTime < _newCommunityCloseTime &&
+                _newCommunityCloseTime <= _TGEDate,
             Errors.INVALID_TIME
         );
 
@@ -178,6 +190,15 @@ contract Pool is
             communityOpenTime,
             communityCloseTime
         );
+    }
+
+    function updateTGEDate(uint64 _newTGEDate) external onlyAdmin {
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
+        require(
+            block.timestamp <= _TGEDate && communityCloseTime <= _newTGEDate,
+            Errors.INVALID_TIME
+        );
+        vesting.updateTGEDate(_newTGEDate);
     }
 
     /**
@@ -256,7 +277,8 @@ contract Pool is
         uint _TGEDate,
         uint _TGEPercentage,
         uint _vestingCliff,
-        uint _vestingDuration
+        uint _vestingFrequency,
+        uint _numberOfVestingRelease
     ) internal {
         address _vesting = IIgnitionFactory(ignitionFactory).createVesting();
         vesting = IVesting(_vesting);
@@ -266,45 +288,189 @@ contract Pool is
             _TGEDate,
             _TGEPercentage,
             _vestingCliff,
-            _vestingDuration
+            _vestingFrequency,
+            _numberOfVestingRelease
         );
     }
 
-    /**
-     * @dev verify information of pool: galaxy pool proportion must be greater than 0% and smaller than 100%,
-     * early access must be smaller than 100%, total raise must be greater than 0
-     * @param addrs Array of address includes: address of IDO token, address of purchase token
-     * @param uints Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,
-     * galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion,
-     * total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token
-     */
-    function _verifyPoolInfo(
-        address[2] memory addrs,
-        uint[17] memory uints
-    ) internal pure {
-        _validAddress(addrs[1]); // purchaseToken
+    function setClaimableStatus(bool _status) external onlyAdmin {
+        if (_status == true) {
+            require(
+                !paused() || !vesting.isFunded(),
+                Errors.NOT_ALLOWED_TO_ALLOW_INVESTOR_TO_CLAIM
+            );
+        }
+        return vesting.setClaimableStatus(_status);
+    }
 
-        // creationFeePercentage
+    function fundIDOToken(
+        IERC20withDec _IDOToken,
+        bytes calldata signature
+    ) external onlyOwner whenNotPaused nonReentrant {
+        IERC20withDec IDOToken = vesting.getIDOToken();
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
         require(
-            uints[2] <= PERCENTAGE_DENOMINATOR,
-            Errors.INVALID_CREATION_FEE_PERCENTAGE
+            block.timestamp < _TGEDate,
+            Errors.NOT_ALLOWED_TO_FUND_AFTER_TGE_DATE
         );
 
-        // galaxyPoolProportion
-        _validAmount(uints[5]);
+        if (address(IDOToken) != address(0)) {
+            IDOToken.safeTransferFrom(
+                _msgSender(),
+                address(vesting),
+                totalRaiseAmount
+            );
+        } else {
+            require(
+                _verifyFundAllowanceSignature(_IDOToken, signature),
+                Errors.INVALID_SIGNER
+            );
+            vesting.setIDOToken(_IDOToken);
+            IDOToken.safeTransferFrom(
+                _msgSender(),
+                address(vesting),
+                totalRaiseAmount
+            );
+        }
+
+        vesting.setFundedStatus(true);
+
+        emit FundIDOToken(_IDOToken);
+    }
+
+    function isFail() public returns (bool) {
+        return (paused() || !vesting.isFunded());
+    }
+
+    function withdrawRedundantIDOToken(address _beneficiary) external {
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
+
         require(
-            uints[5] < PERCENTAGE_DENOMINATOR,
-            Errors.INVALID_GALAXY_POOL_PROPORTION
+            block.timestamp < _TGEDate,
+            Errors.NOT_ALLOWED_TO_FUND_AFTER_TGE_DATE
+        );
+        uint vestingIDOBalance = IERC20(vesting.getIDOToken()).balanceOf(
+            address(vesting)
+        );
+        uint redundantAmount;
+        if (isFail()) {
+            redundantAmount = vestingIDOBalance;
+        } else {
+            redundantAmount =
+                vestingIDOBalance -
+                getIDOTokenAmountByOfferedCurrency(purchasedAmount);
+        }
+        vesting.withdrawRedundantIDOToken(_beneficiary, redundantAmount);
+    }
+
+    /// @notice System's admin receive token fee only when project is success after TGE date (not be cancelled by admin or funded enough IDO token)
+    /// @param _beneficiary Address to receive token fee
+    function claimTokenFee(
+        address _beneficiary
+    ) external onlyAdmin whenNotPaused onlyFunded nonReentrant {
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
+        require(
+            block.timestamp >= _TGEDate && tokenFeeClaimedStatus == false,
+            Errors.NOT_ALLOWED_TO_CLAIM_TOKEN_FEE
+        );
+        uint tokenFee = (purchasedAmount * tokenFeePercentage) /
+            PERCENTAGE_DENOMINATOR;
+
+        purchaseToken.safeTransfer(_beneficiary, tokenFee);
+        tokenFeeClaimedStatus = true;
+    }
+
+    modifier onlyFunded() {
+        require(vesting.isFunded(), Errors.NOT_FUNDED);
+        _;
+    }
+
+    function claimParticipationFee(
+        address _beneficiary
+    ) external onlyAdmin nonReentrant {
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
+        require(
+            block.timestamp >= _TGEDate &&
+                participationFeeClaimedStatus == false,
+            Errors.NOT_ALLOWED_TO_CLAIM_PARTICIPATION_FEE
+        );
+        purchaseToken.safeTransfer(_beneficiary, participationFeeAmount);
+        participationFeeClaimedStatus = true;
+    }
+
+    /// @notice When project is fail (cancelled by admin or not be funded enough IDO token)
+    /// @param _beneficiary Address of receiver
+    function withdrawPurchasedAmount(
+        address _beneficiary
+    ) external nonReentrant {
+        PurchaseAmount storage userInfo = userPurchasedAmount[_msgSender()];
+        uint principalAmount = userInfo.principal;
+        require(principalAmount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
+        require(
+            isFail() || userInfo.withdrawn == 0,
+            Errors.NOT_ALLOWED_TO_WITHDRAW_PURCHASED_AMOUNT
         );
 
-        // earlyAccessProportion
-        require(
-            uints[6] < PERCENTAGE_DENOMINATOR,
-            Errors.INVALID_EARLY_ACCESS_PROPORTION
+        purchaseToken.safeTransfer(_beneficiary, principalAmount);
+        userInfo.withdrawn = principalAmount;
+    }
+
+    function getClaimableProfitAmount() public view returns (uint) {
+        uint tokenFee = (purchasedAmount * tokenFeePercentage) /
+            PERCENTAGE_DENOMINATOR;
+        uint totalProfitAmount = purchasedAmount - tokenFee;
+        (
+            uint16 _TGEPercentage,
+            uint64 _TGEDate,
+            uint64 _vestingCliff,
+            uint64 _vestingFrequency,
+            uint _numberOfVestingRelease
+        ) = vesting.getVestingInfo();
+
+        return
+            VestingLogic.calculateClaimableAmount(
+                totalProfitAmount,
+                profitClaimedAmount,
+                _TGEPercentage,
+                _TGEDate,
+                _vestingCliff,
+                _vestingFrequency,
+                _numberOfVestingRelease
+            );
+    }
+
+    function claimProfit(address _beneficiary) external nonReentrant onlyOwner {
+        require(!isFail(), Errors.NOT_ALLOWED_TO_CLAIM_PURCHASE_TOKEN);
+        (, uint64 _TGEDate, , , ) = vesting.getVestingInfo();
+        require(block.timestamp < _TGEDate, Errors.NOT_YET_TGE_DATE);
+        uint claimableAmount = getClaimableProfitAmount();
+        profitClaimedAmount += claimableAmount;
+        purchaseToken.safeTransfer(_beneficiary, claimableAmount);
+    }
+
+    function _verifyFundAllowanceSignature(
+        IERC20withDec _IDOToken,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        bytes32 symbolHash = keccak256(abi.encodePacked(_IDOToken.symbol()));
+        uint8 decimals = _IDOToken.decimals();
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        FUND_TYPEHASH,
+                        address(_IDOToken),
+                        address(this),
+                        symbolHash,
+                        decimals
+                    )
+                )
+            )
         );
 
-        // totalRaiseAmount
-        _validAmount(uints[7]);
+        return ignitionFactory.isOwner(ECDSA.recover(digest, signature));
     }
 
     /**
@@ -395,7 +561,7 @@ contract Pool is
             proof
         );
 
-        require(verifyWithoutKYC, Errors.NOT_IN_WHALE_LIST);
+        require(verifyWithoutKYC, Errors.NOT_IN_INVESTOR_LIST);
 
         _internalBuyToken(
             _msgSender(),
@@ -423,13 +589,13 @@ contract Pool is
     ) internal {
         if (_KYCStatus == true) {
             require(
-                userPurchasedAmount[_msgSender()] + _purchaseAmount <=
+                userPurchasedAmount[buyer].principal + _purchaseAmount <=
                     maxPurchaseAmountForKYCUser,
                 Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_KYC_USER
             );
         } else {
             require(
-                userPurchasedAmount[_msgSender()] + _purchaseAmount <=
+                userPurchasedAmount[buyer].principal + _purchaseAmount <=
                     maxPurchaseAmountForNotKYCUser,
                 Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_NOT_KYC_USER
             );
@@ -439,17 +605,52 @@ contract Pool is
             _purchaseAmount,
             _participationFeePercentage
         );
-        if (participationFee > 0) {
-            purchaseToken.safeTransferFrom(
-                buyer,
-                address(this),
-                participationFee
-            );
-        }
-        _forwardPurchaseTokenFunds(buyer, _purchaseAmount);
-        _updatePurchasingState(_purchaseAmount);
+        _handleParticipationFee(buyer, participationFee);
+        _handlePurchaseTokenFund(buyer, _purchaseAmount);
 
-        emit BuyToken(_msgSender(), address(this), _purchaseAmount, _poolType);
+        uint IDOTokenAmount = getIDOTokenAmountByOfferedCurrency(
+            _purchaseAmount
+        );
+        vesting.createVestingSchedule(buyer, IDOTokenAmount);
+
+        emit BuyToken(buyer, address(this), _purchaseAmount, _poolType);
+    }
+
+    function _handlePurchaseTokenFund(
+        address _buyer,
+        uint _purchaseAmount
+    ) internal {
+        _forwardPurchaseTokenFunds(_buyer, _purchaseAmount);
+        _updatePurchasingState(_buyer, _purchaseAmount);
+    }
+
+    function _handleParticipationFee(
+        address _buyer,
+        uint _participationFee
+    ) internal {
+        if (_participationFee > 0) {
+            _forwardParticipationFee(_buyer, _participationFee);
+            _updateParticipationFee(_buyer, _participationFee);
+        }
+    }
+
+    function _forwardParticipationFee(
+        address _buyer,
+        uint _participationFee
+    ) internal {
+        purchaseToken.safeTransferFrom(
+            _buyer,
+            address(this),
+            _participationFee
+        );
+    }
+
+    function _updateParticipationFee(
+        address _buyer,
+        uint _participationFee
+    ) internal {
+        userPurchasedAmount[_buyer].fee += _participationFee;
+        participationFeeAmount += _participationFee;
     }
 
     /**
@@ -474,9 +675,12 @@ contract Pool is
      * @dev Update purchasing amount, airdrop amount and TGE amount in all pools
      * @param _purchaseAmount Purchase amount of investor
      */
-    function _updatePurchasingState(uint _purchaseAmount) internal {
+    function _updatePurchasingState(
+        address _buyer,
+        uint _purchaseAmount
+    ) internal {
+        userPurchasedAmount[_buyer].principal += _purchaseAmount;
         purchasedAmount += _purchaseAmount;
-        userPurchasedAmount[_msgSender()] += _purchaseAmount;
     }
 
     /**
@@ -500,7 +704,7 @@ contract Pool is
         uint _purchaseAmount,
         uint _maxPurchaseBaseOnAllocations
     ) internal pure {
-        _validAmount(_purchaseAmount);
+        PoolLogic._validAmount(_purchaseAmount);
         require(
             _purchaseAmount <= _maxPurchaseBaseOnAllocations,
             Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER
@@ -514,7 +718,7 @@ contract Pool is
     function _preValidatePurchaseInEarlyAccess(
         uint _purchaseAmount
     ) internal view {
-        _validAmount(_purchaseAmount);
+        PoolLogic._validAmount(_purchaseAmount);
         require(
             purchasedAmountInEarlyAccess + _purchaseAmount <=
                 maxPurchaseAmountForEarlyAccess,
@@ -527,7 +731,7 @@ contract Pool is
      * @param _purchaseAmount Purchase amount of investor
      */
     function _preValidatePurchase(uint _purchaseAmount) internal view {
-        _validAmount(_purchaseAmount);
+        PoolLogic._validAmount(_purchaseAmount);
         require(
             purchasedAmount + _purchaseAmount <= totalRaiseAmount,
             Errors.EXCEED_TOTAL_RAISE_AMOUNT
@@ -565,21 +769,5 @@ contract Pool is
     ) private view {
         uint allowance = purchaseToken.allowance(_user, address(this));
         require(allowance >= _purchaseAmount, Errors.NOT_ENOUGH_ALLOWANCE);
-    }
-
-    /**
-     * @dev Check whether or not an address is zero address
-     * @param _address An address
-     */
-    function _validAddress(address _address) internal pure {
-        require(_address != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
-    }
-
-    /**
-     * @dev Check whether or not an amount greater than 0
-     * @param _amount An amount
-     */
-    function _validAmount(uint _amount) internal pure {
-        require(_amount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
     }
 }

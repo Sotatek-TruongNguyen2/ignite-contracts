@@ -2,21 +2,13 @@
 pragma solidity 0.8.10;
 
 import "../interfaces/IPool.sol";
-import "../utils/Initializable.sol";
-import "../utils/AccessControl.sol";
 import "../libraries/Clones.sol";
 import "../interfaces/IIgnitionFactory.sol";
-import {Errors} from "../helpers/Errors.sol";
 import "../interfaces/IVesting.sol";
+import "./BasePausable.sol";
+import "../interfaces/IIgnitionFactory.sol";
 
-contract IgnitionFactory is Initializable, AccessControl {
-    /// @dev keccak256("ADMIN")
-    bytes32 public constant ADMIN =
-        0xdf8b4c520ffe197c5343c6f5aec59570151ef9a492f2c624fd45ddde6135ec42;
-
-    /// @dev Percentage denominator
-    uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
-
+contract IgnitionFactory is BasePausable {
     /// @dev Address of pool implementation
     address public poolImplementationAddress;
 
@@ -48,8 +40,8 @@ contract IgnitionFactory is Initializable, AccessControl {
     ) external initializer {
         poolImplementationAddress = _poolImplementationAddress;
         vestingImplementationAddress = _vestingImplementationAddress;
-        _setupRole(ADMIN, _msgSender());
-        _setRoleAdmin(ADMIN, ADMIN);
+        _setupRole(OWNER_ROLE, _msgSender());
+        _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
     }
 
     /**
@@ -59,7 +51,7 @@ contract IgnitionFactory is Initializable, AccessControl {
      */
     function setPoolImplementation(
         address _poolImplementationAddress
-    ) external onlyRole(ADMIN) {
+    ) external onlyOwner {
         _validAddress(_poolImplementationAddress);
         address oldPoolImplementation = poolImplementationAddress;
         poolImplementationAddress = _poolImplementationAddress;
@@ -76,7 +68,7 @@ contract IgnitionFactory is Initializable, AccessControl {
      */
     function setVestingImplementation(
         address _vestingImplementationAddress
-    ) external onlyRole(ADMIN) {
+    ) external onlyOwner {
         _validAddress(_vestingImplementationAddress);
         address oldVestingImplementation = vestingImplementationAddress;
         vestingImplementationAddress = _vestingImplementationAddress;
@@ -90,6 +82,21 @@ contract IgnitionFactory is Initializable, AccessControl {
      * @notice Create new pool. One pool has 2 sub-pool: galaxy pool and crowfunding pool, with 2 different participation fee.
      * In crowfunding pool, there is a part for WHALE to buy early (called EARLY ACCESS) and another for NORMAL user to buy
      * (called NORMAL ACCESS). Duration of galaxy pool and EARLY ACCESS are same and before duration of NORMAL ACCESS.
+     *
+     * There are 3 types of profit: participation fee, token fee and collaborator profit.
+     * Token fee + Collaborator profit = total raise amount (IDO token) * price = purchased amount (purchase token)
+     * Investors need to pay purchase amount and participation fee
+     *
+     * If project is success (not be cancelled by admin or funded enough IDO token),
+     *  - System's admin claims participation fee and token fee
+     *  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule
+     *  - Investors claim IDO token based on vesting rule
+     *
+     * If project is fail (cancelled or not be funded enough IDO token) (of course before TGE date)
+     *  - System's admin claims participation fee
+     *  - Investors claim purchased amount
+     *  - Collaborator claims funded IDO token
+     *
      * @dev Only has one pool address respectively for one input params
      * @param addrs Array of address includes:
      * - address of IDO token,
@@ -97,7 +104,7 @@ contract IgnitionFactory is Initializable, AccessControl {
      * @param uints Array of pool information includes:
      * - max purchase amount for KYC user,
      * - max purchase amount for Not KYC user,
-     * - creation project fee percentage, // will be sent to admin if success or investor in vice versa
+     * - token project fee percentage, // will be sent to admin if success or investor in vice versa
      * - galaxy participation fee percentage, // will be sent to admin
      * - crowdfunding participation fee percentage, // will be sent to admin
      * - galaxy pool proportion,
@@ -111,13 +118,14 @@ contract IgnitionFactory is Initializable, AccessControl {
      * - TGE date,
      * - TGE percentage,
      * - vesting cliff,
-     * - vesting duration
+     * - vesting frequency,
+     * - number of vesting release
      * @param dbProjectId Project Id in database
      * @return pool Address of new pool
      */
     function createPool(
         address[2] memory addrs,
-        uint[17] memory uints,
+        uint[18] memory uints,
         uint dbProjectId
     ) external returns (address pool) {
         bytes32 salt = keccak256(
@@ -125,7 +133,7 @@ contract IgnitionFactory is Initializable, AccessControl {
         );
 
         pool = Clones.cloneDeterministic(poolImplementationAddress, salt);
-        IPool(pool).initialize(addrs, uints);
+        IPool(pool).initialize(addrs, uints, _msgSender());
 
         bytes32 poolInfoHash = keccak256(abi.encode(addrs, uints, dbProjectId));
 
