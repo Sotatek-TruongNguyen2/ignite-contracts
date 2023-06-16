@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../interfaces/IPool.sol";
+import "./BasePausable.sol";
 import "../libraries/Clones.sol";
+import "../interfaces/IPool.sol";
 import "../interfaces/IIgnitionFactory.sol";
 import "../interfaces/IVesting.sol";
-import "./BasePausable.sol";
 import "../interfaces/IIgnitionFactory.sol";
 
 contract IgnitionFactory is BasePausable {
@@ -14,6 +14,8 @@ contract IgnitionFactory is BasePausable {
 
     /// @dev Address of vesting implementation
     address public vestingImplementationAddress;
+
+    // ============================== EVENT ==============================
 
     event UpdatePoolImplementation(
         address indexed oldPoolImplementation,
@@ -28,6 +30,8 @@ contract IgnitionFactory is BasePausable {
     event PoolCreated(bytes32 poolInfoHash, address pool);
 
     event VestingCreated(address sender, address vesting);
+
+    // ============================== EXTERNAL FUNCTION ==============================
 
     /**
      * @notice Initialize pool factory with address of pool implementation
@@ -89,13 +93,20 @@ contract IgnitionFactory is BasePausable {
      *
      * If project is success (not be cancelled by admin or funded enough IDO token),
      *  - System's admin claims participation fee and token fee
+     *    (call pool.claimParticipationFee(), pool.claimTokenFee())
      *  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule
+     *    (call pool.claimProfit())
      *  - Investors claim IDO token based on vesting rule
+     *  - Collaborator withdraws redundant IDO token
+     *    (call pool.withdrawRedundantIDOToken())
      *
      * If project is fail (cancelled or not be funded enough IDO token) (of course before TGE date)
      *  - System's admin claims participation fee
-     *  - Investors claim purchased amount
-     *  - Collaborator claims funded IDO token
+     *    (call pool.claimParticipationFee())
+     *  - Investors withdraw purchased amount
+     *    (call pool.withdrawPurchasedAmount())
+     *  - Collaborator withdraws funded IDO token
+     *    (call pool.withdrawRedundantIDOToken())
      *
      * @dev Only has one pool address respectively for one input params
      * @param addrs Array of address includes:
@@ -107,14 +118,14 @@ contract IgnitionFactory is BasePausable {
      * - token project fee percentage, // will be sent to admin if success or investor in vice versa
      * - galaxy participation fee percentage, // will be sent to admin
      * - crowdfunding participation fee percentage, // will be sent to admin
-     * - galaxy pool proportion,
-     * - early access proportion,
+     * - galaxy pool proportion, (ratio with all project)
+     * - early access proportion, (ratio with only crowdfunding pool)
      * - total raise amount,
      * - whale open time,
      * - whale duration,
      * - community duration,
-     * - rate of IDO token (based on README formula),
-     * - decimal of IDO token (based on README formula, is different from decimals in contract of IDO token),
+     * - rate of IDO token (based on formula in README),
+     * - decimal of IDO token (based on formula in README, is different from decimals in contract of IDO token),
      * - TGE date,
      * - TGE percentage,
      * - vesting cliff,
@@ -147,6 +158,8 @@ contract IgnitionFactory is BasePausable {
         emit VestingCreated(_msgSender(), vesting);
         return vesting;
     }
+
+    // ============================== INTERNAL FUNCTION ==============================
 
     /**
      * @dev Check whether or not an address is zero address

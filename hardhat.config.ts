@@ -272,7 +272,7 @@ const config: HardhatUserConfig = {
       verbose: true,
     },
     test: {
-      tasks: [{ command: 'test', params: { testFiles: [''] } }],
+      tasks: [{ command: 'test', params: { testFiles: ['test/poolWithVesting.spec.ts'] } }],
       files: ['./test/**/*'],
       verbose: true
     }

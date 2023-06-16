@@ -30,6 +30,19 @@ contract PoolStorage {
     /// @dev Percentage denominator
     uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
 
+    // --- EIP712 niceties ---
+    bytes32 public DOMAIN_SEPARATOR;
+
+    // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,bytes32 symbolHash,uint8 decimals)");
+    bytes32 public constant FUND_TYPEHASH =
+        0x041776e07c284720eefe91849b7eb530d952f126b19af710c29ea3cc06693b97;
+
+    /// @dev Name used for fund signature
+    string public constant name = "Pool";
+
+    /// @dev Version used for fund signature
+    string public constant version = "1";
+
     /// @dev Address of pool factory
     IIgnitionFactory public ignitionFactory;
 
@@ -69,7 +82,7 @@ contract PoolStorage {
     /// @dev Proportion of crowdfunding pool amount for early access
     uint16 public earlyAccessProportion;
 
-    /// @dev Total raise amount of all pools
+    /// @dev Total raise amount of all pools (based on purchase token)
     uint public totalRaiseAmount;
 
     /// @dev Open time of galaxy pool
@@ -84,7 +97,7 @@ contract PoolStorage {
     /// @dev Close time of crowdfunding pool
     uint64 public communityCloseTime;
 
-    /// @dev Participation fee in all sub-pool
+    /// @dev Participation fee in all sub-pool (based on purchase token)
     uint public participationFeeAmount;
 
     /// @dev True if participation fee is claimed
@@ -107,17 +120,4 @@ contract PoolStorage {
 
     /// @dev Vesting contract address
     IVesting public vesting;
-
-    /// @dev Name used for fund signature
-    string public constant name = "Pool";
-
-    /// @dev Version used for fund signature
-    string public constant version = "1";
-
-    // --- EIP712 niceties ---
-    bytes32 public DOMAIN_SEPARATOR;
-
-    // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,bytes32 symbolHash,uint8 decimals)");
-    bytes32 public constant FUND_TYPEHASH =
-        0x041776e07c284720eefe91849b7eb530d952f126b19af710c29ea3cc06693b97;
 }

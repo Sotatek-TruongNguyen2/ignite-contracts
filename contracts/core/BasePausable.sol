@@ -17,6 +17,11 @@ contract BasePausable is
     bytes32 public constant OWNER_ROLE =
         0xb19546dff01e856fb3f010c267a7b1c60363cf8a4664e21cc89c26224620214e;
 
+    modifier onlyOwner() {
+        require(isOwner(_msgSender()), Errors.CALLER_NOT_OWNER);
+        _;
+    }
+
     function __BasePausable__init(address owner) public onlyInitializing {
         require(owner != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
 
@@ -26,10 +31,5 @@ contract BasePausable is
 
     function isOwner(address sender) public view returns (bool) {
         return hasRole(OWNER_ROLE, sender);
-    }
-
-    modifier onlyOwner() {
-        require(isOwner(_msgSender()), Errors.CALLER_NOT_OWNER);
-        _;
     }
 }

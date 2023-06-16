@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import {Errors} from "../helpers/Errors.sol";
+
 library VestingLogic {
     /// @dev Percentage denominator
     uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
@@ -14,7 +16,7 @@ library VestingLogic {
         uint64 vestingFrequency,
         uint numberOfVestingRelease
     ) external view returns (uint) {
-        if (claimedAmount == totalAmount) {
+        if (claimedAmount >= totalAmount) {
             return 0;
         }
         uint TGEAmount = (totalAmount * TGEPercentage) / PERCENTAGE_DENOMINATOR;
@@ -39,5 +41,12 @@ library VestingLogic {
             numberOfVestingRelease +
             TGEAmount -
             claimedAmount;
+    }
+
+    function _verifyVestingInfo(uint _TGEPercentage) internal pure {
+        require(
+            _TGEPercentage <= PERCENTAGE_DENOMINATOR,
+            Errors.INVALID_TGE_PERCENTAGE
+        );
     }
 }

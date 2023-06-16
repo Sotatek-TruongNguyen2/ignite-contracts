@@ -24,10 +24,12 @@ interface IVesting {
 
     function setClaimableStatus(bool _status) external;
 
+    function isClaimable() external view returns (bool);
+
     function getVestingInfo()
         external
         view
-        returns (uint16, uint64, uint64, uint64, uint);
+        returns (uint64, uint16, uint64, uint64, uint);
 
     function updateTGEDate(uint64 _newTGEDate) external;
 
