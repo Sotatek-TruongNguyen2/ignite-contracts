@@ -1,26 +1,27 @@
 import { HardhatRuntimeEnvironment} from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
+import { parseUnits } from 'ethers/lib/utils'
 
-const deployUSDC: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployUSDT: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { ethers, deployments, getNamedAccounts} = hre
     const { deploy, execute } = deployments
     const { deployer } = await getNamedAccounts()
 
-    await deploy('FiatTokenV2_1', {
+    await deploy('TetherToken', {
         from: deployer,
-        args: [],
+        args: [parseUnits("1000000000000000000000000000", 30), 'Tether USD', 'USDT', 6],
         log: true,
         deterministicDeployment: false,
     })
 
     // await execute(
-    //     'ERC20Token',
+    //     'TetherToken',
     //     {from: deployer, log: true},
-    //     'initialize',
-    //     'USD Coin', 'USDC', 6
+    //     'issue',
+    //     parseUnits('1000000', '30')
     // )
 }
 
-deployUSDC.tags = ['USDC']
+deployUSDT.tags = ['USDT']
 
-export default deployUSDC
+export default deployUSDT

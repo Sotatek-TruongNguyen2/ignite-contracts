@@ -263,7 +263,12 @@ const config: HardhatUserConfig = {
     }
   },
   etherscan: {
-    apiKey: AVALANCHE_API_KEY,
+    apiKey: {
+      goerli: ETHERSCAN_API_KEY || '',
+      mumbai: MUMBAI_API_KEY || '',
+      bscTestnet: BSC_API_KEY || '',
+      avalanche: AVALANCHE_API_KEY || '',
+    }
   },
   watcher: {
     compile: {

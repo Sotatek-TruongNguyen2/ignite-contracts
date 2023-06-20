@@ -1,14 +1,15 @@
 import { HardhatRuntimeEnvironment} from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
-const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployFactory: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { ethers, deployments, getNamedAccounts} = hre
     const { deploy } = deployments
     const { deployer } = await getNamedAccounts()
 
     const poolImplementationAddr = (await deployments.get('Pool')).address
+    const vestingImplementationAddr = (await deployments.get('Vesting')).address
 
-    await deploy('PoolFactory', {
+    await deploy('IgnitionFactory', {
         from: deployer,
         args: [],
         log: true,
@@ -17,13 +18,12 @@ const deployPoolFactoryProxy: DeployFunction = async (hre: HardhatRuntimeEnviron
             proxyContract: 'OpenZeppelinTransparentProxy',
             execute:{
                 methodName: 'initialize',
-                args: [poolImplementationAddr]
-                // args: ['0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD']
+                args: [poolImplementationAddr, vestingImplementationAddr]
             }
         }
     })
 }
 
-deployPoolFactoryProxy.tags = ['POOL_FACTORY_PROXY']
+deployFactory.tags = ['FACTORY']
 
-export default deployPoolFactoryProxy
+export default deployFactory

@@ -3,32 +3,20 @@ require('dotenv').config()
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 
-const verification: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 
     try {
-        const { ethers, deployments, getNamedAccounts } = hre
+        const { ethers, deployments, getNamedAccounts} = hre
         const { deployer } = await getNamedAccounts()
 
-        await new Promise((res, _) => {
-            setTimeout(() => {
+        await new Promise((res, _) =>{
+            setTimeout(()=>{
                 res(true)
             }, 30)
         })
 
         console.log('----- START VERIFICATION -----');
-        
-        try {
-            const poolLogicAddress = (await deployments.get('PoolLogic')).address
 
-        await hre.run('verify:verify', {
-            address: poolLogicAddress,
-            constructorArguments: [],
-            contract: "contracts/logics/PoolLogic.sol:PoolLogic"
-        })
-        } catch (error) {
-            console.log(error)
-        }
-        
         try {
             const vestingLogicAddress = (await deployments.get('VestingLogic')).address
 
@@ -41,23 +29,20 @@ const verification: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             console.log(error)
         }
 
-        
-
-
-        const poolImplementationAddr = (await deployments.get('Pool')).address
+        const vestingImplementationAddr = (await deployments.get('Vesting')).address
 
         await hre.run('verify:verify', {
-            address: poolImplementationAddr,
+            address: vestingImplementationAddr,
             constructorArguments: [],
-            contract: "contracts/core/Pool.sol:Pool"
-        })
+            contract: "contracts/core/Vesting.sol:Vesting"
+        })    
     } catch (error) {
         console.log(error);
     }
 }
 
-verification.tags = ['VERIFICATION_POOL']
-// verification.dependencies = ['POOL']
+verification.tags = ['VERIFICATION_VESTING']
+// verification.dependencies = ['VESTING']
 // verification.runAtTheEnd = true
 
 export default verification

@@ -15,9 +15,9 @@ yarn deploy:binance --tags POOL
 
 ```
 # For Ethereum
-yarn deploy:mainnet --tags POOL_FACTORY_PROXY
+yarn deploy:mainnet --tags POOL_FACTORY
 # For BSC
-yarn deploy:binance --tags POOL_FACTORY_PROXY
+yarn deploy:binance --tags POOL_FACTORY
 ```
 
 # Step to verify contracts

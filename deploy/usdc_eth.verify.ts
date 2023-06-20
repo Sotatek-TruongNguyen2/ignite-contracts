@@ -23,7 +23,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         await hre.run('verify:verify', {
             address: usdcAddr,
             constructorArguments: [],
-            contract: "contracts/test/USDC.sol:FiatTokenV2_1"
+            contract: "contracts/test/USDC_ETH.sol:FiatTokenV2_1"
         })    
     } catch (error) {
         console.log(error);

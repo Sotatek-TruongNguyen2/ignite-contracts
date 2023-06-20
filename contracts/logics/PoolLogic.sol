@@ -19,10 +19,10 @@ library PoolLogic {
      * @param _participationFeePercentage Fee percentage when buying token
      * @return Return amount of fee when investor buy token
      */
-    function _calculateParticipantFee(
+    function calculateParticipantFee(
         uint _purchaseAmount,
         uint _participationFeePercentage
-    ) internal pure returns (uint) {
+    ) external pure returns (uint) {
         if (_participationFeePercentage == 0) return 0;
         return
             (_purchaseAmount * _participationFeePercentage) /
@@ -70,10 +70,10 @@ library PoolLogic {
      * - vesting frequency,
      * - number of vesting release
      */
-    function _verifyPoolInfo(
+    function verifyPoolInfo(
         address[2] memory addrs,
         uint[18] memory uints
-    ) internal pure {
+    ) external pure {
         _validAddress(addrs[1]); // purchaseToken
 
         // tokenFeePercentage
@@ -93,6 +93,11 @@ library PoolLogic {
         require(
             uints[6] < PERCENTAGE_DENOMINATOR,
             Errors.INVALID_EARLY_ACCESS_PROPORTION
+        );
+
+        require(
+            uints[8]+uints[9]+uints[10] <= uints[13],
+            Errors.INVALID_TIME
         );
 
         // totalRaiseAmount

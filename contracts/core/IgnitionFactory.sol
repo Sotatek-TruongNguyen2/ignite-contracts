@@ -168,12 +168,4 @@ contract IgnitionFactory is BasePausable {
     function _validAddress(address _address) internal pure {
         require(_address != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
     }
-
-    /**
-     * @dev Check whether or not an amount greater than 0
-     * @param _amount An amount
-     */
-    function _validAmount(uint _amount) internal pure {
-        require(_amount != 0, Errors.ZERO_AMOUNT_NOT_VALID);
-    }
 }

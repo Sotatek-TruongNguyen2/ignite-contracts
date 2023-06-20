@@ -33,7 +33,7 @@ interface IVesting {
 
     function updateTGEDate(uint64 _newTGEDate) external;
 
-    function isFunded() external returns (bool);
+    function isFunded() external view returns (bool);
 
     function withdrawRedundantIDOToken(
         address _beneficiary,

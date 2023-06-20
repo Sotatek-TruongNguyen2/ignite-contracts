@@ -35,7 +35,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint64 communityCloseTime
     );
 
-    event FundIDOToken(IERC20withDec _IDOToken);
+    event FundIDOToken(IERC20withDec _IDOToken, uint fundAmount);
 
     event ClaimTokenFee(address _beneficiary, uint tokenFee);
 
@@ -118,7 +118,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         address owner
     ) external initializer {
         __BasePausable__init(owner);
-        PoolLogic._verifyPoolInfo(addrs, uints);
+        PoolLogic.verifyPoolInfo(addrs, uints);
         {
             ignitionFactory = IIgnitionFactory(_msgSender());
         }
@@ -314,28 +314,30 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     ) external onlyOwner whenNotPaused nonReentrant beforeTGEDate {
         IERC20withDec IDOToken = vesting.getIDOToken();
 
+        uint256 fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
         if (address(IDOToken) != address(0)) {
             IDOToken.safeTransferFrom(
                 _msgSender(),
                 address(vesting),
-                getIDOTokenAmountByOfferedCurrency(totalRaiseAmount)
+                fundAmount
             );
         } else {
             require(
                 _verifyFundAllowanceSignature(_IDOToken, signature),
                 Errors.INVALID_SIGNER
             );
+
             vesting.setIDOToken(_IDOToken);
-            IDOToken.safeTransferFrom(
+            _IDOToken.safeTransferFrom(
                 _msgSender(),
                 address(vesting),
-                getIDOTokenAmountByOfferedCurrency(totalRaiseAmount)
+                fundAmount
             );
         }
 
         vesting.setFundedStatus(true);
 
-        emit FundIDOToken(_IDOToken);
+        emit FundIDOToken(_IDOToken, fundAmount);
     }
 
     function withdrawRedundantIDOToken(
@@ -432,7 +434,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
 
     // ============================== PUBLIC FUNCTION ==============================
 
-    function isFail() public returns (bool) {
+    function isFail() public view returns (bool) {
         (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
         return (paused() ||
             (!vesting.isFunded() && block.timestamp >= _TGEDate));
@@ -650,7 +652,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             );
         }
 
-        uint participationFee = PoolLogic._calculateParticipantFee(
+        uint participationFee = PoolLogic.calculateParticipantFee(
             _purchaseAmount,
             _participationFeePercentage
         );
