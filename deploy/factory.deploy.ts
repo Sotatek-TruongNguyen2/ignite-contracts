@@ -14,13 +14,13 @@ const deployFactory: DeployFunction = async (hre: HardhatRuntimeEnvironment) => 
         args: [],
         log: true,
         deterministicDeployment: false,
-        proxy: {
-            proxyContract: 'OpenZeppelinTransparentProxy',
-            execute:{
-                methodName: 'initialize',
-                args: [poolImplementationAddr, vestingImplementationAddr]
-            }
-        }
+        // proxy: {
+        //     proxyContract: 'OpenZeppelinTransparentProxy',
+        //     execute:{
+        //         methodName: 'initialize',
+        //         args: [poolImplementationAddr, vestingImplementationAddr]
+        //     }
+        // }
     })
 }
 

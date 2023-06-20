@@ -11,14 +11,25 @@ yarn deploy:mainnet --tags POOL
 yarn deploy:binance --tags POOL
 ```
 
+3. Deploy a sample contract for all IDO vesting
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags VESTING
+# For BSC
+yarn deploy:binance --tags VESTING
+```
+
 3. Deploy contract pool factory (with upgradeable proxy pattern)
 
 ```
 # For Ethereum
-yarn deploy:mainnet --tags POOL_FACTORY
+yarn deploy:mainnet --tags FACTORY
 # For BSC
-yarn deploy:binance --tags POOL_FACTORY
+yarn deploy:binance --tags FACTORY
 ```
+
+4. Set implementation contract for pool and vesting in Factory contract
 
 # Step to verify contracts
 
@@ -31,16 +42,25 @@ yarn deploy:mainnet --tags VERIFICATION_POOL
 yarn deploy:binance --tags VERIFICATION_POOL
 ```
 
-2. Verify pool factory contract
+2. Verify vesting contract
 
 ```
 # For Ethereum
-yarn deploy:mainnet --tags VERIFICATION_POOL_FACTORY
+yarn deploy:mainnet --tags VERIFICATION_VESTING
 # For BSC
-yarn deploy:binance --tags VERIFICATION_POOL_FACTORY
+yarn deploy:binance --tags VERIFICATION_VESTING
 ```
 
-# Step to deploy contracts again if changing pool contract
+3. Verify pool factory contract
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags VERIFICATION_FACTORY
+# For BSC
+yarn deploy:binance --tags VERIFICATION_FACTORY
+```
+
+# Step to deploy contracts again if changing pool contract or vesting contract
 
 1. Deploy new sample for IDO pool contract
 
@@ -51,7 +71,16 @@ yarn deploy:mainnet --tags POOL
 yarn deploy:binance --tags POOL
 ```
 
-2. Change pool implementation address in pool factory contract
+2. Deploy new sample for IDO vesting contract
+
+```
+# For Ethereum
+yarn deploy:mainnet --tags VESTING
+# For BSC
+yarn deploy:binance --tags VESTING
+```
+
+3. Change pool or vesting implementation address in pool factory contract
 
 # Library:
 
