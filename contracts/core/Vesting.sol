@@ -13,22 +13,22 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
 
     // ============================== EVENT ==============================
 
-    event SetClaimableStatus(bool _status);
+    event SetClaimableStatus(bool status);
 
-    event UpdateTGEDate(uint64 _newTGEDate);
+    event UpdateTGEDate(uint64 newTGEDate);
 
-    event SetIDOTokenAddress(address _IDOToken);
+    event SetIDOTokenAddress(address IDOToken);
 
-    event Funded(bool _status);
+    event Funded(bool status);
 
     event WithdrawRedundantIDOToken(
-        address _beneficiary,
-        uint _redundantAmount
+        address beneficiary,
+        uint redundantAmount
     );
 
     event ClaimIDOToken(
         address sender,
-        address _beneficiary,
+        address beneficiary,
         uint claimableAmount
     );
 

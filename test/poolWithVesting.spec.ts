@@ -15,7 +15,6 @@ import { arrayify, hexlify, keccak256, parseUnits, solidityKeccak256, solidityPa
 import MerkleTree from "merkletreejs"
 import { randomBytes } from "crypto"
 import { FiatTokenV2_1, FiatTokenV2_1__factory, IgnitionFactory, IgnitionFactory__factory, Pool, PoolLogic, PoolLogic__factory, Pool__factory, TetherToken, TetherToken__factory, Vesting, VestingLogic, VestingLogic__factory, Vesting__factory } from "../typechain-types"
-import { exit } from "process"
 import { buildFundSignature } from "../scripts/buildFundSignature"
 
 describe("Ignition Pool With Vesting", () => {
@@ -1047,10 +1046,32 @@ describe("Ignition Pool With Vesting", () => {
             await expect(pool0.connect(collaborator0).claimProfit(collaborator0.address)).to.be.revertedWith(Errors.INVALID_CLAIMABLE_AMOUNT)
             expect(await vesting0.connect(investors[0]).claimIDOToken(investors[0].address)).to.be.changeTokenBalance(IDOTokens[0], investors[0].address, parseUnits('124875', await IDOTokens[0].decimals()).mul(await vesting0.TGEPercentage()).div(10000))
             await expect(vesting0.connect(investors[0]).claimIDOToken(collaborator0.address)).to.be.revertedWith(Errors.INVALID_CLAIMABLE_AMOUNT)
+            expect(await vesting0.getClaimableAmount(investors[0].address)).to.be.equal(0)
+            expect(await pool0.getClaimableProfitAmount()).to.be.equal(0)
 
             await time.increase(await vesting0.vestingCliff())
             expect(await pool0.connect(collaborator0).claimProfit(collaborator0.address)).to.be.emit(pool0, Events.Pool.ClaimProfit)
             expect(await vesting0.connect(investors[0]).claimIDOToken(investors[0].address)).to.be.emit(vesting0, Events.Vesting.ClaimIDOToken)
+            expect(await vesting0.getClaimableAmount(investors[0].address)).to.be.equal(0)
+            expect(await pool0.getClaimableProfitAmount()).to.be.equal(0)
+
+            await time.increase(await vesting0.vestingFrequency())
+            expect(await vesting0.getClaimableAmount(investors[0].address)).to.be.greaterThan(0)
+            expect(await pool0.getClaimableProfitAmount()).to.be.greaterThan(0)
+
+            expect(await pool0.connect(owner).setClaimableStatus(false)).to.be.emit(pool0, Events.Vesting.SetClaimableStatus)
+            await expect(vesting0.connect(investors[0]).claimIDOToken(investors[0].address)).to.be.revertedWith(Errors.NOT_ALLOWED_TO_CLAIM_IDO_TOKEN)
+            await expect(pool0.connect(collaborator0).claimProfit(collaborator0.address)).to.be.revertedWith(Errors.NOT_ALLOWED_TO_CLAIM_PURCHASE_TOKEN)
+            
+            await pool0.connect(owner).setClaimableStatus(true)
+            await pool0.connect(collaborator0).claimProfit(collaborator0.address)
+
+            await time.increaseTo(BigNumber.from('2000000000'))
+            await vesting0.connect(investors[0]).claimIDOToken(investors[0].address)
+            await pool0.connect(collaborator0).claimProfit(collaborator0.address)
+
+            expect((await vesting0.connect(investors[0]).vestingAmountInfo(investors[0].address)).claimedAmount).to.be.equal((await vesting0.connect(investors[0]).vestingAmountInfo(investors[0].address)).totalAmount)
+            expect(await vesting0.getClaimableAmount(investors[0].address)).to.be.equal(0)
 
             // withdraw redundant IDO token by collaborator
             expect(await pool0.connect(collaborator0).withdrawRedundantIDOToken(collaborator0.address)).to.be.emit(pool0, Events.Vesting.WithdrawRedundantIDOToken)

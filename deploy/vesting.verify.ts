@@ -42,7 +42,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_VESTING']
-// verification.dependencies = ['VESTING']
+verification.dependencies = ['VESTING']
 // verification.runAtTheEnd = true
 
 export default verification

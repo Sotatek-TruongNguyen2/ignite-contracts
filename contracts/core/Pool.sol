@@ -35,22 +35,22 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint64 communityCloseTime
     );
 
-    event FundIDOToken(IERC20withDec _IDOToken, uint fundAmount);
+    event FundIDOToken(IERC20withDec IDOToken, uint fundAmount);
 
-    event ClaimTokenFee(address _beneficiary, uint tokenFee);
+    event ClaimTokenFee(address beneficiary, uint tokenFee);
 
     event ClaimParticipationFee(
-        address _beneficiary,
+        address beneficiary,
         uint participationFeeAmount
     );
 
     event WithdrawPurchasedAmount(
         address sender,
-        address _beneficiary,
+        address beneficiary,
         uint principalAmount
     );
 
-    event ClaimProfit(address _beneficiary, uint claimableAmount);
+    event ClaimProfit(address beneficiary, uint claimableAmount);
 
     // ============================== MODIFIER ==============================
 

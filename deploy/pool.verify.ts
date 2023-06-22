@@ -57,7 +57,7 @@ const verification: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 }
 
 verification.tags = ['VERIFICATION_POOL']
-// verification.dependencies = ['POOL']
+verification.dependencies = ['POOL']
 // verification.runAtTheEnd = true
 
 export default verification
