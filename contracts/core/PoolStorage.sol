@@ -33,9 +33,9 @@ contract PoolStorage {
     // --- EIP712 niceties ---
     bytes32 public DOMAIN_SEPARATOR;
 
-    // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,bytes32 symbolHash,uint8 decimals)");
+    // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,string symbol,uint8 decimals)");
     bytes32 public constant FUND_TYPEHASH =
-        0x041776e07c284720eefe91849b7eb530d952f126b19af710c29ea3cc06693b97;
+        0x52d52760e40624a39bea36339850f64206470d82f714f11095b454fbff6de952;
 
     /// @dev Name used for fund signature
     string public constant name = "Pool";

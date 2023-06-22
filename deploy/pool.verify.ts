@@ -41,9 +41,6 @@ const verification: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             console.log(error)
         }
 
-        
-
-
         const poolImplementationAddr = (await deployments.get('Pool')).address
 
         await hre.run('verify:verify', {

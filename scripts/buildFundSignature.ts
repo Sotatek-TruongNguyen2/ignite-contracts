@@ -12,7 +12,7 @@ export const buildFundSignature = async (
   domain: Domain,
   IDOToken: string,
   pool: string,
-  symbolHash: string,
+  symbol: string,
   decimals: BigNumberish
 ) => {
   const signature = await (signer as any)._signTypedData(
@@ -22,7 +22,7 @@ export const buildFundSignature = async (
       Fund: [
         { name: 'IDOToken', type: 'address' },
         { name: 'pool', type: 'address' },
-        { name: 'symbolHash', type: 'bytes32' },
+        { name: 'symbol', type: 'string' },
         { name: 'decimals', type: 'uint8' },
       ],
     },
@@ -30,7 +30,7 @@ export const buildFundSignature = async (
       owner: await signer.getAddress(),
       IDOToken,
       pool,
-      symbolHash,
+      symbol,
       decimals
     },
   );

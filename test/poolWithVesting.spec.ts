@@ -14,7 +14,7 @@ import { BigNumber, BigNumberish } from "ethers"
 import { arrayify, hexlify, keccak256, parseUnits, solidityKeccak256, solidityPack } from "ethers/lib/utils"
 import MerkleTree from "merkletreejs"
 import { randomBytes } from "crypto"
-import { FiatTokenV2_1, FiatTokenV2_1__factory, IgnitionFactory, IgnitionFactory__factory, Pool, PoolLogic, PoolLogic__factory, Pool__factory, TetherToken, TetherToken__factory, Vesting, VestingLogic, VestingLogic__factory, Vesting__factory } from "../typechain-types"
+import { BEP20TokenImplementation, BEP20TokenImplementation__factory, BEP20USDT, BEP20USDT__factory, FiatTokenV2_1, FiatTokenV2_1__factory, IgnitionFactory, IgnitionFactory__factory, Pool, PoolLogic, PoolLogic__factory, Pool__factory, TetherToken, TetherToken__factory, Vesting, VestingLogic, VestingLogic__factory, Vesting__factory } from "../typechain-types"
 import { buildFundSignature } from "../scripts/buildFundSignature"
 
 describe("Ignition Pool With Vesting", () => {
@@ -67,11 +67,13 @@ describe("Ignition Pool With Vesting", () => {
         let vestingLogic: VestingLogic
         let purchaseTokens: ERC20Token[]
         let IDOTokens: ERC20Token[]
-        let USDC: FiatTokenV2_1
-        let USDT: TetherToken
+        let USDC_ETH: FiatTokenV2_1
+        let USDT_ETH: TetherToken
         let poolInfoList: PoolInfo[]
         let erc20Sample: ERC20Token
         let erc20TokenFactory: ERC20TokenFactory
+        let USDC_BSC: BEP20TokenImplementation
+        let USDT_BSC: BEP20USDT
 
         enum Errors {
             CALLER_NOT_ADMIN = "1",
@@ -188,24 +190,36 @@ describe("Ignition Pool With Vesting", () => {
         const purchaseToken4Address = await erc20TokenFactory.currentToken()
         const purchaseToken4 = new ERC20Token__factory(owner).attach(purchaseToken4Address)
 
-        USDC = await new FiatTokenV2_1__factory(owner).deploy();
-        await USDC.initialize('USD Coin', 'USDC', 'USDC', 6, owner.address, owner.address, owner.address, owner.address)
-        await USDC.initializeV2('USD Coin')
-        await USDC.configureMinter(owner.address, parseUnits("1000000000000000000000000000", 30))
-        await USDC.initializeV2_1(owner.address)
+        USDC_ETH = await new FiatTokenV2_1__factory(owner).deploy();
+        await USDC_ETH.initialize('USD Coin', 'USDC', 'USDC', 6, owner.address, owner.address, owner.address, owner.address)
+        await USDC_ETH.initializeV2('USD Coin')
+        await USDC_ETH.configureMinter(owner.address, parseUnits("1000000000000000000000000000", 30))
+        await USDC_ETH.initializeV2_1(owner.address)
 
-        USDT = await new TetherToken__factory(owner).deploy(parseUnits("1000000000000000000000000000", 30), 'Tether USD', 'USDT', 6)
+        USDT_ETH = await new TetherToken__factory(owner).deploy(parseUnits("1000000000000000000000000000", 30), 'Tether USD', 'USDT_ETH', 6)
+
+        USDC_BSC = await new BEP20TokenImplementation__factory(owner).deploy()
+        await USDC_BSC.initialize('Binance USDC', 'USDCBSC', 18, parseUnits('100000000000000000000000', 30), true, owner.address)
+
+        USDT_BSC = await new BEP20USDT__factory(owner).deploy()
 
         purchaseTokens = [
-            USDC as any, USDT as any, purchaseToken0, purchaseToken1, purchaseToken2, purchaseToken3, purchaseToken4
+            USDC_ETH as any, USDT_ETH as any, USDC_BSC as any, USDT_BSC as any, purchaseToken0, purchaseToken1, purchaseToken2, purchaseToken3, purchaseToken4
         ]
 
         for (let i = 0; i < purchaseTokens.length; i++) {
             for (let j = 0; j < investors.length; j++) {
-                if ((await purchaseTokens[i].symbol()) == 'USDT') {
-                    await USDT.connect(owner).issue(parseUnits('1000000', '30'))
-                    await USDT.connect(owner).transfer(investors[j].address, parseUnits('1000000', '30'))
-                } else {
+                if ((await purchaseTokens[i].symbol()) == 'USDT_ETH') {
+                    await USDT_ETH.connect(owner).issue(parseUnits('1000000', '30'))
+                    await USDT_ETH.connect(owner).transfer(investors[j].address, parseUnits('1000000', '30'))
+                } else if((await purchaseTokens[i].symbol()) == 'USDCBSC') {
+                    await USDC_BSC.connect(owner).mint(parseUnits('1000000', '30'))
+                    await USDC_BSC.connect(owner).transfer(investors[j].address, parseUnits('1000000', '30'))
+                } else if((await purchaseTokens[i].symbol()) == 'USDT') { // BSC
+                    await USDT_BSC.connect(owner).mint(parseUnits('1000000', '30'))
+                    await USDT_BSC.connect(owner).transfer(investors[j].address, parseUnits('1000000', '30'))
+                }
+                 else {
                     await purchaseTokens[i].connect(owner).mint(investors[j].address, parseUnits('1000000', '30'))
                 }
             }
@@ -1518,8 +1532,7 @@ describe("Ignition Pool With Vesting", () => {
                 chainId: 31337,
                 verifyingContract: pool0.address
             }
-            const signature = await buildFundSignature(owner, { ...domain }, IDOTokens[0].address, pool0.address, solidityKeccak256(['string'], [await IDOTokens[0].symbol()]), await IDOTokens[0].decimals())
-
+            const signature = await buildFundSignature(owner, { ...domain }, IDOTokens[0].address, pool0.address, await IDOTokens[0].symbol(), await IDOTokens[0].decimals())
             expect(await pool0.connect(collaborator0).fundIDOToken(IDOTokens[0].address, signature)).to.be.emit(pool0, Events.Pool.FundIDOToken)
             expect(await IDOTokens[0].balanceOf(vesting0.address)).to.be.equal(await pool0.getIDOTokenAmountByOfferedCurrency(await pool0.totalRaiseAmount()))
 
