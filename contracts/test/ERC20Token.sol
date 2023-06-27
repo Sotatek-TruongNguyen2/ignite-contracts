@@ -2,7 +2,6 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
-import "hardhat/console.sol";
 
 contract ERC20Token is ERC20PermitUpgradeable {
     uint8 _decimals = 18;

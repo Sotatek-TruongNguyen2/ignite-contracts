@@ -92,22 +92,37 @@ contract IgnitionFactory is BasePausable {
      * Investors need to pay purchase amount and participation fee
      *
      * If project is success (not be cancelled by admin or funded enough IDO token),
-     *  - System's admin claims participation fee and token fee
+     *  - System's admin claims participation fee and token fee after lockup time
      *    (call pool.claimParticipationFee(), pool.claimTokenFee())
-     *  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule
+     *  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule after lockup time (vesting schedule after TGE date)
      *    (call pool.claimProfit())
-     *  - Investors claim IDO token based on vesting rule
-     *  - Collaborator withdraws redundant IDO token
+     *  - Investors claim IDO token based on vesting rule after TGE date
+     *  - Collaborator withdraws redundant IDO token after TGE date 
      *    (call pool.withdrawRedundantIDOToken())
      *
-     * If project is fail (cancelled or not be funded enough IDO token) (of course before TGE date)
+     * If project is fail before TGE Date (cancelled by admin or not be funded enough IDO token) (of course before TGE date)
+     *  (DEPRECATED)
      *  - System's admin claims participation fee
      *    (call pool.claimParticipationFee())
      *  - Investors withdraw purchased amount
      *    (call pool.withdrawPurchasedAmount())
      *  - Collaborator withdraws funded IDO token
      *    (call pool.withdrawRedundantIDOToken())
-     *
+     *  (DEPRECATED)
+     * 
+     *  - Investors withdraw purchased amount and participation fee at cancel time or TGE date
+     *    (call pool.withdrawPurchasedAmount())
+     *  - Collaborator withdraws funded IDO token at cancel time or TGE date
+     *    (call pool.withdrawRedundantIDOToken())
+     * 
+     * Sale End -> TGE Date -> 14 days -> Lockup
+     * 14 days is a config variable in the system (constant)
+     * 
+     * If project is fail after TGE Date and before Lockup time (e.g rug pool)
+     *  - Investors claim IDO token based on vesting rule after TGE date and before cancel time
+     *  - Investors withdraw purchased amount and participation fee at cancel time
+     *  - All remaining IDO will be locked in contract.
+     * 
      * @dev Only has one pool address respectively for one input params
      * @param addrs Array of address includes:
      * - address of IDO token,

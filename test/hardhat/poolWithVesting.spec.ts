@@ -3,19 +3,19 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { ethers } from "hardhat"
 
-import { ERC20Token } from "../typechain-types/contracts/test/ERC20Token"
-import { ERC20Token__factory } from "../typechain-types/factories/contracts/test/ERC20Token__factory"
+import { ERC20Token } from "../../typechain-types/contracts/test/ERC20Token"
+import { ERC20Token__factory } from "../../typechain-types/factories/contracts/test/ERC20Token__factory"
 
-import { ERC20TokenFactory } from "../typechain-types/contracts/test/ERC20TokenFactory"
-import { ERC20TokenFactory__factory } from "../typechain-types/factories/contracts/test/ERC20TokenFactory__factory"
+import { ERC20TokenFactory } from "../../typechain-types/contracts/test/ERC20TokenFactory"
+import { ERC20TokenFactory__factory } from "../../typechain-types/factories/contracts/test/ERC20TokenFactory__factory"
 
 import { expect } from "chai"
 import { BigNumber, BigNumberish } from "ethers"
 import { arrayify, hexlify, keccak256, parseUnits, solidityKeccak256, solidityPack } from "ethers/lib/utils"
 import MerkleTree from "merkletreejs"
 import { randomBytes } from "crypto"
-import { BEP20TokenImplementation, BEP20TokenImplementation__factory, BEP20USDT, BEP20USDT__factory, FiatTokenV2_1, FiatTokenV2_1__factory, IgnitionFactory, IgnitionFactory__factory, Pool, PoolLogic, PoolLogic__factory, Pool__factory, TetherToken, TetherToken__factory, Vesting, VestingLogic, VestingLogic__factory, Vesting__factory } from "../typechain-types"
-import { buildFundSignature } from "../scripts/buildFundSignature"
+import { BEP20TokenImplementation, BEP20TokenImplementation__factory, BEP20USDT, BEP20USDT__factory, FiatTokenV2_1, FiatTokenV2_1__factory, IgnitionFactory, IgnitionFactory__factory, Pool, PoolLogic, PoolLogic__factory, Pool__factory, TetherToken, TetherToken__factory, Vesting, VestingLogic, VestingLogic__factory, Vesting__factory } from "../../typechain-types"
+import { buildFundSignature } from "../../scripts/buildFundSignature"
 
 describe("Ignition Pool With Vesting", () => {
     async function deployFactoryFixture() {

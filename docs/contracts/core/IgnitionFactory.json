@@ -1,16 +1,5 @@
 {
     "methods": {
-        "ADMIN()": {
-            "stateMutability": "view",
-            "code": "function ADMIN() external view returns (bytes32)",
-            "inputs": {},
-            "outputs": {
-                "_0": {
-                    "type": "bytes32"
-                }
-            },
-            "details": "keccak256(\"ADMIN\")"
-        },
         "DEFAULT_ADMIN_ROLE()": {
             "stateMutability": "view",
             "code": "function DEFAULT_ADMIN_ROLE() external view returns (bytes32)",
@@ -21,55 +10,38 @@
                 }
             }
         },
-        "PERCENTAGE_DENOMINATOR()": {
+        "OWNER_ROLE()": {
             "stateMutability": "view",
-            "code": "function PERCENTAGE_DENOMINATOR() external view returns (uint16)",
+            "code": "function OWNER_ROLE() external view returns (bytes32)",
             "inputs": {},
             "outputs": {
                 "_0": {
-                    "type": "uint16"
+                    "type": "bytes32"
                 }
             },
-            "details": "Percentage denominator"
+            "notice": "keccak256(\"OWNER_ROLE\")"
         },
-        "allPools(uint256)": {
-            "stateMutability": "view",
-            "code": "function allPools(uint256) external view returns (address)",
+        "__BasePausable__init(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function __BasePausable__init(address owner) external nonpayable",
             "inputs": {
-                "_0": {
-                    "type": "uint256"
-                }
-            },
-            "outputs": {
-                "_0": {
+                "owner": {
                     "type": "address"
                 }
             },
-            "details": "Array of created pools address"
+            "outputs": {}
         },
-        "allPoolsLength()": {
-            "stateMutability": "view",
-            "code": "function allPoolsLength() external view returns (uint256)",
-            "inputs": {},
-            "outputs": {
-                "_0": {
-                    "type": "uint256",
-                    "description": "Return number of created pools"
-                }
-            },
-            "notice": "Get the number of all created pools"
-        },
-        "createPool(address[2],uint256[14],uint256)": {
+        "createPool(address[2],uint256[18],uint256)": {
             "stateMutability": "nonpayable",
-            "code": "function createPool(address[2] addrs, uint256[14] uints, uint256 dbProjectId) external nonpayable returns (address pool)",
+            "code": "function createPool(address[2] addrs, uint256[18] uints, uint256 dbProjectId) external nonpayable returns (address pool)",
             "inputs": {
                 "addrs": {
                     "type": "address[2]",
-                    "description": "Array of address includes: address of IDO token, address of purchase token"
+                    "description": "Array of address includes: - address of IDO token, - address of purchase token"
                 },
                 "uints": {
-                    "type": "uint256[14]",
-                    "description": "Array of pool information includes: max purchase amount for KYC user, max purchase amount for Not KYC user, TGE date, TGE percentage,  galaxy participation fee percentage, crowdfunding participation fee percentage, galaxy pool proportion, early access proportion, total raise amount, whale open time, whale duration, community duration, rate and decimal of IDO token"
+                    "type": "uint256[18]",
+                    "description": "Array of pool information includes: - max purchase amount for KYC user, - max purchase amount for Not KYC user, - token project fee percentage, // will be sent to admin if success or investor in vice versa - galaxy participation fee percentage, // will be sent to admin - crowdfunding participation fee percentage, // will be sent to admin - galaxy pool proportion, (ratio with all project) - early access proportion, (ratio with only crowdfunding pool) - total raise amount, - whale open time, - whale duration, - community duration, - rate of IDO token (based on formula in README), - decimal of IDO token (based on formula in README, is different from decimals in contract of IDO token), - TGE date, - TGE percentage, - vesting cliff, - vesting frequency, - number of vesting release"
                 },
                 "dbProjectId": {
                     "type": "uint256",
@@ -82,72 +54,18 @@
                     "description": "Address of new pool"
                 }
             },
-            "notice": "Create new pool",
+            "notice": "Create new pool. One pool has 2 sub-pool: galaxy pool and crowfunding pool, with 2 different participation fee. In crowfunding pool, there is a part for WHALE to buy early (called EARLY ACCESS) and another for NORMAL user to buy (called NORMAL ACCESS). Duration of galaxy pool and EARLY ACCESS are same and before duration of NORMAL ACCESS. There are 3 types of profit: participation fee, token fee and collaborator profit. Token fee + Collaborator profit = total raise amount (IDO token) * price = purchased amount (purchase token) Investors need to pay purchase amount and participation fee If project is success (not be cancelled by admin or funded enough IDO token),  - System's admin claims participation fee and token fee    (call pool.claimParticipationFee(), pool.claimTokenFee())  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule    (call pool.claimProfit())  - Investors claim IDO token based on vesting rule  - Collaborator withdraws redundant IDO token    (call pool.withdrawRedundantIDOToken()) If project is fail (cancelled or not be funded enough IDO token) (of course before TGE date)  - System's admin claims participation fee    (call pool.claimParticipationFee())  - Investors withdraw purchased amount    (call pool.withdrawPurchasedAmount())  - Collaborator withdraws funded IDO token    (call pool.withdrawRedundantIDOToken())",
             "details": "Only has one pool address respectively for one input params"
         },
-        "getCreatedPools(address,address,uint256)": {
-            "stateMutability": "view",
-            "code": "function getCreatedPools(address, address, uint256) external view returns (address)",
-            "inputs": {
-                "_0": {
-                    "type": "address"
-                },
-                "_1": {
-                    "type": "address"
-                },
-                "_2": {
-                    "type": "uint256"
-                }
-            },
+        "createVesting()": {
+            "stateMutability": "nonpayable",
+            "code": "function createVesting() external nonpayable returns (address)",
+            "inputs": {},
             "outputs": {
                 "_0": {
                     "type": "address"
                 }
-            },
-            "details": "Mapping from user to (From token to array of created pools for token)"
-        },
-        "getCreatedPoolsByToken(address,address)": {
-            "stateMutability": "view",
-            "code": "function getCreatedPoolsByToken(address _creator, address _token) external view returns (address[])",
-            "inputs": {
-                "_creator": {
-                    "type": "address",
-                    "description": "Address of created pool user"
-                },
-                "_token": {
-                    "type": "address",
-                    "description": "Address of token want to query"
-                }
-            },
-            "outputs": {
-                "_0": {
-                    "type": "address[]",
-                    "description": "Created Pool Address"
-                }
-            },
-            "notice": "Get created pools by token address",
-            "details": "User can retrieve their created pool by address of tokens"
-        },
-        "getCreatedPoolsLengthByToken(address,address)": {
-            "stateMutability": "view",
-            "code": "function getCreatedPoolsLengthByToken(address _creator, address _token) external view returns (uint256)",
-            "inputs": {
-                "_creator": {
-                    "type": "address",
-                    "description": "Address of created pool user"
-                },
-                "_token": {
-                    "type": "address",
-                    "description": "Address of token want to query"
-                }
-            },
-            "outputs": {
-                "_0": {
-                    "type": "uint256",
-                    "description": "Return number of created pool"
-                }
-            },
-            "notice": "Retrieve number of pools created for specific token"
+            }
         },
         "getRoleAdmin(bytes32)": {
             "stateMutability": "view",
@@ -164,19 +82,6 @@
             },
             "details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
         },
-        "grantAdminRole(address)": {
-            "stateMutability": "nonpayable",
-            "code": "function grantAdminRole(address _admin) external nonpayable",
-            "inputs": {
-                "_admin": {
-                    "type": "address",
-                    "description": "Address of new admin"
-                }
-            },
-            "outputs": {},
-            "notice": "Grant admin role for new admin",
-            "details": "Only admin can call it"
-        },
         "grantRole(bytes32,address)": {
             "stateMutability": "nonpayable",
             "code": "function grantRole(bytes32 role, address account) external nonpayable",
@@ -190,23 +95,6 @@
             },
             "outputs": {},
             "details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event."
-        },
-        "hasAdminRole(address)": {
-            "stateMutability": "view",
-            "code": "function hasAdminRole(address _admin) external view returns (bool)",
-            "inputs": {
-                "_admin": {
-                    "type": "address",
-                    "description": "Address of an account"
-                }
-            },
-            "outputs": {
-                "_0": {
-                    "type": "bool",
-                    "description": "Return true if account has admin role, and vice versa."
-                }
-            },
-            "notice": "Check whether or not an account has admin role"
         },
         "hasRole(bytes32,address)": {
             "stateMutability": "view",
@@ -226,18 +114,46 @@
             },
             "details": "Returns `true` if `account` has been granted `role`."
         },
-        "initialize(address)": {
+        "initialize(address,address)": {
             "stateMutability": "nonpayable",
-            "code": "function initialize(address _poolImplementationAddress) external nonpayable",
+            "code": "function initialize(address _poolImplementationAddress, address _vestingImplementationAddress) external nonpayable",
             "inputs": {
                 "_poolImplementationAddress": {
                     "type": "address",
                     "description": "Address of pool implementation"
+                },
+                "_vestingImplementationAddress": {
+                    "type": "address"
                 }
             },
             "outputs": {},
             "notice": "Initialize pool factory with address of pool implementation",
             "details": "Called only once"
+        },
+        "isOwner(address)": {
+            "stateMutability": "view",
+            "code": "function isOwner(address sender) external view returns (bool)",
+            "inputs": {
+                "sender": {
+                    "type": "address"
+                }
+            },
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            }
+        },
+        "paused()": {
+            "stateMutability": "view",
+            "code": "function paused() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "Returns true if the contract is paused, and false otherwise."
         },
         "poolImplementationAddress()": {
             "stateMutability": "view",
@@ -263,19 +179,6 @@
             },
             "outputs": {},
             "details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `account`. May emit a {RoleRevoked} event."
-        },
-        "revokeAdminRole(address)": {
-            "stateMutability": "nonpayable",
-            "code": "function revokeAdminRole(address _admin) external nonpayable",
-            "inputs": {
-                "_admin": {
-                    "type": "address",
-                    "description": "Address of an admin"
-                }
-            },
-            "outputs": {},
-            "notice": "Revoke admin role of an admin",
-            "details": "Only admin can call it"
         },
         "revokeRole(bytes32,address)": {
             "stateMutability": "nonpayable",
@@ -304,6 +207,19 @@
             "notice": "Set or change address of pool implementation",
             "details": "Only admin can can call it"
         },
+        "setVestingImplementation(address)": {
+            "stateMutability": "nonpayable",
+            "code": "function setVestingImplementation(address _vestingImplementationAddress) external nonpayable",
+            "inputs": {
+                "_vestingImplementationAddress": {
+                    "type": "address",
+                    "description": "Address of new vesting implementation"
+                }
+            },
+            "outputs": {},
+            "notice": "Set or change address of vesting implementation",
+            "details": "Only admin can can call it"
+        },
         "supportsInterface(bytes4)": {
             "stateMutability": "view",
             "code": "function supportsInterface(bytes4 interfaceId) external view returns (bool)",
@@ -318,6 +234,17 @@
                 }
             },
             "details": "See {IERC165-supportsInterface}."
+        },
+        "vestingImplementationAddress()": {
+            "stateMutability": "view",
+            "code": "function vestingImplementationAddress() external view returns (address)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "address"
+                }
+            },
+            "details": "Address of vesting implementation"
         }
     },
     "events": {
@@ -326,6 +253,15 @@
             "inputs": {
                 "version": {
                     "type": "uint8",
+                    "indexed": false
+                }
+            }
+        },
+        "Paused": {
+            "code": "event Paused(address account)",
+            "inputs": {
+                "account": {
+                    "type": "address",
                     "indexed": false
                 }
             }
@@ -394,6 +330,15 @@
                 }
             }
         },
+        "Unpaused": {
+            "code": "event Unpaused(address account)",
+            "inputs": {
+                "account": {
+                    "type": "address",
+                    "indexed": false
+                }
+            }
+        },
         "UpdatePoolImplementation": {
             "code": "event UpdatePoolImplementation(address indexed oldPoolImplementation, address indexed newPoolImplementation)",
             "inputs": {
@@ -406,38 +351,35 @@
                     "indexed": true
                 }
             }
+        },
+        "UpdateVestingImplementation": {
+            "code": "event UpdateVestingImplementation(address indexed oldVestingImplementation, address indexed newVestingImplementation)",
+            "inputs": {
+                "oldVestingImplementation": {
+                    "type": "address",
+                    "indexed": true
+                },
+                "newVestingImplementation": {
+                    "type": "address",
+                    "indexed": true
+                }
+            }
+        },
+        "VestingCreated": {
+            "code": "event VestingCreated(address sender, address vesting)",
+            "inputs": {
+                "sender": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "vesting": {
+                    "type": "address",
+                    "indexed": false
+                }
+            }
         }
     },
-    "errors": {
-        "AlreadyAdmin": {
-            "code": "error AlreadyAdmin()",
-            "inputs": {}
-        },
-        "AlreadyNotAdmin": {
-            "code": "error AlreadyNotAdmin()",
-            "inputs": {}
-        },
-        "NotValidEarlyAccessProportion": {
-            "code": "error NotValidEarlyAccessProportion()",
-            "inputs": {}
-        },
-        "NotValidGalaxyPoolProportion": {
-            "code": "error NotValidGalaxyPoolProportion()",
-            "inputs": {}
-        },
-        "ZeroAddress": {
-            "code": "error ZeroAddress()",
-            "inputs": {}
-        },
-        "ZeroAmount": {
-            "code": "error ZeroAmount()",
-            "inputs": {}
-        },
-        "ZeroOfferedRate": {
-            "code": "error ZeroOfferedRate()",
-            "inputs": {}
-        }
-    },
-    "path": "/IDOpool",
-    "name": "PoolFactory"
+    "errors": {},
+    "path": "contracts/core",
+    "name": "IgnitionFactory"
 }
