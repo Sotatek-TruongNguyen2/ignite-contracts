@@ -95,6 +95,23 @@ True if admin allow user to claim
 |---|---|---|
 | _0 | bool | undefined |
 
+### emergencyCancelled
+
+```solidity
+function emergencyCancelled() external view returns (bool)
+```
+
+
+
+*True if emergency cancelled*
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### funded
 
 ```solidity

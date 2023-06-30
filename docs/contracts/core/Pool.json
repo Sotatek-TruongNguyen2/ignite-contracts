@@ -131,9 +131,9 @@
             "notice": "Cancel pool: cancel project, nobody can buy token",
             "details": "Only admin can call it"
         },
-        "claimParticipationFee(address)": {
+        "claimFund(address)": {
             "stateMutability": "nonpayable",
-            "code": "function claimParticipationFee(address _beneficiary) external nonpayable",
+            "code": "function claimFund(address _beneficiary) external nonpayable",
             "inputs": {
                 "_beneficiary": {
                     "type": "address"
@@ -141,15 +141,17 @@
             },
             "outputs": {}
         },
-        "claimProfit(address)": {
+        "claimParticipationFee(address)": {
             "stateMutability": "nonpayable",
-            "code": "function claimProfit(address _beneficiary) external nonpayable",
+            "code": "function claimParticipationFee(address _beneficiary) external nonpayable",
             "inputs": {
                 "_beneficiary": {
-                    "type": "address"
+                    "type": "address",
+                    "description": "Address to receive"
                 }
             },
-            "outputs": {}
+            "outputs": {},
+            "notice": "System's admin participation token fee only when project is success after lockup time"
         },
         "claimTokenFee(address)": {
             "stateMutability": "nonpayable",
@@ -157,11 +159,11 @@
             "inputs": {
                 "_beneficiary": {
                     "type": "address",
-                    "description": "Address to receive token fee"
+                    "description": "Address to receive"
                 }
             },
             "outputs": {},
-            "notice": "System's admin receive token fee only when project is success after TGE date (not be cancelled by admin or funded enough IDO token)"
+            "notice": "System's admin receive token fee only when project is success after lockup time"
         },
         "communityCloseTime()": {
             "stateMutability": "view",
@@ -203,6 +205,16 @@
                 }
             }
         },
+        "fundClaimedAmount()": {
+            "stateMutability": "view",
+            "code": "function fundClaimedAmount() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
         "fundIDOToken(address,bytes)": {
             "stateMutability": "nonpayable",
             "code": "function fundIDOToken(contract IERC20withDec _IDOToken, bytes signature) external nonpayable",
@@ -236,9 +248,9 @@
                 }
             }
         },
-        "getClaimableProfitAmount()": {
+        "getClaimableFundAmount()": {
             "stateMutability": "view",
-            "code": "function getClaimableProfitAmount() external view returns (uint256)",
+            "code": "function getClaimableFundAmount() external view returns (uint256)",
             "inputs": {},
             "outputs": {
                 "_0": {
@@ -339,9 +351,9 @@
             "outputs": {},
             "notice": "Initialize a pool with its information"
         },
-        "isFail()": {
+        "isFailBeforeTGEDate()": {
             "stateMutability": "view",
-            "code": "function isFail() external view returns (bool)",
+            "code": "function isFailBeforeTGEDate() external view returns (bool)",
             "inputs": {},
             "outputs": {
                 "_0": {
@@ -456,16 +468,6 @@
                 }
             },
             "details": "Returns true if the contract is paused, and false otherwise."
-        },
-        "profitClaimedAmount()": {
-            "stateMutability": "view",
-            "code": "function profitClaimedAmount() external view returns (uint256)",
-            "inputs": {},
-            "outputs": {
-                "_0": {
-                    "type": "uint256"
-                }
-            }
         },
         "purchaseToken()": {
             "stateMutability": "view",
@@ -758,6 +760,19 @@
                 }
             }
         },
+        "ClaimFund": {
+            "code": "event ClaimFund(address beneficiary, uint256 claimableAmount)",
+            "inputs": {
+                "beneficiary": {
+                    "type": "address",
+                    "indexed": false
+                },
+                "claimableAmount": {
+                    "type": "uint256",
+                    "indexed": false
+                }
+            }
+        },
         "ClaimParticipationFee": {
             "code": "event ClaimParticipationFee(address beneficiary, uint256 participationFeeAmount)",
             "inputs": {
@@ -766,19 +781,6 @@
                     "indexed": false
                 },
                 "participationFeeAmount": {
-                    "type": "uint256",
-                    "indexed": false
-                }
-            }
-        },
-        "ClaimProfit": {
-            "code": "event ClaimProfit(address beneficiary, uint256 claimableAmount)",
-            "inputs": {
-                "beneficiary": {
-                    "type": "address",
-                    "indexed": false
-                },
-                "claimableAmount": {
                     "type": "uint256",
                     "indexed": false
                 }

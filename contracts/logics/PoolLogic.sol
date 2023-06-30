@@ -33,7 +33,7 @@ library PoolLogic {
      * @dev Check whether or not an amount greater than 0
      * @param _amount An amount
      */
-    function _validAmount(uint _amount) internal pure {
+    function validAmount(uint _amount) public pure {
         require(_amount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
     }
 
@@ -41,7 +41,7 @@ library PoolLogic {
      * @dev Check whether or not an address is zero address
      * @param _address An address
      */
-    function _validAddress(address _address) internal pure {
+    function validAddress(address _address) public pure {
         require(_address != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
     }
 
@@ -74,7 +74,7 @@ library PoolLogic {
         address[2] memory addrs,
         uint[18] memory uints
     ) external pure {
-        _validAddress(addrs[1]); // purchaseToken
+        validAddress(addrs[1]); // purchaseToken
 
         // tokenFeePercentage
         require(
@@ -83,7 +83,7 @@ library PoolLogic {
         );
 
         // galaxyPoolProportion
-        _validAmount(uints[5]);
+        validAmount(uints[5]);
         require(
             uints[5] < PERCENTAGE_DENOMINATOR,
             Errors.INVALID_GALAXY_POOL_PROPORTION
@@ -101,6 +101,6 @@ library PoolLogic {
         );
 
         // totalRaiseAmount
-        _validAmount(uints[7]);
+        validAmount(uints[7]);
     }
 }

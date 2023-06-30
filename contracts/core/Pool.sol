@@ -25,6 +25,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         address indexed buyer,
         address indexed pool,
         uint purchaseAmount,
+        uint IDOTokenAmount,
         uint8 poolType
     );
 
@@ -50,7 +51,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint principalAmount
     );
 
-    event ClaimProfit(address beneficiary, uint claimableAmount);
+    event ClaimFund(address beneficiary, uint claimableAmount);
 
     // ============================== MODIFIER ==============================
 
@@ -76,11 +77,19 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         _;
     }
 
-    modifier afterTGEDate() {
+    modifier afterLockupTime() {
         (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
         require(
-            block.timestamp >= _TGEDate,
-            Errors.NOT_ALLOWED_TO_TRANSFER_BEFORE_TGE_DATE
+            block.timestamp >= (ignitionFactory.getLockupDuration() + _TGEDate),
+            Errors.NOT_ALLOWED_TO_TRANSFER_BEFORE_LOCKUP_TIME
+        );
+        _;
+    }
+
+    modifier notEmergencyCancelled() {
+        require(
+            !vesting.isEmergencyCancelled(),
+            Errors.NOT_ALLOWED_TO_DO_AFTER_EMERGENCY_CANCELLED
         );
         _;
     }
@@ -198,9 +207,16 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
      * @notice Cancel pool: cancel project, nobody can buy token
      * @dev Only admin can call it
      */
-    function cancelPool(
-        bool _permanentDelete
-    ) external onlyAdmin beforeTGEDate {
+    function cancelPool(bool _permanentDelete) external onlyAdmin {
+        (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
+        if (block.timestamp >= _TGEDate) {
+            require(
+                block.timestamp <=
+                    (ignitionFactory.getLockupDuration() + _TGEDate),
+                Errors.NOT_ALLOWED_TO_CANCEL_AFTER_LOCKUP_TIME
+            );
+            vesting.setEmergencyCancelled(true);
+        }
         _pause();
         vesting.setClaimableStatus(false);
         emit CancelPool(address(this), _permanentDelete);
@@ -215,7 +231,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     function updateTime(
         uint64 _newWhaleCloseTime,
         uint64 _newCommunityCloseTime
-    ) external onlyAdmin {
+    ) external onlyAdmin beforeTGEDate {
         (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
         require(
             whaleOpenTime < _newWhaleCloseTime &&
@@ -303,7 +319,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
 
     function setClaimableStatus(bool _status) external onlyAdmin {
         if (_status == true) {
-            require(!isFail(), Errors.NOT_ALLOWED_TO_ALLOW_INVESTOR_TO_CLAIM);
+            require(
+                !isFailBeforeTGEDate(),
+                Errors.NOT_ALLOWED_TO_ALLOW_INVESTOR_TO_CLAIM
+            );
         }
         return vesting.setClaimableStatus(_status);
     }
@@ -314,21 +333,21 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     ) external onlyOwner whenNotPaused nonReentrant beforeTGEDate {
         IERC20withDec IDOToken = vesting.getIDOToken();
 
-        uint256 fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
+        uint256 fundAmount;
+
         if (address(IDOToken) != address(0)) {
-            IDOToken.safeTransferFrom(
-                _msgSender(),
-                address(vesting),
-                fundAmount
-            );
+            fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
+            _forwardToken(IDOToken, _msgSender(), address(vesting), fundAmount);
         } else {
             require(
                 _verifyFundAllowanceSignature(_IDOToken, signature),
                 Errors.INVALID_SIGNER
             );
 
+            fundAmount = getIDOTokenAmountByOfferedCurrency(purchasedAmount);
             vesting.setIDOToken(_IDOToken);
-            _IDOToken.safeTransferFrom(
+            _forwardToken(
+                _IDOToken,
                 _msgSender(),
                 address(vesting),
                 fundAmount
@@ -336,20 +355,24 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         }
 
         vesting.setFundedStatus(true);
-
         emit FundIDOToken(_IDOToken, fundAmount);
     }
 
     function withdrawRedundantIDOToken(
         address _beneficiary
-    ) external onlyOwner afterTGEDate {
+    ) external onlyOwner {
         uint vestingIDOBalance = IERC20(vesting.getIDOToken()).balanceOf(
             address(vesting)
         );
         uint redundantAmount;
-        if (isFail()) {
+        if (isFailBeforeTGEDate()) {
             redundantAmount = vestingIDOBalance;
         } else {
+            (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
+            require(
+                block.timestamp >= _TGEDate,
+                Errors.NOT_ALLOWED_TO_TRANSFER_BEFORE_TGE_DATE
+            );
             redundantAmount =
                 vestingIDOBalance -
                 getIDOTokenAmountByOfferedCurrency(purchasedAmount);
@@ -357,11 +380,19 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         vesting.withdrawRedundantIDOToken(_beneficiary, redundantAmount);
     }
 
-    /// @notice System's admin receive token fee only when project is success after TGE date (not be cancelled by admin or funded enough IDO token)
-    /// @param _beneficiary Address to receive token fee
+    /// @notice System's admin receive token fee only when project is success after lockup time
+    /// @param _beneficiary Address to receive
     function claimTokenFee(
         address _beneficiary
-    ) external onlyAdmin whenNotPaused onlyFunded nonReentrant afterTGEDate {
+    )
+        external
+        onlyAdmin
+        whenNotPaused
+        onlyFunded
+        nonReentrant
+        afterLockupTime
+        notEmergencyCancelled
+    {
         require(
             tokenFeeClaimedStatus == false,
             Errors.NOT_ALLOWED_TO_CLAIM_TOKEN_FEE
@@ -375,9 +406,19 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         emit ClaimTokenFee(_beneficiary, tokenFee);
     }
 
+    /// @notice System's admin participation token fee only when project is success after lockup time
+    /// @param _beneficiary Address to receive
     function claimParticipationFee(
         address _beneficiary
-    ) external onlyAdmin nonReentrant afterTGEDate {
+    )
+        external
+        onlyAdmin
+        whenNotPaused
+        onlyFunded
+        nonReentrant
+        afterLockupTime
+        notEmergencyCancelled
+    {
         require(
             participationFeeClaimedStatus == false,
             Errors.NOT_ALLOWED_TO_CLAIM_PARTICIPATION_FEE
@@ -395,46 +436,54 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     ) external nonReentrant {
         PurchaseAmount storage userInfo = userPurchasedAmount[_msgSender()];
         uint principalAmount = userInfo.principal;
-        require(principalAmount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
+        uint feeAmount = userInfo.fee;
+        uint amount = principalAmount + feeAmount;
+
+        require(amount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
         require(
-            isFail() && userInfo.withdrawn == 0,
+            (isFailBeforeTGEDate() || !vesting.isEmergencyCancelled()) &&
+                userInfo.withdrawn == 0,
             Errors.NOT_ALLOWED_TO_WITHDRAW_PURCHASED_AMOUNT
         );
 
-        purchaseToken.safeTransfer(_beneficiary, principalAmount);
-        userInfo.withdrawn = principalAmount;
+        purchaseToken.safeTransfer(_beneficiary, amount);
+        userInfo.withdrawn = amount;
 
-        emit WithdrawPurchasedAmount(
-            _msgSender(),
-            _beneficiary,
-            principalAmount
-        );
+        emit WithdrawPurchasedAmount(_msgSender(), _beneficiary, amount);
     }
 
-    function claimProfit(
+    function claimFund(
         address _beneficiary
-    ) external nonReentrant onlyOwner afterTGEDate {
+    )
+        external
+        onlyOwner
+        whenNotPaused
+        onlyFunded
+        nonReentrant
+        afterLockupTime
+        notEmergencyCancelled
+    {
         require(
-            !isFail() && vesting.isClaimable(),
+            vesting.isClaimable(),
             Errors.NOT_ALLOWED_TO_CLAIM_PURCHASE_TOKEN
         );
-        uint claimableAmount = getClaimableProfitAmount();
+        uint claimableAmount = getClaimableFundAmount();
         require(claimableAmount > 0, Errors.INVALID_CLAIMABLE_AMOUNT);
 
         claimableAmount = claimableAmount <=
             purchaseToken.balanceOf(address(this))
             ? claimableAmount
             : purchaseToken.balanceOf(address(this));
-        profitClaimedAmount += claimableAmount;
+        fundClaimedAmount += claimableAmount;
 
         purchaseToken.safeTransfer(_beneficiary, claimableAmount);
 
-        emit ClaimProfit(_beneficiary, claimableAmount);
+        emit ClaimFund(_beneficiary, claimableAmount);
     }
 
     // ============================== PUBLIC FUNCTION ==============================
 
-    function isFail() public view returns (bool) {
+    function isFailBeforeTGEDate() public view returns (bool) {
         (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
         return (paused() ||
             (!vesting.isFunded() && block.timestamp >= _TGEDate));
@@ -452,10 +501,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             (_amount * offeredCurrency.rate) / (10 ** offeredCurrency.decimal);
     }
 
-    function getClaimableProfitAmount() public view returns (uint) {
+    function getClaimableFundAmount() public view returns (uint) {
         uint tokenFee = (purchasedAmount * tokenFeePercentage) /
             PERCENTAGE_DENOMINATOR;
-        uint totalProfitAmount = purchasedAmount - tokenFee;
+        uint totalFundAmount = purchasedAmount - tokenFee;
         (
             uint64 _TGEDate,
             uint16 _TGEPercentage,
@@ -466,8 +515,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
 
         return
             VestingLogic.calculateClaimableAmount(
-                totalProfitAmount,
-                profitClaimedAmount,
+                totalFundAmount,
+                fundClaimedAmount,
                 _TGEPercentage,
                 _TGEDate,
                 _vestingCliff,
@@ -664,7 +713,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         );
         vesting.createVestingSchedule(buyer, IDOTokenAmount);
 
-        emit BuyToken(buyer, address(this), _purchaseAmount, _poolType);
+        emit BuyToken(buyer, address(this), _purchaseAmount, IDOTokenAmount, _poolType);
     }
 
     function _handlePurchaseTokenFund(
@@ -746,6 +795,15 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         purchaseToken.safeTransferFrom(buyer, address(this), _purchaseAmount);
     }
 
+    function _forwardToken(
+        IERC20withDec token,
+        address sender,
+        address receiver,
+        uint amount
+    ) internal {
+        token.safeTransferFrom(sender, receiver, amount);
+    }
+
     /**
      * @dev Check whether or not purchase amount exceeds max purchase in early access for whale
      * @param _purchaseAmount Purchase amount of investor
@@ -753,7 +811,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     function _preValidatePurchaseInEarlyAccess(
         uint _purchaseAmount
     ) internal view {
-        PoolLogic._validAmount(_purchaseAmount);
+        PoolLogic.validAmount(_purchaseAmount);
         require(
             purchasedAmountInEarlyAccess + _purchaseAmount <=
                 maxPurchaseAmountForEarlyAccess,
@@ -766,7 +824,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
      * @param _purchaseAmount Purchase amount of investor
      */
     function _preValidatePurchase(uint _purchaseAmount) internal view {
-        PoolLogic._validAmount(_purchaseAmount);
+        PoolLogic.validAmount(_purchaseAmount);
         require(
             purchasedAmount + _purchaseAmount <= totalRaiseAmount,
             Errors.EXCEED_TOTAL_RAISE_AMOUNT
@@ -815,7 +873,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint _purchaseAmount,
         uint _maxPurchaseBaseOnAllocations
     ) internal pure {
-        PoolLogic._validAmount(_purchaseAmount);
+        PoolLogic.validAmount(_purchaseAmount);
         require(
             _purchaseAmount <= _maxPurchaseBaseOnAllocations,
             Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER

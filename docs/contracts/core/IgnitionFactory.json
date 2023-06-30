@@ -10,6 +10,16 @@
                 }
             }
         },
+        "LOCKUP_DURATION()": {
+            "stateMutability": "view",
+            "code": "function LOCKUP_DURATION() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            }
+        },
         "OWNER_ROLE()": {
             "stateMutability": "view",
             "code": "function OWNER_ROLE() external view returns (bytes32)",
@@ -54,7 +64,7 @@
                     "description": "Address of new pool"
                 }
             },
-            "notice": "Create new pool. One pool has 2 sub-pool: galaxy pool and crowfunding pool, with 2 different participation fee. In crowfunding pool, there is a part for WHALE to buy early (called EARLY ACCESS) and another for NORMAL user to buy (called NORMAL ACCESS). Duration of galaxy pool and EARLY ACCESS are same and before duration of NORMAL ACCESS. There are 3 types of profit: participation fee, token fee and collaborator profit. Token fee + Collaborator profit = total raise amount (IDO token) * price = purchased amount (purchase token) Investors need to pay purchase amount and participation fee If project is success (not be cancelled by admin or funded enough IDO token),  - System's admin claims participation fee and token fee    (call pool.claimParticipationFee(), pool.claimTokenFee())  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule    (call pool.claimProfit())  - Investors claim IDO token based on vesting rule  - Collaborator withdraws redundant IDO token    (call pool.withdrawRedundantIDOToken()) If project is fail (cancelled or not be funded enough IDO token) (of course before TGE date)  - System's admin claims participation fee    (call pool.claimParticipationFee())  - Investors withdraw purchased amount    (call pool.withdrawPurchasedAmount())  - Collaborator withdraws funded IDO token    (call pool.withdrawRedundantIDOToken())",
+            "notice": "Create new pool. One pool has 2 sub-pool: galaxy pool and crowfunding pool, with 2 different participation fee. In crowfunding pool, there is a part for WHALE to buy early (called EARLY ACCESS) and another for NORMAL user to buy (called NORMAL ACCESS). Duration of galaxy pool and EARLY ACCESS are same and before duration of NORMAL ACCESS. There are 3 types of fund: PARTICIPATION FEE, TOKEN FEE and COLLABORATOR FUND. Investors need to pay PURCHASE AMOUNT and PARTICIPATION FEE PURCHASE AMOUNT (purchase token) = TOKEN FEE + COLLABORATOR FUND = total raise amount (IDO token) * price Sale End -> TGE Date -> 14 days -> Lockup 14 days is a config variable in the system (constant) If project is success (not be cancelled by admin or funded enough IDO token or not emergency canceled in lockup duration),  - System's admin claims participation fee and token fee after lockup time    (call pool.claimParticipationFee(), pool.claimTokenFee())  - Collaborator claims collaborator fund (purchased amount - token fee) based on vesting rule after lockup time (vesting schedule start from TGE date)    (call pool.claimFund())  - Investors claim IDO token based on vesting rule after TGE date    (call vesting.claim())  - Collaborator withdraws redundant IDO token after TGE date    (call pool.withdrawRedundantIDOToken()) If project is fail before TGE Date (cancelled by admin or not be funded enough IDO token) (of course before TGE date)  - Investors withdraw purchased amount and participation fee after cancelled time or TGE date    (call pool.withdrawPurchasedAmountAndParticipationFee())  - Collaborator withdraws funded IDO token after cancelled time or TGE date    (call pool.withdrawRedundantIDOToken()) If project is fail after TGE Date and before Lockup time  - Investors claim IDO token based on vesting rule after TGE date and before cancelled time    (call vesting.claim())  - Investors withdraw purchased amount and participation fee at cancelled time    (call pool.withdrawPurchasedAmount())  - Collaborator withdraws redundant IDO token after TGE date and before cancelled time    (call pool.withdrawRedundantIDOToken())  - All remaining IDO will be locked in contract.",
             "details": "Only has one pool address respectively for one input params"
         },
         "createVesting()": {
@@ -64,6 +74,16 @@
             "outputs": {
                 "_0": {
                     "type": "address"
+                }
+            }
+        },
+        "getLockupDuration()": {
+            "stateMutability": "pure",
+            "code": "function getLockupDuration() external pure returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
                 }
             }
         },

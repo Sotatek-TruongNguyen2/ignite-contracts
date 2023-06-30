@@ -15,6 +15,8 @@ contract IgnitionFactory is BasePausable {
     /// @dev Address of vesting implementation
     address public vestingImplementationAddress;
 
+    uint public constant LOCKUP_DURATION = 14 days;
+
     // ============================== EVENT ==============================
 
     event UpdatePoolImplementation(
@@ -44,8 +46,7 @@ contract IgnitionFactory is BasePausable {
     ) external initializer {
         poolImplementationAddress = _poolImplementationAddress;
         vestingImplementationAddress = _vestingImplementationAddress;
-        _setupRole(OWNER_ROLE, _msgSender());
-        _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
+        __BasePausable__init(_msgSender());
     }
 
     /**
@@ -87,42 +88,38 @@ contract IgnitionFactory is BasePausable {
      * In crowfunding pool, there is a part for WHALE to buy early (called EARLY ACCESS) and another for NORMAL user to buy
      * (called NORMAL ACCESS). Duration of galaxy pool and EARLY ACCESS are same and before duration of NORMAL ACCESS.
      *
-     * There are 3 types of profit: participation fee, token fee and collaborator profit.
-     * Token fee + Collaborator profit = total raise amount (IDO token) * price = purchased amount (purchase token)
-     * Investors need to pay purchase amount and participation fee
+     * There are 3 types of fund: PARTICIPATION FEE, TOKEN FEE and COLLABORATOR FUND.
+     * Investors need to pay PURCHASE AMOUNT and PARTICIPATION FEE
+     * PURCHASE AMOUNT (purchase token) = TOKEN FEE + COLLABORATOR FUND = total raise amount (IDO token) * price
      *
-     * If project is success (not be cancelled by admin or funded enough IDO token),
+     * Sale End -> TGE Date -> 14 days -> Lockup
+     * 14 days is a config variable in the system (constant)
+     *
+     * If project is success (not be cancelled by admin or funded enough IDO token or not emergency canceled in lockup duration),
      *  - System's admin claims participation fee and token fee after lockup time
      *    (call pool.claimParticipationFee(), pool.claimTokenFee())
-     *  - Collaborator claims collaborator profit (purchased amount - token fee) based on vesting rule after lockup time (vesting schedule after TGE date)
-     *    (call pool.claimProfit())
+     *  - Collaborator claims collaborator fund (purchased amount - token fee) based on vesting rule after lockup time (vesting schedule start from TGE date)
+     *    (call pool.claimFund())
      *  - Investors claim IDO token based on vesting rule after TGE date
-     *  - Collaborator withdraws redundant IDO token after TGE date 
+     *    (call vesting.claim())
+     *  - Collaborator withdraws redundant IDO token after TGE date
      *    (call pool.withdrawRedundantIDOToken())
      *
      * If project is fail before TGE Date (cancelled by admin or not be funded enough IDO token) (of course before TGE date)
-     *  (DEPRECATED)
-     *  - System's admin claims participation fee
-     *    (call pool.claimParticipationFee())
-     *  - Investors withdraw purchased amount
-     *    (call pool.withdrawPurchasedAmount())
-     *  - Collaborator withdraws funded IDO token
+     *  - Investors withdraw purchased amount and participation fee after cancelled time or TGE date
+     *    (call pool.withdrawPurchasedAmountAndParticipationFee())
+     *  - Collaborator withdraws funded IDO token after cancelled time or TGE date
      *    (call pool.withdrawRedundantIDOToken())
-     *  (DEPRECATED)
-     * 
-     *  - Investors withdraw purchased amount and participation fee at cancel time or TGE date
+     *
+     * If project is fail after TGE Date and before Lockup time
+     *  - Investors claim IDO token based on vesting rule after TGE date and before cancelled time
+     *    (call vesting.claim())
+     *  - Investors withdraw purchased amount and participation fee at cancelled time
      *    (call pool.withdrawPurchasedAmount())
-     *  - Collaborator withdraws funded IDO token at cancel time or TGE date
+     *  - Collaborator withdraws redundant IDO token after TGE date and before cancelled time
      *    (call pool.withdrawRedundantIDOToken())
-     * 
-     * Sale End -> TGE Date -> 14 days -> Lockup
-     * 14 days is a config variable in the system (constant)
-     * 
-     * If project is fail after TGE Date and before Lockup time (e.g rug pool)
-     *  - Investors claim IDO token based on vesting rule after TGE date and before cancel time
-     *  - Investors withdraw purchased amount and participation fee at cancel time
      *  - All remaining IDO will be locked in contract.
-     * 
+     *
      * @dev Only has one pool address respectively for one input params
      * @param addrs Array of address includes:
      * - address of IDO token,
@@ -172,6 +169,12 @@ contract IgnitionFactory is BasePausable {
         address vesting = Clones.clone(vestingImplementationAddress);
         emit VestingCreated(_msgSender(), vesting);
         return vesting;
+    }
+
+    // ============================== PUBLIC FUNCTION ==============================
+
+    function getLockupDuration() public pure returns (uint) {
+        return LOCKUP_DURATION;
     }
 
     // ============================== INTERNAL FUNCTION ==============================

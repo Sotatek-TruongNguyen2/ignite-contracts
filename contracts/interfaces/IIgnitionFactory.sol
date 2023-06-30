@@ -7,4 +7,6 @@ interface IIgnitionFactory {
     function isOwner(address sender) external view returns (bool);
 
     function createVesting() external returns (address);
+
+    function getLockupDuration() external pure returns (uint);
 }

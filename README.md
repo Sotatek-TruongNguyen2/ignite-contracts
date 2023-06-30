@@ -60,7 +60,7 @@ yarn deploy:mainnet --tags VERIFICATION_FACTORY
 yarn deploy:binance --tags VERIFICATION_FACTORY
 ```
 
-# Step to deploy contracts again if changing pool contract or vesting contract
+# Step to update pool implementation or vesting implementation contract
 
 1. Deploy new sample for IDO pool contract
 
@@ -81,6 +81,16 @@ yarn deploy:binance --tags VESTING
 ```
 
 3. Change pool or vesting implementation address in pool factory contract
+
+# Step to update factory contract
+1. Deploy new factory implementation
+```
+# For Ethereum
+yarn deploy:mainnet --tags FACTORY
+# For BSC
+yarn deploy:binance --tags FACTORY
+```
+2. Update implementation for factory proxy in DefaultProxyAdmin contract
 
 # Library:
 
@@ -292,6 +302,11 @@ Formula: amount = 90 _ 10^6 (wPtoken) >> can buy 90 _ 10^6 \* 181818181818181810
 - Errors
 - Modifiers
 - Functions
+
+# Integrate Foundary
+
+- When integrate foundary, hardhat-coverage not working well
+- forge coverage not working well with solidity version ^0.4.0 (which is used by USDT), so need to use: "forge coverage --contracts contract/core"
 
 # Deprecated:
 

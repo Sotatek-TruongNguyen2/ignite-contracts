@@ -109,6 +109,16 @@
             },
             "outputs": {}
         },
+        "emergencyCancelled()": {
+            "stateMutability": "view",
+            "code": "function emergencyCancelled() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            }
+        },
         "funded()": {
             "stateMutability": "view",
             "code": "function funded() external view returns (bool)",
@@ -251,6 +261,16 @@
                 }
             }
         },
+        "isEmergencyCancelled()": {
+            "stateMutability": "view",
+            "code": "function isEmergencyCancelled() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            }
+        },
         "isFunded()": {
             "stateMutability": "view",
             "code": "function isFunded() external view returns (bool)",
@@ -328,6 +348,16 @@
         "setClaimableStatus(bool)": {
             "stateMutability": "nonpayable",
             "code": "function setClaimableStatus(bool _status) external nonpayable",
+            "inputs": {
+                "_status": {
+                    "type": "bool"
+                }
+            },
+            "outputs": {}
+        },
+        "setEmergencyCancelled(bool)": {
+            "stateMutability": "nonpayable",
+            "code": "function setEmergencyCancelled(bool _status) external nonpayable",
             "inputs": {
                 "_status": {
                     "type": "bool"
@@ -532,6 +562,15 @@
         },
         "SetClaimableStatus": {
             "code": "event SetClaimableStatus(bool status)",
+            "inputs": {
+                "status": {
+                    "type": "bool",
+                    "indexed": false
+                }
+            }
+        },
+        "SetEmergencyCancelled": {
+            "code": "event SetEmergencyCancelled(bool status)",
             "inputs": {
                 "status": {
                     "type": "bool",

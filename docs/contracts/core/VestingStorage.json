@@ -55,6 +55,17 @@
             },
             "notice": "True if admin allow user to claim"
         },
+        "emergencyCancelled()": {
+            "stateMutability": "view",
+            "code": "function emergencyCancelled() external view returns (bool)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "bool"
+                }
+            },
+            "details": "True if emergency cancelled"
+        },
         "funded()": {
             "stateMutability": "view",
             "code": "function funded() external view returns (bool)",

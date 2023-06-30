@@ -12,7 +12,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         await new Promise((res, _) =>{
             setTimeout(()=>{
                 res(true)
-            }, 300)
+            }, 3000)
         })
 
         console.log('----- START VERIFICATION -----');
@@ -30,7 +30,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_FACTORY']
-// verification.dependencies = ['FACTORY']
+verification.dependencies = ['FACTORY']
 // verification.runAtTheEnd = true
 
 export default verification

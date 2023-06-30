@@ -43,7 +43,7 @@ library VestingLogic {
             claimedAmount;
     }
 
-    function _verifyVestingInfo(uint _TGEPercentage) internal pure {
+    function verifyVestingInfo(uint _TGEPercentage) external pure {
         require(
             _TGEPercentage <= PERCENTAGE_DENOMINATOR,
             Errors.INVALID_TGE_PERCENTAGE

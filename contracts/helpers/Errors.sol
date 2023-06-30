@@ -31,6 +31,9 @@ library Errors {
     string public constant NOT_ALLOWED_TO_WITHDRAW_PURCHASED_AMOUNT = "27"; // 'Investor can withdraw their purchased amount if project failed and only one single time'
     string public constant NOT_ALLOWED_TO_FUND_AFTER_TGE_DATE = "28"; // 'Collaborator must fund IDO token before TGE date'
     string public constant NOT_ALLOWED_TO_ALLOW_INVESTOR_TO_CLAIM = "29"; // 'Admin can set claimable status to true if project success'
-    string public constant NOT_ALLOWED_TO_CLAIM_PURCHASE_TOKEN = "30"; // 'Collaborator can only claim profit (which exclude token fee) when project successes'
+    string public constant NOT_ALLOWED_TO_CLAIM_PURCHASE_TOKEN = "30"; // 'Collaborator can only claim fund (which exclude token fee) when project successes'
     string public constant NOT_ALLOWED_TO_TRANSFER_BEFORE_TGE_DATE = "31"; // 'User can only claim or withdraw after TGE date'
+    string public constant NOT_ALLOWED_TO_TRANSFER_BEFORE_LOCKUP_TIME = "32"; // 'Admin can only claim token fee, participation fee; collaborator can only claim fund after lockup time'
+    string public constant NOT_ALLOWED_TO_DO_AFTER_EMERGENCY_CANCELLED = "33"; // 'Collaborator can withdraw redundant IDO token only,claim fund; admin can only claim token fee, participation fee if project is not emergency cancelled'
+    string public constant NOT_ALLOWED_TO_CANCEL_AFTER_LOCKUP_TIME = "34"; // 'Admin can only cancel pool before lockup time'
 }

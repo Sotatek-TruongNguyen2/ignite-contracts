@@ -16,7 +16,6 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         })
 
         const erc20TokenFactoryAddress = (await deployments.get('ERC20TokenFactory')).address
-        // const erc20TokenFactoryAddress = '0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD'
 
         const erc20TokenSample = (await deployments.get('ERC20Token')).address
 
@@ -25,7 +24,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         await hre.run('verify:verify', {
             address: erc20TokenFactoryAddress,
             constructorArguments: [erc20TokenSample],
-            contract: "contracts/test/ERC20TokenFactory.sol:ERC20TokenFactory"
+            contract: "contracts/mocks/ERC20TokenFactory.sol:ERC20TokenFactory"
         })    
     } catch (error) {
         console.log(error);

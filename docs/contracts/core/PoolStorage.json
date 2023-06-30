@@ -97,6 +97,17 @@
             },
             "details": "Proportion of crowdfunding pool amount for early access"
         },
+        "fundClaimedAmount()": {
+            "stateMutability": "view",
+            "code": "function fundClaimedAmount() external view returns (uint256)",
+            "inputs": {},
+            "outputs": {
+                "_0": {
+                    "type": "uint256"
+                }
+            },
+            "details": "Fund amount which is claimed by collaborator (exclude token fee)"
+        },
         "galaxyParticipationFeePercentage()": {
             "stateMutability": "view",
             "code": "function galaxyParticipationFeePercentage() external view returns (uint16)",
@@ -220,17 +231,6 @@
                 }
             },
             "details": "True if participation fee is claimed"
-        },
-        "profitClaimedAmount()": {
-            "stateMutability": "view",
-            "code": "function profitClaimedAmount() external view returns (uint256)",
-            "inputs": {},
-            "outputs": {
-                "_0": {
-                    "type": "uint256"
-                }
-            },
-            "details": "Profit amount which is claimed by collaborator (exclude token fee)"
         },
         "purchaseToken()": {
             "stateMutability": "view",

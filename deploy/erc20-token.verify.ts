@@ -16,14 +16,13 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
         })
 
         const erc20TokenAddress = (await deployments.get('ERC20Token')).address
-        // const erc20TokenAddress = '0x6Cc3b65850f5d65158542bd8Da8031ea12B183dD'
 
         console.log('----- START VERIFICATION -----');
 
         await hre.run('verify:verify', {
             address: erc20TokenAddress,
             constructorArguments: [],
-            contract: "contracts/test/ERC20Token.sol:ERC20Token"
+            contract: "contracts/mocks/ERC20Token.sol:ERC20Token"
         })    
     } catch (error) {
         console.log(error);
@@ -31,7 +30,7 @@ const verification: DeployFunction = async(hre: HardhatRuntimeEnvironment) =>{
 }
 
 verification.tags = ['VERIFICATION_ERC20TOKEN']
-// verification.dependencies = ['ERC20TOKEN']
+verification.dependencies = ['ERC20TOKEN']
 // verification.runAtTheEnd = true
 
 export default verification

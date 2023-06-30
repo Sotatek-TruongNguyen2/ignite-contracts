@@ -196,29 +196,29 @@ Cancel pool: cancel project, nobody can buy token
 |---|---|---|
 | _permanentDelete | bool | undefined |
 
+### claimFund
+
+```solidity
+function claimFund(address _beneficiary) external nonpayable
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _beneficiary | address | undefined |
+
 ### claimParticipationFee
 
 ```solidity
 function claimParticipationFee(address _beneficiary) external nonpayable
 ```
 
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _beneficiary | address | undefined |
-
-### claimProfit
-
-```solidity
-function claimProfit(address _beneficiary) external nonpayable
-```
-
-
+System&#39;s admin participation token fee only when project is success after lockup time
 
 
 
@@ -226,7 +226,7 @@ function claimProfit(address _beneficiary) external nonpayable
 
 | Name | Type | Description |
 |---|---|---|
-| _beneficiary | address | undefined |
+| _beneficiary | address | Address to receive |
 
 ### claimTokenFee
 
@@ -234,7 +234,7 @@ function claimProfit(address _beneficiary) external nonpayable
 function claimTokenFee(address _beneficiary) external nonpayable
 ```
 
-System&#39;s admin receive token fee only when project is success after TGE date (not be cancelled by admin or funded enough IDO token)
+System&#39;s admin receive token fee only when project is success after lockup time
 
 
 
@@ -242,7 +242,7 @@ System&#39;s admin receive token fee only when project is success after TGE date
 
 | Name | Type | Description |
 |---|---|---|
-| _beneficiary | address | Address to receive token fee |
+| _beneficiary | address | Address to receive |
 
 ### communityCloseTime
 
@@ -312,6 +312,23 @@ function earlyAccessProportion() external view returns (uint16)
 |---|---|---|
 | _0 | uint16 | undefined |
 
+### fundClaimedAmount
+
+```solidity
+function fundClaimedAmount() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### fundIDOToken
 
 ```solidity
@@ -363,10 +380,10 @@ function galaxyPoolProportion() external view returns (uint16)
 |---|---|---|
 | _0 | uint16 | undefined |
 
-### getClaimableProfitAmount
+### getClaimableFundAmount
 
 ```solidity
-function getClaimableProfitAmount() external view returns (uint256)
+function getClaimableFundAmount() external view returns (uint256)
 ```
 
 
@@ -499,10 +516,10 @@ Initialize a pool with its information
 | uints | uint256[18] | Array of pool information includes: - max purchase amount for KYC user, - max purchase amount for Not KYC user, - token fee percentage, - galaxy participation fee percentage, - crowdfunding participation fee percentage, - galaxy pool proportion, - early access proportion, - total raise amount, - whale open time, - whale duration, - community duration, - rate of IDO token (based on README formula), - decimal of IDO token (based on README formula, is different from decimals in contract of IDO token), - TGE date, - TGE percentage, - vesting cliff, - vesting frequency, - number of vesting release |
 | owner | address | undefined |
 
-### isFail
+### isFailBeforeTGEDate
 
 ```solidity
-function isFail() external view returns (bool)
+function isFailBeforeTGEDate() external view returns (bool)
 ```
 
 
@@ -691,23 +708,6 @@ function paused() external view returns (bool)
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | undefined |
-
-### profitClaimedAmount
-
-```solidity
-function profitClaimedAmount() external view returns (uint256)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
 
 ### purchaseToken
 
@@ -1130,6 +1130,23 @@ event CancelPool(address indexed pool, bool permanentDeleteStatus)
 | pool `indexed` | address | undefined |
 | permanentDeleteStatus  | bool | undefined |
 
+### ClaimFund
+
+```solidity
+event ClaimFund(address beneficiary, uint256 claimableAmount)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| beneficiary  | address | undefined |
+| claimableAmount  | uint256 | undefined |
+
 ### ClaimParticipationFee
 
 ```solidity
@@ -1146,23 +1163,6 @@ event ClaimParticipationFee(address beneficiary, uint256 participationFeeAmount)
 |---|---|---|
 | beneficiary  | address | undefined |
 | participationFeeAmount  | uint256 | undefined |
-
-### ClaimProfit
-
-```solidity
-event ClaimProfit(address beneficiary, uint256 claimableAmount)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| beneficiary  | address | undefined |
-| claimableAmount  | uint256 | undefined |
 
 ### ClaimTokenFee
 

@@ -112,8 +112,8 @@ contract PoolStorage {
     /// @dev Purchased amount in all pools (based on purchase token), do not include participation fee
     uint public purchasedAmount;
 
-    /// @dev Profit amount which is claimed by collaborator (exclude token fee)
-    uint public profitClaimedAmount;
+    /// @dev Fund amount which is claimed by collaborator (exclude token fee)
+    uint public fundClaimedAmount;
 
     /// @dev Mapping from User to purchased amount (based on purchase token)
     mapping(address => PurchaseAmount) public userPurchasedAmount;

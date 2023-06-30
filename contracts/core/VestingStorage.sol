@@ -38,4 +38,7 @@ contract VestingStorage {
 
     /// @notice True if admin allow user to claim
     bool public claimable = true;
+
+    /// @dev True if emergency cancelled
+    bool public emergencyCancelled;
 }

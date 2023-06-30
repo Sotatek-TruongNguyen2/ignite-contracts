@@ -19,12 +19,11 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
 
     event SetIDOTokenAddress(address IDOToken);
 
+    event SetEmergencyCancelled(bool status);
+
     event Funded(bool status);
 
-    event WithdrawRedundantIDOToken(
-        address beneficiary,
-        uint redundantAmount
-    );
+    event WithdrawRedundantIDOToken(address beneficiary, uint redundantAmount);
 
     event ClaimIDOToken(
         address sender,
@@ -49,6 +48,11 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
         _;
     }
 
+    modifier notEmergencyCancelled() {
+        require(!emergencyCancelled, Errors.NOT_ALLOWED_TO_DO_AFTER_EMERGENCY_CANCELLED);
+        _;
+    }
+
     // ============================== EXTERNAL FUNCTION ==============================
 
     function initialize(
@@ -60,7 +64,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
         uint _vestingFrequency,
         uint _numberOfVestingRelease
     ) external override initializer {
-        VestingLogic._verifyVestingInfo(_TGEPercentage);
+        VestingLogic.verifyVestingInfo(_TGEPercentage);
         IDOToken = IERC20withDec(_IDOToken);
         TGEDate = SafeCast.toUint64(_TGEDate);
         TGEPercentage = SafeCast.toUint16(_TGEPercentage);
@@ -68,7 +72,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
         vestingFrequency = SafeCast.toUint64(_vestingFrequency);
         numberOfVestingRelease = _numberOfVestingRelease;
         claimable = true;
-        
+
         _setupRole(OWNER_ROLE, owner);
         _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
     }
@@ -97,6 +101,11 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
         emit SetClaimableStatus(_status);
     }
 
+    function setEmergencyCancelled(bool _status) external onlyOwner {
+        emergencyCancelled = _status;
+        emit SetEmergencyCancelled(_status);
+    }
+
     function updateTGEDate(uint64 _TGEDate) external onlyOwner {
         TGEDate = _TGEDate;
         emit UpdateTGEDate(_TGEDate);
@@ -104,7 +113,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
 
     function claimIDOToken(
         address _beneficiary
-    ) external onlySatisfyClaimCondition nonReentrant afterTGEDate {
+    ) external onlySatisfyClaimCondition nonReentrant afterTGEDate notEmergencyCancelled{
         VestingAmountInfo storage userInfo = vestingAmountInfo[_msgSender()];
         require(
             userInfo.claimedAmount < userInfo.totalAmount,
@@ -126,7 +135,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
     function withdrawRedundantIDOToken(
         address _beneficiary,
         uint _redundantAmount
-    ) external onlyOwner nonReentrant {
+    ) external onlyOwner nonReentrant notEmergencyCancelled{
         require(_redundantAmount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
         IDOToken.safeTransfer(_beneficiary, _redundantAmount);
 
@@ -173,5 +182,9 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
                 vestingFrequency,
                 numberOfVestingRelease
             );
+    }
+
+    function isEmergencyCancelled() public view returns (bool) {
+        return emergencyCancelled;
     }
 }

@@ -12,6 +12,7 @@ import "solidity-coverage"
 import "dotenv/config"
 import '@primitivefi/hardhat-dodoc';
 import "@nomicfoundation/hardhat-foundry";
+import "hardhat-tracer"
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY
@@ -289,7 +290,7 @@ const config: HardhatUserConfig = {
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,
-    runOnCompile: true,
+    runOnCompile: false,
     strict: true,
     // only: [':Greeter$'],
   },
@@ -299,7 +300,7 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   dodoc: {
-    runOnCompile: true,
+    runOnCompile: false,
     debugMode: true,
     include: ['contracts/core']
   },

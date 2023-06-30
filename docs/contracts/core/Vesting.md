@@ -178,6 +178,23 @@ function createVestingSchedule(address _user, uint256 _totalAmount) external non
 | _user | address | undefined |
 | _totalAmount | uint256 | undefined |
 
+### emergencyCancelled
+
+```solidity
+function emergencyCancelled() external view returns (bool)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### funded
 
 ```solidity
@@ -356,6 +373,23 @@ function isClaimable() external view returns (bool)
 |---|---|---|
 | _0 | bool | undefined |
 
+### isEmergencyCancelled
+
+```solidity
+function isEmergencyCancelled() external view returns (bool)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### isFunded
 
 ```solidity
@@ -467,6 +501,22 @@ function revokeRole(bytes32 role, address account) external nonpayable
 
 ```solidity
 function setClaimableStatus(bool _status) external nonpayable
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _status | bool | undefined |
+
+### setEmergencyCancelled
+
+```solidity
+function setEmergencyCancelled(bool _status) external nonpayable
 ```
 
 
@@ -751,6 +801,22 @@ event RoleRevoked(bytes32 indexed role, address indexed account, address indexed
 
 ```solidity
 event SetClaimableStatus(bool status)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| status  | bool | undefined |
+
+### SetEmergencyCancelled
+
+```solidity
+event SetEmergencyCancelled(bool status)
 ```
 
 

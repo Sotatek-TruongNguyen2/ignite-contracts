@@ -163,6 +163,23 @@ function earlyAccessProportion() external view returns (uint16)
 |---|---|---|
 | _0 | uint16 | undefined |
 
+### fundClaimedAmount
+
+```solidity
+function fundClaimedAmount() external view returns (uint256)
+```
+
+
+
+*Fund amount which is claimed by collaborator (exclude token fee)*
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### galaxyParticipationFeePercentage
 
 ```solidity
@@ -350,23 +367,6 @@ function participationFeeClaimedStatus() external view returns (bool)
 | Name | Type | Description |
 |---|---|---|
 | _0 | bool | undefined |
-
-### profitClaimedAmount
-
-```solidity
-function profitClaimedAmount() external view returns (uint256)
-```
-
-
-
-*Profit amount which is claimed by collaborator (exclude token fee)*
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | uint256 | undefined |
 
 ### purchaseToken
 

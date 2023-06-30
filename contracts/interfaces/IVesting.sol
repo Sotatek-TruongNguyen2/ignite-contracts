@@ -39,4 +39,8 @@ interface IVesting {
         address _beneficiary,
         uint _redundantAmount
     ) external;
+
+    function isEmergencyCancelled() external view returns (bool);
+
+    function setEmergencyCancelled(bool _status) external;
 }
