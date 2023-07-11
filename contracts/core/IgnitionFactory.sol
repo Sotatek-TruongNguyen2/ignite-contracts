@@ -15,7 +15,7 @@ contract IgnitionFactory is BasePausable {
     /// @dev Address of vesting implementation
     address public vestingImplementationAddress;
 
-    uint public constant LOCKUP_DURATION = 14 days;
+    uint public constant LOCKUP_DURATION = 5 minutes;
 
     // ============================== EVENT ==============================
 
