@@ -22,7 +22,7 @@ library VestingLogic {
         uint TGEAmount = (totalAmount * TGEPercentage) / PERCENTAGE_DENOMINATOR;
 
         // In cliff time
-        if (block.timestamp < TGEDate + vestingCliff) {
+        if (block.timestamp < TGEDate + vestingCliff || vestingFrequency == 0) {
             return TGEAmount - claimedAmount;
         }
 
