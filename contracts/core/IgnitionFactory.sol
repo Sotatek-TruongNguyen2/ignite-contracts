@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/proxy/Clones.sol";
+
 import "./BasePausable.sol";
-import "../libraries/Clones.sol";
 import "../interfaces/IPool.sol";
 import "../interfaces/IIgnitionFactory.sol";
 import "../interfaces/IVesting.sol";

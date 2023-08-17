@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../utils/AccessControl.sol";
-import "../utils/Pausable.sol";
-import "../utils/Initializable.sol";
-import "../utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
 import {Errors} from "../helpers/Errors.sol";
 
 contract BasePausable is

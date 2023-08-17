@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
 import "../interfaces/IPool.sol";
 import "./PoolStorage.sol";
 import "./BasePausable.sol";
-import "../libraries/SafeCast.sol";
-import "../libraries/ECDSA.sol";
 import "../extensions/IgnitionList.sol";
 import "../logics/PoolLogic.sol";
 import "../logics/VestingLogic.sol";

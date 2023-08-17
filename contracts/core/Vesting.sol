@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeCast.sol";
+
 import "../interfaces/IVesting.sol";
 import "./VestingStorage.sol";
 import "./BasePausable.sol";
-import "../libraries/SafeCast.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../logics/VestingLogic.sol";
 
 contract Vesting is IVesting, VestingStorage, BasePausable {
