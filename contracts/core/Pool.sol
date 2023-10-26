@@ -3,6 +3,8 @@ pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+// import "@openzeppelin/contracts-upgradeable/contracts/utils/cryptography/EIP712Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
 
 import "../interfaces/IPool.sol";
 import "./PoolStorage.sol";
@@ -11,7 +13,7 @@ import "../extensions/IgnitionList.sol";
 import "../logics/PoolLogic.sol";
 import "../logics/VestingLogic.sol";
 
-contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
+contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeable {
     using SafeERC20 for IERC20;
     using SafeERC20 for IERC20withDec;
     using SafeCast for uint;
@@ -127,6 +129,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint[18] memory uints,
         address owner
     ) external initializer {
+        __EIP712_init(name, version);
         __BasePausable__init(owner);
         PoolLogic.verifyPoolInfo(addrs, uints);
         {
@@ -152,6 +155,17 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             galaxyParticipationFeePercentage = SafeCast.toUint16(uints[3]);
             crowdfundingParticipationFeePercentage = SafeCast.toUint16(
                 uints[4]
+            );
+            require(
+                galaxyParticipationFeePercentage >= ignitionFactory.getMinGalaxyParticipationFeePercentage() &&
+                galaxyParticipationFeePercentage <= ignitionFactory.getMaxGalaxyParticipationFeePercentage(),
+                Errors.GALAXY_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE
+            );
+
+            require(
+                crowdfundingParticipationFeePercentage >= ignitionFactory.getMinCrowdfundingParticipationFeePercentage() &&
+                crowdfundingParticipationFeePercentage <= ignitionFactory.getMaxCrowdfundingParticipationFeePercentage(),
+                Errors.CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE
             );
         }
         {
@@ -180,18 +194,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             offeredCurrency.rate = uints[11];
             offeredCurrency.decimal = uints[12];
         }
-
-        DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
-                block.chainid,
-                address(this)
-            )
-        );
     }
 
     /**
@@ -218,6 +220,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             );
             vesting.setEmergencyCancelled(true);
         }
+        // This should be marked as cancel 
         _pause();
         vesting.setClaimableStatus(false);
         emit CancelPool(address(this), _permanentDelete);
@@ -255,6 +258,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     function updateTGEDate(
         uint64 _newTGEDate
     ) external onlyAdmin beforeTGEDate {
+        (uint64 TGEDate, , , , ) = vesting.getVestingInfo();
+        require(_newTGEDate <= TGEDate + ignitionFactory.getMaximumTGEDateAdjustment(), Errors.NOT_ALLOWED_TO_ADJUST_TGE_DATE_TOO_BIG);
         require(communityCloseTime <= _newTGEDate, Errors.INVALID_TIME);
         vesting.updateTGEDate(_newTGEDate);
     }
@@ -275,9 +280,13 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
 
         _verifyAllowance(_msgSender(), _purchaseAmount);
         _preValidatePurchaseInGalaxyPool(
+            _msgSender(),
             _purchaseAmount,
             _maxPurchaseBaseOnAllocations
         );
+        //  // @fix: Need to check if the purchase amount is exceeds total raise amount
+        _preValidatePurchase(_purchaseAmount);
+
         _internalWhaleBuyToken(
             proof,
             _purchaseAmount,
@@ -299,6 +308,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint _purchaseAmount
     ) external whenNotPaused nonReentrant {
         _verifyAllowance(_msgSender(), _purchaseAmount);
+
+        // @fix: Need to check if the purchase amount is exceeds total raise amount
+        _preValidatePurchase(_purchaseAmount);
+
         if (_validWhaleSession()) {
             _preValidatePurchaseInEarlyAccess(_purchaseAmount);
             _internalWhaleBuyToken(
@@ -309,12 +322,12 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
                 uint8(PoolLogic.PoolType.EARLY_ACCESS)
             );
             _updatePurchasingInEarlyAccessState(_purchaseAmount);
+            
             return;
         }
 
         require(_validCommunitySession(), Errors.TIME_OUT_TO_BUY_IDO_TOKEN);
 
-        _preValidatePurchase(_purchaseAmount);
         _internalNormalUserBuyToken(proof, _purchaseAmount);
     }
 
@@ -334,26 +347,30 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     ) external onlyOwner whenNotPaused nonReentrant beforeTGEDate {
         IERC20withDec IDOToken = vesting.getIDOToken();
 
-        uint256 fundAmount;
+        uint256 fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
 
-        if (address(IDOToken) != address(0)) {
-            fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
-            _forwardToken(IDOToken, _msgSender(), address(vesting), fundAmount);
-        } else {
+        /// @fix: Total IDO token deposit to the funds always equals total raise amount
+        
+        if (address(IDOToken) == address(0)) { // private sale, so total token
+            require(block.timestamp > communityCloseTime, Errors.NOT_ALLOWED_TO_FUND_BEFORE_COMMUNITY_TIME);
+
             require(
                 _verifyFundAllowanceSignature(_IDOToken, signature),
                 Errors.INVALID_SIGNER
             );
+            require(purchasedAmount <= totalRaiseAmount, Errors.NOT_ALLOWED_TO_EXCEED_TOTAL_RAISE_AMOUNT);
+
+            vesting.setIDOToken(_IDOToken);
 
             fundAmount = getIDOTokenAmountByOfferedCurrency(purchasedAmount);
-            vesting.setIDOToken(_IDOToken);
-            _forwardToken(
-                _IDOToken,
-                _msgSender(),
-                address(vesting),
-                fundAmount
-            );
         }
+
+        _forwardToken(
+            _IDOToken,
+            _msgSender(),
+            address(vesting),
+            fundAmount
+        );
 
         vesting.setFundedStatus(true);
         emit FundIDOToken(_IDOToken, fundAmount);
@@ -366,6 +383,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
             address(vesting)
         );
         uint redundantAmount;
+
+        // In case project is cancelled
         if (isFailBeforeTGEDate()) {
             redundantAmount = vestingIDOBalance;
         } else {
@@ -441,8 +460,9 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint amount = principalAmount + feeAmount;
 
         require(amount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
+        // @fix: There're 2 ways to withdraw purchased amount: Pool is closed or Pool is failed at TGE Date
         require(
-            (isFailBeforeTGEDate() || !vesting.isEmergencyCancelled()) &&
+            (isFailBeforeTGEDate() || vesting.isEmergencyCancelled()) &&
                 userInfo.withdrawn == 0,
             Errors.NOT_ALLOWED_TO_WITHDRAW_PURCHASED_AMOUNT
         );
@@ -483,6 +503,11 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
     }
 
     // ============================== PUBLIC FUNCTION ==============================
+
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+        return _domainSeparatorV4();
+    }
 
     function isFailBeforeTGEDate() public view returns (bool) {
         (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
@@ -558,7 +583,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         bytes32 digest = keccak256(
             abi.encodePacked(
                 "\x19\x01",
-                DOMAIN_SEPARATOR,
+                DOMAIN_SEPARATOR(),
                 keccak256(
                     abi.encode(
                         FUND_TYPEHASH,
@@ -589,6 +614,9 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
         uint _participationFeePercentage,
         uint8 _poolType
     ) internal {
+        // Update Whale Purchase Amount
+        whalePurchasedAmount[_msgSender()] += _purchaseAmount;
+
         bool verifyWithKYCed = _verifyUser(
             _msgSender(),
             WHALE,
@@ -871,13 +899,15 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable {
      * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocations for whale
      */
     function _preValidatePurchaseInGalaxyPool(
+        address _whaleAddress,
         uint _purchaseAmount,
         uint _maxPurchaseBaseOnAllocations
-    ) internal pure {
+    ) internal view {
         PoolLogic.validAmount(_purchaseAmount);
         require(
-            _purchaseAmount <= _maxPurchaseBaseOnAllocations,
+            whalePurchasedAmount[_whaleAddress] +  _purchaseAmount <= _maxPurchaseBaseOnAllocations,
             Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER
         );
     }
+    
 }

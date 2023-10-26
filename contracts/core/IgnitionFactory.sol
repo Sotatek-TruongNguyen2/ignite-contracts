@@ -16,8 +16,17 @@ contract IgnitionFactory is BasePausable {
     /// @dev Address of vesting implementation
     address public vestingImplementationAddress;
 
-    uint public constant LOCKUP_DURATION = 5 minutes;
+    ///fix: M03
+    uint public constant LOCKUP_DURATION = 14 days;
 
+    uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
+    uint16 public constant MINIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 0;
+
+    uint16 public constant MAXIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 5000;
+    uint16 public constant MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 5000;
+    
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 * 1 days;
+    
     // ============================== EVENT ==============================
 
     event UpdatePoolImplementation(
@@ -176,6 +185,26 @@ contract IgnitionFactory is BasePausable {
 
     function getLockupDuration() public pure returns (uint) {
         return LOCKUP_DURATION;
+    }
+
+    function getMaxGalaxyParticipationFeePercentage() public pure returns (uint16) {
+        return MAXIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE;
+    }
+
+    function getMinGalaxyParticipationFeePercentage() public pure returns (uint16) {
+        return MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE;
+    }
+
+    function getMaxCrowdfundingParticipationFeePercentage() public pure returns (uint16) {
+        return MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE;
+    }
+
+    function getMinCrowdfundingParticipationFeePercentage() public pure returns (uint16) {
+        return MINIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE;
+    }
+
+    function getMaximumTGEDateAdjustment() public pure returns (uint) {
+        return MAXIMUM_TGE_DATE_ADJUSTMENT;
     }
 
     // ============================== INTERNAL FUNCTION ==============================

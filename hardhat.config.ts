@@ -134,14 +134,6 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ['staging'],
     },
-    arbitrum: {
-      url: 'https://kovan3.arbitrum.io/rpc',
-      accounts,
-      chainId: 79377087078960,
-      live: true,
-      saveDeployments: true,
-      tags: ['staging'],
-    },
     binance: {
       url: 'https://bsc-dataseed.binance.org/',
       accounts,
@@ -261,6 +253,16 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
     },
+    arbitrumgoerli: {
+      url: "https://side-wandering-hexagon.arbitrum-goerli.quiknode.pro/1e4ef218c4e8b5772a964f385de88b9063ad9421/",
+      accounts,
+      chainId: 421613,
+      //accounts: [GOERLI_TESTNET_PRIVATE_KEY]
+    },
+    arbitrumone: {
+      url: "https://arb1.arbitrum.io/rpc",
+      //accounts: [ARBITRUM_MAINNET_TEMPORARY_PRIVATE_KEY]
+    },
   },
   namedAccounts: {
     deployer: {
@@ -270,9 +272,10 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       goerli: ETHERSCAN_API_KEY || '',
-      mumbai: MUMBAI_API_KEY || '',
+      // mumbai: MUMBAI_API_KEY || '',
       bscTestnet: BSC_API_KEY || '',
-      avalanche: AVALANCHE_API_KEY || '',
+      bsc: BSC_API_KEY || '',
+      // avalanche: AVALANCHE_API_KEY || '',
     }
   },
   watcher: {

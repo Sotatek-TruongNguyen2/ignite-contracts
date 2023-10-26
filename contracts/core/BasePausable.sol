@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import {Errors} from "../helpers/Errors.sol";
 
 contract BasePausable is
-    AccessControl,
-    Pausable,
-    Initializable,
-    ReentrancyGuard
+    AccessControlUpgradeable,
+    PausableUpgradeable,
+    // Initializable,
+    ReentrancyGuardUpgradeable
 {
     /// @notice keccak256("OWNER_ROLE")
     bytes32 public constant OWNER_ROLE =
@@ -25,6 +24,11 @@ contract BasePausable is
 
     function __BasePausable__init(address owner) public onlyInitializing {
         require(owner != address(0), Errors.ZERO_ADDRESS_NOT_VALID);
+
+        __AccessControl_init();
+        __Pausable_init();
+        __ReentrancyGuard_init();
+
 
         _setupRole(OWNER_ROLE, owner);
         _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);

@@ -36,4 +36,9 @@ library Errors {
     string public constant NOT_ALLOWED_TO_TRANSFER_BEFORE_LOCKUP_TIME = "32"; // 'Admin can only claim token fee, participation fee; collaborator can only claim fund after lockup time'
     string public constant NOT_ALLOWED_TO_DO_AFTER_EMERGENCY_CANCELLED = "33"; // 'Collaborator can withdraw redundant IDO token only,claim fund; admin can only claim token fee, participation fee if project is not emergency cancelled'
     string public constant NOT_ALLOWED_TO_CANCEL_AFTER_LOCKUP_TIME = "34"; // 'Admin can only cancel pool before lockup time'
+    string public constant NOT_ALLOWED_TO_EXCEED_TOTAL_RAISE_AMOUNT = "35"; // Total Purchased Amount can't exceeds total raise amount
+    string public constant NOT_ALLOWED_TO_FUND_BEFORE_COMMUNITY_TIME = "36"; // Not allow to fund IDO token before Community Close Time
+    string public constant GALAXY_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE = "37";
+    string public constant CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE = "38";
+    string public constant NOT_ALLOWED_TO_ADJUST_TGE_DATE_TOO_BIG = "39";
 }

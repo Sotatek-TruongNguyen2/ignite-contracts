@@ -20,6 +20,18 @@ contract PoolStorage {
         uint withdrawn;
     }
 
+    // // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+    // // invalidate the cached domain separator if the chain id changes.
+    // bytes32 private immutable _cachedDomainSeparator;
+    // uint256 private immutable _cachedChainId;
+    // address private immutable _cachedThis;
+
+    // bytes32 private immutable _hashedName;
+    // bytes32 private immutable _hashedVersion;
+
+    // bytes32 private constant TYPE_HASH =
+    //     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
     /// @dev keccak256("WHALE")
     bytes32 public constant WHALE =
         0xed4b80c86c7954bdbf516c492acb4a2899eb0ee85b7c74e26d85e55a07562c95;
@@ -30,9 +42,6 @@ contract PoolStorage {
 
     /// @dev Percentage denominator
     uint16 public constant PERCENTAGE_DENOMINATOR = 10000;
-
-    // --- EIP712 niceties ---
-    bytes32 public DOMAIN_SEPARATOR;
 
     // bytes32 public constant FUND_TYPEHASH = keccak256("Fund(address IDOToken,address pool,string symbol,uint8 decimals)");
     bytes32 public constant FUND_TYPEHASH =
@@ -118,6 +127,9 @@ contract PoolStorage {
 
     /// @dev Mapping from User to purchased amount (based on purchase token)
     mapping(address => PurchaseAmount) public userPurchasedAmount;
+
+    /// @dev Whale address to whale purchased amount by allocation
+    mapping(address => uint256) public whalePurchasedAmount;
 
     /// @dev Vesting contract address
     IVesting public vesting;

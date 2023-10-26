@@ -9,6 +9,7 @@
     "coverage": "hardhat coverage --testfiles \"test/hardhat/*.ts\"",
     "dodoc": "hardhat dodoc",
     "watch:test": "hardhat watch test",
+    "watch": "hardhat watch compile",
     "trace": "hardhat test --trace",
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:bsctest": "hardhat deploy --network binancetest",
@@ -33,7 +34,8 @@
     "hardhat-deploy": "^0.11.20",
     "hardhat-watcher": "^2.5.0",
     "merkletreejs": "^0.3.9",
-    "solidity-coverage": "^0.8.3"
+    "solidity-coverage": "^0.8.3",
+    "tmp-promise": "^3.0.3"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
