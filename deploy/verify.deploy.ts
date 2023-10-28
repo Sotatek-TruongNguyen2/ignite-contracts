@@ -26,6 +26,7 @@ const contractVerification: DeployFunction = async (
   await verifyEtherscanContractByName('VestingLogic');
   await verifyEtherscanContractByName('PoolLogic');
   await verifyEtherscanContractByName('Pool');
+  await verifyEtherscanContractByName('Vesting');
   await verifyEtherscanProxyContract(IGNITION_FACTORY_PROXY, IGNITION_FACTORY_IMPL);
 };
 

@@ -102,8 +102,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
     /**
      * @notice Initialize a pool with its information
      * @param addrs Array of address includes:
-     * - address of IDO token,
-     * - address of purchase token
+     * - address of IDO token - Can be zero address
+     * - address of purchase token 
      * @param uints Array of pool information includes:
      * - max purchase amount for KYC user,
      * - max purchase amount for Not KYC user,
@@ -125,16 +125,20 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * - number of vesting release
      */
     function initialize(
-        address[2] memory addrs,
-        uint[18] memory uints,
+        address[2] calldata addrs,
+        uint[18] calldata uints,
         address owner
     ) external initializer {
+        // Validate zero address. Make sure: must be an admin exist
+        PoolLogic.validAddress(owner);
+        
         __EIP712_init(name, version);
         __BasePausable__init(owner);
         PoolLogic.verifyPoolInfo(addrs, uints);
         {
             ignitionFactory = IIgnitionFactory(_msgSender());
         }
+
         _createAndSetVesting(
             addrs[0],
             uints[13],
@@ -144,11 +148,13 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             uints[17]
         );
         {
+            PoolLogic.validAddress(addrs[1]);
             purchaseToken = IERC20(addrs[1]);
         }
         {
             maxPurchaseAmountForKYCUser = uints[0];
             maxPurchaseAmountForNotKYCUser = uints[1];
+            require(maxPurchaseAmountForKYCUser > maxPurchaseAmountForNotKYCUser, Errors.MAX_PURCHASE_FOR_KYC_USER_NOT_VALID);
         }
         {
             tokenFeePercentage = SafeCast.toUint16(uints[2]);
@@ -174,10 +180,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             totalRaiseAmount = uints[7];
 
             maxPurchaseAmountForGalaxyPool =
-                (uints[7] * uints[5]) /
+                (totalRaiseAmount * galaxyPoolProportion) /
                 PERCENTAGE_DENOMINATOR;
             maxPurchaseAmountForEarlyAccess =
-                (uints[7] * (PERCENTAGE_DENOMINATOR - uints[5]) * uints[6]) /
+                (totalRaiseAmount * (PERCENTAGE_DENOMINATOR - galaxyPoolProportion) * earlyAccessProportion) /
                 PERCENTAGE_DENOMINATOR /
                 PERCENTAGE_DENOMINATOR;
         }
@@ -220,7 +226,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             );
             vesting.setEmergencyCancelled(true);
         }
-        // This should be marked as cancel 
+        // This should be marked as cancel (paused === cancel)
         _pause();
         vesting.setClaimableStatus(false);
         emit CancelPool(address(this), _permanentDelete);
@@ -272,7 +278,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocation of whale
      */
     function buyTokenInGalaxyPool(
-        bytes32[] memory proof,
+        bytes32[] calldata proof,
         uint _purchaseAmount,
         uint _maxPurchaseBaseOnAllocations
     ) external whenNotPaused nonReentrant {
@@ -304,7 +310,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * @param _purchaseAmount Purchase amount of investor
      */
     function buyTokenInCrowdfundingPool(
-        bytes32[] memory proof,
+        bytes32[] calldata proof,
         uint _purchaseAmount
     ) external whenNotPaused nonReentrant {
         _verifyAllowance(_msgSender(), _purchaseAmount);
@@ -345,12 +351,13 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         IERC20withDec _IDOToken,
         bytes calldata signature
     ) external onlyOwner whenNotPaused nonReentrant beforeTGEDate {
+        require(!vesting.isFunded(), Errors.POOL_IS_ALREADY_FUNDED); 
+
         IERC20withDec IDOToken = vesting.getIDOToken();
 
         uint256 fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
 
         /// @fix: Total IDO token deposit to the funds always equals total raise amount
-        
         if (address(IDOToken) == address(0)) { // private sale, so total token
             require(block.timestamp > communityCloseTime, Errors.NOT_ALLOWED_TO_FUND_BEFORE_COMMUNITY_TIME);
 
@@ -358,7 +365,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
                 _verifyFundAllowanceSignature(_IDOToken, signature),
                 Errors.INVALID_SIGNER
             );
-            require(purchasedAmount <= totalRaiseAmount, Errors.NOT_ALLOWED_TO_EXCEED_TOTAL_RAISE_AMOUNT);
 
             vesting.setIDOToken(_IDOToken);
 
@@ -384,7 +390,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         );
         uint redundantAmount;
 
-        // In case project is cancelled
+        // In case project is not funded at TGE Date
         if (isFailBeforeTGEDate()) {
             redundantAmount = vestingIDOBalance;
         } else {
@@ -455,6 +461,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         address _beneficiary
     ) external nonReentrant {
         PurchaseAmount storage userInfo = userPurchasedAmount[_msgSender()];
+
         uint principalAmount = userInfo.principal;
         uint feeAmount = userInfo.fee;
         uint amount = principalAmount + feeAmount;
@@ -608,7 +615,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * @param _poolType 0 for galaxy pool, 1 for early access and 2 for normal user in crowdfunding pool
      */
     function _internalWhaleBuyToken(
-        bytes32[] memory proof,
+        bytes32[] calldata proof,
         uint _purchaseAmount,
         uint _maxPurchaseBaseOnAllocations,
         uint _participationFeePercentage,
@@ -660,7 +667,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * @param _purchaseAmount Purchase amount of investor
      */
     function _internalNormalUserBuyToken(
-        bytes32[] memory proof,
+        bytes32[] calldata proof,
         uint _purchaseAmount
     ) internal {
         uint8 poolType = uint8(PoolLogic.PoolType.NORMAL_ACCESS);
@@ -749,7 +756,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         address _buyer,
         uint _purchaseAmount
     ) internal {
-        _forwardPurchaseTokenFunds(_buyer, _purchaseAmount);
+        _forwardPurchasedToken(_buyer, _purchaseAmount);
         _updatePurchasingState(_buyer, _purchaseAmount);
     }
 
@@ -758,19 +765,19 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         uint _participationFee
     ) internal {
         if (_participationFee > 0) {
-            _forwardParticipationFee(_buyer, _participationFee);
+            _forwardPurchasedToken(_buyer, _participationFee);
             _updateParticipationFee(_buyer, _participationFee);
         }
     }
 
-    function _forwardParticipationFee(
-        address _buyer,
-        uint _participationFee
+    function _forwardPurchasedToken(
+        address _addr,
+        uint _amount
     ) internal {
         purchaseToken.safeTransferFrom(
-            _buyer,
+            _addr,
             address(this),
-            _participationFee
+            _amount
         );
     }
 
@@ -810,18 +817,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
     ) internal {
         userPurchasedAmount[_buyer].principal += _purchaseAmount;
         purchasedAmount += _purchaseAmount;
-    }
-
-    /**
-     * @dev Transfer purchase token from investor to pool
-     * @param buyer Address of investor
-     * @param _purchaseAmount Purchase amount of investor
-     */
-    function _forwardPurchaseTokenFunds(
-        address buyer,
-        uint _purchaseAmount
-    ) internal {
-        purchaseToken.safeTransferFrom(buyer, address(this), _purchaseAmount);
     }
 
     function _forwardToken(

@@ -12,6 +12,7 @@ import "solidity-coverage"
 import "dotenv/config"
 import '@primitivefi/hardhat-dodoc';
 import "@nomicfoundation/hardhat-foundry";
+import "@tenderly/hardhat-tenderly"
 import "hardhat-tracer"
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
@@ -272,9 +273,9 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       goerli: ETHERSCAN_API_KEY || '',
-      // mumbai: MUMBAI_API_KEY || '',
       bscTestnet: BSC_API_KEY || '',
       bsc: BSC_API_KEY || '',
+      // mumbai: MUMBAI_API_KEY || '',
       // avalanche: AVALANCHE_API_KEY || '',
     }
   },

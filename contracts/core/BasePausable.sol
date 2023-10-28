@@ -10,7 +10,6 @@ import {Errors} from "../helpers/Errors.sol";
 contract BasePausable is
     AccessControlUpgradeable,
     PausableUpgradeable,
-    // Initializable,
     ReentrancyGuardUpgradeable
 {
     /// @notice keccak256("OWNER_ROLE")
@@ -30,7 +29,7 @@ contract BasePausable is
         __ReentrancyGuard_init();
 
 
-        _setupRole(OWNER_ROLE, owner);
+        _grantRole(OWNER_ROLE, owner);
         _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
     }
 

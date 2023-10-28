@@ -72,6 +72,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
         vestingCliff = SafeCast.toUint64(_vestingCliff);
         vestingFrequency = SafeCast.toUint64(_vestingFrequency);
         numberOfVestingRelease = _numberOfVestingRelease;
+
         claimable = true;
 
         _setupRole(OWNER_ROLE, owner);

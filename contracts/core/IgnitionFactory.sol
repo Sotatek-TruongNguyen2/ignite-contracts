@@ -17,7 +17,7 @@ contract IgnitionFactory is BasePausable {
     address public vestingImplementationAddress;
 
     ///fix: M03
-    uint public constant LOCKUP_DURATION = 14 days;
+    uint public constant LOCKUP_DURATION = 5 minutes;
 
     uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
     uint16 public constant MINIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 0;

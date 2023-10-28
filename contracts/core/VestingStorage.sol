@@ -33,11 +33,13 @@ contract VestingStorage {
     /// @notice vesting info of each user
     mapping(address => VestingAmountInfo) public vestingAmountInfo;
 
+    
+
     /// @notice True if collaborator fund enough IDO token
     bool public funded;
 
     /// @notice True if admin allow user to claim
-    bool public claimable = true;
+    bool public claimable;
 
     /// @dev True if emergency cancelled
     bool public emergencyCancelled;
