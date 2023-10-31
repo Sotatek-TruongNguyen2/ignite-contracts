@@ -2,6 +2,16 @@
 
 1. Create .env file and fill with private key of deployer, infura key (if you do not use infura endpoint, you can change rpc endpoint of network in hardhat.config.ts)
 
+1. Deploy all IDO Smart contracts (includes Vesting, Pool, PoolFactory) 
+
+```
+# For Ethereum
+yarn deploy:mainnet 
+# For BSC
+yarn deploy:binance 
+```
+
+
 2. Deploy a sample contract for all IDO pools
 
 ```

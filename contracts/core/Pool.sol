@@ -284,7 +284,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
     ) external whenNotPaused nonReentrant {
         require(_validWhaleSession(), Errors.TIME_OUT_TO_BUY_IDO_TOKEN);
 
-        _verifyAllowance(_msgSender(), _purchaseAmount);
         _preValidatePurchaseInGalaxyPool(
             _msgSender(),
             _purchaseAmount,
@@ -313,8 +312,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         bytes32[] calldata proof,
         uint _purchaseAmount
     ) external whenNotPaused nonReentrant {
-        _verifyAllowance(_msgSender(), _purchaseAmount);
-
         // @fix: Need to check if the purchase amount is exceeds total raise amount
         _preValidatePurchase(_purchaseAmount);
 
@@ -357,8 +354,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
 
         uint256 fundAmount = getIDOTokenAmountByOfferedCurrency(totalRaiseAmount);
 
-        /// @fix: Total IDO token deposit to the funds always equals total raise amount
-        if (address(IDOToken) == address(0)) { // private sale, so total token
+        /// @fix: Total IDO token deposit to the funds always less or equal than total raise amount
+        if (address(IDOToken) == address(0)) { 
             require(block.timestamp > communityCloseTime, Errors.NOT_ALLOWED_TO_FUND_BEFORE_COMMUNITY_TIME);
 
             require(
@@ -741,6 +738,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             _purchaseAmount,
             _participationFeePercentage
         );
+
+        // allowance check
+        _verifyAllowance(_msgSender(), _purchaseAmount + participationFee);
+
         _handleParticipationFee(buyer, participationFee);
         _handlePurchaseTokenFund(buyer, _purchaseAmount);
 
