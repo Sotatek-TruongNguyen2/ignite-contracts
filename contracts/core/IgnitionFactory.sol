@@ -9,23 +9,43 @@ import "../interfaces/IIgnitionFactory.sol";
 import "../interfaces/IVesting.sol";
 import "../interfaces/IIgnitionFactory.sol";
 
-contract IgnitionFactory is BasePausable {
+
+/**
+ * @title Ignition Factory Contract
+ * @notice 
+ * - Main contracts: IgnitionFactory, Pool, Vesting.
+ - IgnitionFactory: This contract will be used to deploy a pair Pool + Vesting contract for collaborator.
+   - Contract is upgradeable using `TransparentProxy` pattern. 
+   - Collaborator can create pool by calling `CreatePool` function.
+ - Pool: This contract will be used as a main contract for investors, Collaborator for most IDO actions such as buy token, Claim IDO token, fund token, etc.
+   - Pool Contract is using `Clone (Minimal proxy` pattern to reduce the gas fee during deployment.
+ - Vesting: This contract will be used as a utility contract to separate logic vesting from Pool contract.
+   - Vesting Contract is using `Clone (Minimal proxy` pattern to reduce the gas fee during deployment.
+ * @author Paid
+ */
+
+   contract IgnitionFactory is BasePausable {
     /// @dev Address of pool implementation
     address public poolImplementationAddress;
 
     /// @dev Address of vesting implementation
     address public vestingImplementationAddress;
 
-    ///fix: M03
+    /// @dev Lockup duration after TGE Date
     uint public constant LOCKUP_DURATION = 5 minutes;
 
+    /// @dev Minimum galaxy participation fee percentage for pool deployment
     uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
+    /// @dev Minimum crown participation fee percentage for pool deployment
     uint16 public constant MINIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 0;
 
+    /// @dev Maximum galaxy participation fee percentage for pool deployment
     uint16 public constant MAXIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 5000;
+    /// @dev Minumum crown participation fee percentage for pool deployment
     uint16 public constant MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 5000;
     
-    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 * 1 days;
+    /// @dev Maximum TGE Date adjustment when it comes to TGE Update
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 days;
     
     // ============================== EVENT ==============================
 
@@ -175,6 +195,7 @@ contract IgnitionFactory is BasePausable {
         return pool;
     }
 
+    /// @notice create Vesting Proxy(clones) contract using Clone pattern 
     function createVesting() external returns (address) {
         address vesting = Clones.clone(vestingImplementationAddress);
         emit VestingCreated(_msgSender(), vesting);

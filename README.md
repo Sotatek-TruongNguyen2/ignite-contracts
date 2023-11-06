@@ -1,4 +1,39 @@
+# High Level Architecture
+![High-level Smart contract architecture](./docs/architecture.png)
+
+- Main contracts: IgnitionFactory, Pool, Vesting.
+   - `IgnitionFactory`: This contract will be used to deploy a pair of Pool + Vesting contracts for collaborators.
+      - The contract is upgradeable using the TransparentProxy pattern.
+      - Collaborators can create a pool by calling the CreatePool function.
+    - `Pool`: This contract will serve as the main contract for investors and collaborators for most IDO actions, such as buying tokens, claiming IDO tokens, funding tokens, etc.
+      - The Pool Contract uses the Clone (Minimal proxy) pattern to reduce gas fees during deployment.
+    - `Vesting`: This contract will be used as a utility contract to separate the vesting logic from the Pool contract.
+      - The Vesting Contract uses the Clone (Minimal proxy) pattern to reduce gas fees during deployment.
+      - Owner of vesting contract should be a corresponding `Pool` contract. Not an EOA.
+
+- Business logic:
+  - We're currently using 
 # Step to deploy contracts
+
+Prerequisites:
+ - In the IgnitionFactory contract, there are some parameters that need to be configured before production deployments. Please change them to reasonable numbers if needed, depending on your business:
+  ```
+     /// @dev Lockup duration after TGE Date
+    uint public constant LOCKUP_DURATION = 5 minutes;
+
+    /// @dev Minimum galaxy participation fee percentage for pool deployment
+    uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
+    /// @dev Minimum crown participation fee percentage for pool deployment
+    uint16 public constant MINIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 0;
+
+    /// @dev Maximum galaxy participation fee percentage for pool deployment
+    uint16 public constant MAXIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 5000;
+    /// @dev Minumum crown participation fee percentage for pool deployment
+    uint16 public constant MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 5000;
+    
+    /// @dev Maximum TGE Date adjustment when it comes to TGE Update
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 days;
+  ``` 
 
 1. Create .env file and fill with private key of deployer, infura key (if you do not use infura endpoint, you can change rpc endpoint of network in hardhat.config.ts)
 

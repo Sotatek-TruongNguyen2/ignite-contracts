@@ -261,6 +261,11 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         );
     }
 
+    /**
+     * @notice Update TGE Date for galaxy pool and crowdfunding pool
+     * @dev Only admin can call it, new updated TGE Date must be within x year from the time calling this function
+     * @param _newTGEDate New updated TGE Date
+     */
     function updateTGEDate(
         uint64 _newTGEDate
     ) external onlyAdmin beforeTGEDate {
@@ -334,6 +339,11 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         _internalNormalUserBuyToken(proof, _purchaseAmount);
     }
 
+    /**
+     * @notice Allow to change claimable status of the pool
+     * @dev Called only by admin
+     * @param _status change vesting status
+    */
     function setClaimableStatus(bool _status) external onlyAdmin {
         if (_status == true) {
             require(
@@ -344,6 +354,15 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         return vesting.setClaimableStatus(_status);
     }
 
+    /**
+     * @notice Allow collaborator to fund IDO token into the Pool contract. Should
+     * only be called before TGE Date
+     *  PRIVATE SALE - Pool must be funded after Community close time to make sure fund amount is consistent
+     *  PUBLIC SALE - Pool can be funded any time before TGE Date
+     * @dev Called only once
+     * @param _IDOToken Address of IDO token
+     * @param signature Signature comes from admin to verify IDO token is valid in case of private SALE
+    */
     function fundIDOToken(
         IERC20withDec _IDOToken,
         bytes calldata signature
@@ -379,6 +398,13 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         emit FundIDOToken(_IDOToken, fundAmount);
     }
 
+
+    /**
+     * @notice Collaborator can claim reduntdant IDO Token after funding
+     * @dev In case of public sale, if pool failed at TGE Date, collaborator can claim the whole amount (total raise amount)
+     * if pool is fully funded but the purchased amount stills lower than total raise amount, allow to withdraw the redundant
+     * @param _beneficiary Address to receive redundant IDO Token
+     */    
     function withdrawRedundantIDOToken(
         address _beneficiary
     ) external onlyOwner {
@@ -477,6 +503,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         emit WithdrawPurchasedAmount(_msgSender(), _beneficiary, amount);
     }
 
+    /**
+     * @dev Claim tokens for investors
+     * @param _beneficiary Address to receive amount of purchased token
+     */
     function claimFund(
         address _beneficiary
     )
@@ -531,6 +561,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             (_amount * offeredCurrency.rate) / (10 ** offeredCurrency.decimal);
     }
 
+    /// @notice Calculate total claimable purchased token during vesting period
     function getClaimableFundAmount() public view returns (uint) {
         uint tokenFee = (purchasedAmount * tokenFeePercentage) /
             PERCENTAGE_DENOMINATOR;
