@@ -11,8 +11,6 @@
       - The Vesting Contract uses the Clone (Minimal proxy) pattern to reduce gas fees during deployment.
       - Owner of vesting contract should be a corresponding `Pool` contract. Not an EOA.
 
-- Business logic:
-  - We're currently using 
 # Step to deploy contracts
 
 Prerequisites:
