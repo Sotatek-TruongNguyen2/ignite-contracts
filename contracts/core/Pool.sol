@@ -649,9 +649,6 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         uint _participationFeePercentage,
         uint8 _poolType
     ) internal {
-        // Update Whale Purchase Amount
-        whalePurchasedAmount[_msgSender()] += _purchaseAmount;
-
         bool verifyWithKYCed = _verifyUser(
             _msgSender(),
             WHALE,
@@ -826,6 +823,8 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
      * @param _purchaseAmount Purchase amount of investor
      */
     function _updatePurchasingInGalaxyPoolState(uint _purchaseAmount) internal {
+        // Update Whale Purchase Amount
+        whalePurchasedAmount[_msgSender()] += _purchaseAmount;
         purchasedAmountInGalaxyPool += _purchaseAmount;
     }
 
@@ -875,6 +874,23 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         );
     }
 
+     /**
+     * @dev Check whether or not purchase amount exceeds max purchase amount base on allocation for whale
+     * @param _purchaseAmount Amount of purchase token
+     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocations for whale
+     */
+    function _preValidatePurchaseInGalaxyPool(
+        address _whaleAddress,
+        uint _purchaseAmount,
+        uint _maxPurchaseBaseOnAllocations
+    ) internal view {
+        PoolLogic.validAmount(_purchaseAmount);
+        require(
+            whalePurchasedAmount[_whaleAddress] +  _purchaseAmount <= _maxPurchaseBaseOnAllocations,
+            Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER
+        );
+    }
+
     /**
      * @dev Check whether or not purchase amount exceeds amount in all pools
      * @param _purchaseAmount Purchase amount of investor
@@ -920,21 +936,4 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         require(allowance >= _purchaseAmount, Errors.NOT_ENOUGH_ALLOWANCE);
     }
 
-    /**
-     * @dev Check whether or not purchase amount exceeds max purchase amount base on allocation for whale
-     * @param _purchaseAmount Amount of purchase token
-     * @param _maxPurchaseBaseOnAllocations Max purchase amount base on allocations for whale
-     */
-    function _preValidatePurchaseInGalaxyPool(
-        address _whaleAddress,
-        uint _purchaseAmount,
-        uint _maxPurchaseBaseOnAllocations
-    ) internal view {
-        PoolLogic.validAmount(_purchaseAmount);
-        require(
-            whalePurchasedAmount[_whaleAddress] +  _purchaseAmount <= _maxPurchaseBaseOnAllocations,
-            Errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER
-        );
-    }
-    
 }
