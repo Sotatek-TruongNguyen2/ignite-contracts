@@ -11,6 +11,26 @@
       - The Vesting Contract uses the Clone (Minimal proxy) pattern to reduce gas fees during deployment.
       - Owner of vesting contract should be a corresponding `Pool` contract. Not an EOA.
 
+# PAID Insight roles
+- **Whale User Account**:
+  - Must hold a total of 75,000 PAID tokens across all wallets linked to their account on both the ETH and BNB chains at the time of each project snapshot.
+  - Each 75,000 PAID token holding is equivalent to one allocation to purchase tokens in the Early Pool.
+  - The snapshot will determine the whale user's allocation based on their PAID token holdings.
+  - The whale user's allocation value will be compared to their KYC status to determine their final 'Max Buy' in the Early Pool and their overall 'Max Buy' for the entire project (including both the Early Pool and Open Pool).
+- **Whale User Participation**:
+  - Beside from having allocations to purchase in the Early Pool, whale users can participate in the early stage of Open Pool, which opens at the same time as the Early Pool.
+  - Whale users' participation in the early stage of Open Pool is on a first-come, first-served basis.
+  - After Early Pool closes, whale users can participate in Open Pool on a first-come, first-served basis.
+- **Normal User Account**:
+  - Must have an account at the time of each project snapshot.
+  - Can only participate in the Open Pool.
+  - Normal users' max buy for each project will depend on their KYC status.
+  - Normal users' participation in Open Pool is on a first-come, first-served basis.
+
+Notes: 
+ - **Maximum purchase limitations** were intended to restrict the purchase amount based on the user’s total accumulated purchase amount and user snapshot data. 
+ - The construction of snapshot data is described in the #Merkle-tree section.
+
 # Step to deploy contracts
 
 Prerequisites:
