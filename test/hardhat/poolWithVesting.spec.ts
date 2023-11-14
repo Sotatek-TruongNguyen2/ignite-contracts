@@ -1,7 +1,7 @@
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers"
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { ethers } from "hardhat"
+import { ethers, upgrades } from "hardhat"
 
 import { ERC20Token } from "../../typechain-types/contracts/mocks/ERC20Token"
 import { ERC20Token__factory } from "../../typechain-types/factories/contracts/mocks/ERC20Token__factory"
@@ -131,8 +131,11 @@ describe("Ignition Pool With Vesting", () => {
             ["contracts/logics/VestingLogic.sol:VestingLogic"]: vestingLogic.address,
         }, owner).deploy();
 
-        factory = await new IgnitionFactory__factory(owner).deploy();
-        await factory.initialize(pool.address, vesting.address)
+
+        const IgnitionFactory = await ethers.getContractFactory('IgnitionFactory');
+        const ignitionFactory = await upgrades.deployProxy(IgnitionFactory, [pool.address, vesting.address]);
+
+        factory = await IgnitionFactory.attach(ignitionFactory.address);
 
         erc20Sample = await new ERC20Token__factory(owner).deploy();
         erc20TokenFactory = await new ERC20TokenFactory__factory(owner).deploy(erc20Sample.address)
@@ -3760,8 +3763,8 @@ describe("Ignition Pool With Vesting", () => {
             // revert normal, KYC user buy in galaxy pool (investor4, NORMAL, KYC user, galaxy pool)
             await purchaseTokens[1].connect(investors[5]).approve(pool1.address, ethers.constants.MaxUint256)
             // await purchaseTokens[1].connect(investors[5]).approve(pool1.address, parseUnits('1000000',20))
-            
-            
+
+
             // await expect(pool1.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, leafInfo8.maxPurchaseBaseOnAllocation)).to.be.revertedWith(await errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_USER())
             await expect(pool1.connect(investors[5]).buyTokenInGalaxyPool(proof8, 10, 10)).to.be.revertedWith(await errors.NOT_IN_WHALE_LIST())
 
@@ -3775,7 +3778,7 @@ describe("Ignition Pool With Vesting", () => {
             const balanceOfpool1BeforeBuyToken = await purchaseTokens[1].balanceOf(pool1.address)
 
             expect(await pool1.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100', 6))).to.be.emit(pool1, Events.Pool.BuyToken)
-            
+
             const balanceOfInvestor0AfterBuyToken = await purchaseTokens[1].balanceOf(investors[0].address)
             const balanceOfpool1AfterBuyToken = await purchaseTokens[1].balanceOf(pool1.address)
             // expect((balanceOfInvestor0AfterBuyToken).sub(balanceOfInvestor0BeforeBuyToken)).to.be.equal(parseUnits('-110', 6))
@@ -3784,7 +3787,7 @@ describe("Ignition Pool With Vesting", () => {
             await purchaseTokens[1].connect(investors[0]).approve(pool1.address, parseUnits('1127000', 6))
             // buy successfully upto max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             expect(await pool1.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('9800', 6))).to.be.emit(pool1, Events.Pool.BuyToken)
-            
+
             // revert buy more than max purchase of KYC in galaxy and after in early access (investor0, WHALE, KYC User, early access)
             // await expect(pool1.connect(investors[0]).buyTokenInCrowdfundingPool(proof0EA, parseUnits('100', 6))).to.be.revertedWith(await errors.EXCEED_MAX_PURCHASE_AMOUNT_FOR_KYC_USER())
 

@@ -14,6 +14,7 @@ import '@primitivefi/hardhat-dodoc';
 import "@nomicfoundation/hardhat-foundry";
 import "@tenderly/hardhat-tenderly"
 import "hardhat-tracer"
+import '@openzeppelin/hardhat-upgrades';
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY
