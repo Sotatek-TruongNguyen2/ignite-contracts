@@ -869,7 +869,7 @@ describe("Ignition Pool With Vesting", () => {
             expect(await pool0.paused()).to.be.true;
         })
 
-        it.only("Should update time includes whale close time, crowdfunding close time, TGE date", async () => {
+        it("Should update time includes whale close time, crowdfunding close time, TGE date", async () => {
             const { pool0, admin1, Events } = await loadFixture(deployPool0Fixture)
             expect(await pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(2 * 365 * 24 * 60 * 60))).to.be.emit(pool0, Events.Vesting.UpdateTGEDate)
 
