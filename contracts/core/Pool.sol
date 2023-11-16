@@ -270,10 +270,10 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
         uint64 _newTGEDate
     ) external onlyAdmin beforeTGEDate {
         require(communityCloseTime <= _newTGEDate, Errors.INVALID_TIME);
-        require(tgeUpdatedAttempts < ignitionFactory.getMaximumTGEDateAdjustmentAttempts(), Errors.NOT_ALLOWED_TO_ADJUST_TGE_DATE_EXCEEDS_ATTEMPTS);
+        require(tgeUpdateAttempts < ignitionFactory.getMaximumTGEDateAdjustmentAttempts(), Errors.NOT_ALLOWED_TO_ADJUST_TGE_DATE_EXCEEDS_ATTEMPTS);
         require(_newTGEDate <= vesting.getInitialTGEDate() + ignitionFactory.getMaximumTGEDateAdjustment(), Errors.NOT_ALLOWED_TO_ADJUST_TGE_DATE_TOO_FAR);
         vesting.updateTGEDate(_newTGEDate);
-        tgeUpdatedAttempts++;
+        tgeUpdateAttempts++;
     }
 
     /**
