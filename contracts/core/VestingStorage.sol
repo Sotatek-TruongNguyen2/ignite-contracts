@@ -18,6 +18,9 @@ contract VestingStorage {
     /// @notice Time for user to redeem IDO token
     uint64 public TGEDate;
 
+    /// @notice Initial Time for user to redeem IDO token
+    uint64 public initialTGEDate;
+
     /// @notice Percentage of IDO token amount of user, which can be redeemed after TGEDate
     uint16 public TGEPercentage;
 
@@ -32,8 +35,6 @@ contract VestingStorage {
 
     /// @notice vesting info of each user
     mapping(address => VestingAmountInfo) public vestingAmountInfo;
-
-    
 
     /// @notice True if collaborator fund enough IDO token
     bool public funded;

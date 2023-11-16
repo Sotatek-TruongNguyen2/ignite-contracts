@@ -133,4 +133,6 @@ contract PoolStorage {
 
     /// @dev Vesting contract address
     IVesting public vesting;
+
+    uint8 public tgeUpdatedAttempts;
 }

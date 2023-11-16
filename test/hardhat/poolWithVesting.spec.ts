@@ -869,9 +869,16 @@ describe("Ignition Pool With Vesting", () => {
             expect(await pool0.paused()).to.be.true;
         })
 
-        it("Should update time includes whale close time, crowdfunding close time, TGE date", async () => {
+        it.only("Should update time includes whale close time, crowdfunding close time, TGE date", async () => {
             const { pool0, admin1, Events } = await loadFixture(deployPool0Fixture)
-            expect(await pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(100))).to.be.emit(pool0, Events.Vesting.UpdateTGEDate)
+            expect(await pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(2 * 365 * 24 * 60 * 60))).to.be.emit(pool0, Events.Vesting.UpdateTGEDate)
+
+            // No more than 2 years from initial 
+            expect(pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(3 * 365 * 24 * 60 * 60))).to.be.rejectedWith("42");
+
+            expect(await pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(500))).to.be.emit(pool0, Events.Vesting.UpdateTGEDate)
+            expect(pool0.connect(admin1).updateTGEDate((await pool0.communityCloseTime()).add(100))).to.be.revertedWith("39");
+
             expect(await pool0.connect(admin1).updateTime(await pool0.whaleCloseTime(), (await pool0.communityCloseTime()).add(50))).to.be.emit(pool0, Events.Pool.UpdateTime)
         })
 

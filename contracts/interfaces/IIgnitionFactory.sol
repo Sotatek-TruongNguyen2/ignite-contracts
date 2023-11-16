@@ -19,4 +19,6 @@ interface IIgnitionFactory {
     function getMinCrowdfundingParticipationFeePercentage() external pure returns (uint16);
 
     function getMaximumTGEDateAdjustment() external pure returns (uint);
+    
+    function getMaximumTGEDateAdjustmentAttempts() external pure returns (uint);
 }

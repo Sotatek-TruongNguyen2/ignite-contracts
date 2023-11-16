@@ -84,7 +84,8 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
     ) external override initializer {
         VestingLogic.verifyVestingInfo(_TGEPercentage);
         IDOToken = IERC20withDec(_IDOToken);
-        TGEDate = SafeCast.toUint64(_TGEDate);
+        initialTGEDate = SafeCast.toUint64(_TGEDate);
+        TGEDate = initialTGEDate;
         TGEPercentage = SafeCast.toUint16(_TGEPercentage);
         vestingCliff = SafeCast.toUint64(_vestingCliff);
         vestingFrequency = SafeCast.toUint64(_vestingFrequency);
@@ -196,7 +197,9 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
     function getIDOToken() external view returns (IERC20withDec) {
         return IDOToken;
     }
-
+    function getInitialTGEDate() external view returns (uint64) {
+        return initialTGEDate;
+    }
     function getVestingInfo()
         external
         view

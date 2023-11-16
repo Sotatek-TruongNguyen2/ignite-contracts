@@ -40,7 +40,8 @@ library Errors {
     string public constant NOT_ALLOWED_TO_FUND_BEFORE_COMMUNITY_TIME = "36"; // Not allow to fund IDO token before Community Close Time
     string public constant GALAXY_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE = "37";
     string public constant CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE_NOT_IN_THE_RANGE = "38";
-    string public constant NOT_ALLOWED_TO_ADJUST_TGE_DATE_TOO_BIG = "39";
+    string public constant NOT_ALLOWED_TO_ADJUST_TGE_DATE_EXCEEDS_ATTEMPTS = "39";
     string public constant MAX_PURCHASE_FOR_KYC_USER_NOT_VALID = "40";
     string public constant POOL_IS_ALREADY_FUNDED = "41";
+    string public constant NOT_ALLOWED_TO_ADJUST_TGE_DATE_TOO_FAR= "42";
 }

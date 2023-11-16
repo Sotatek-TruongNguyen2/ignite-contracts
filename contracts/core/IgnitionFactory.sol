@@ -32,7 +32,7 @@ import "../interfaces/IIgnitionFactory.sol";
     address public vestingImplementationAddress;
 
     /// @dev Lockup duration after TGE Date
-    uint public constant LOCKUP_DURATION = 5 minutes;
+    uint public constant LOCKUP_DURATION = 14 days;
 
     /// @dev Minimum galaxy participation fee percentage for pool deployment
     uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
@@ -45,7 +45,10 @@ import "../interfaces/IIgnitionFactory.sol";
     uint16 public constant MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 5000;
     
     /// @dev Maximum TGE Date adjustment when it comes to TGE Update
-    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 days;
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 730 days;
+
+     /// @dev Maximum TGE Date adjustment attemps when it comes to TGE Update
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT_ATTEMPS = 2;
     
     // ============================== EVENT ==============================
 
@@ -226,6 +229,10 @@ import "../interfaces/IIgnitionFactory.sol";
 
     function getMaximumTGEDateAdjustment() public pure returns (uint) {
         return MAXIMUM_TGE_DATE_ADJUSTMENT;
+    }
+
+     function getMaximumTGEDateAdjustmentAttempts() public pure returns (uint) {
+        return MAXIMUM_TGE_DATE_ADJUSTMENT_ATTEMPS;
     }
 
     // ============================== INTERNAL FUNCTION ==============================

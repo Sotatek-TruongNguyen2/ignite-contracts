@@ -26,6 +26,11 @@ interface IVesting {
 
     function isClaimable() external view returns (bool);
 
+    function getInitialTGEDate()
+        external
+        view
+        returns (uint64);
+
     function getVestingInfo()
         external
         view
