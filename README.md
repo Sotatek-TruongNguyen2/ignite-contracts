@@ -37,7 +37,7 @@ Prerequisites:
  - In the IgnitionFactory contract, there are some parameters that need to be configured before production deployments. Please change them to reasonable numbers if needed, depending on your business:
   ```
      /// @dev Lockup duration after TGE Date
-    uint public constant LOCKUP_DURATION = 5 minutes;
+    uint public constant LOCKUP_DURATION = 14 days;
 
     /// @dev Minimum galaxy participation fee percentage for pool deployment
     uint16 public constant MINIMUM_GALAXY_PARTICIPATION_FEE_PERCENTAGE = 0;
