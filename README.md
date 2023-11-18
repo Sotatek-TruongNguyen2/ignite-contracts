@@ -50,7 +50,10 @@ Prerequisites:
     uint16 public constant MAXIMUM_CROWN_FUNDING_PARTICIPATION_FEE_PERCENTAGE = 5000;
     
     /// @dev Maximum TGE Date adjustment when it comes to TGE Update
-    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 365 days;
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT = 730 days;
+
+     /// @dev Maximum TGE Date adjustment attemps when it comes to TGE Update
+    uint public constant MAXIMUM_TGE_DATE_ADJUSTMENT_ATTEMPS = 2;
   ``` 
 
 1. Create .env file and fill with private key of deployer, infura key (if you do not use infura endpoint, you can change rpc endpoint of network in hardhat.config.ts)
