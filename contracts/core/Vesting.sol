@@ -127,8 +127,9 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
      * @dev  Called by the pool contract to update funded status
      * @param _status funded status
      */
-    function setFundedStatus(bool _status) external onlyOwner {
+    function setFundedStatus(uint256 fundedAmount, bool _status) external onlyOwner {
         funded = _status;
+        totalFundedAmount = fundedAmount;
         emit Funded(_status);
     }
 
@@ -187,7 +188,7 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
     function withdrawRedundantIDOToken(
         address _beneficiary,
         uint _redundantAmount
-    ) external onlyOwner nonReentrant notEmergencyCancelled{
+    ) external onlyOwner nonReentrant notEmergencyCancelled {
         require(_redundantAmount > 0, Errors.ZERO_AMOUNT_NOT_VALID);
         IDOToken.safeTransfer(_beneficiary, _redundantAmount);
 
@@ -199,6 +200,10 @@ contract Vesting is IVesting, VestingStorage, BasePausable {
     }
     function getInitialTGEDate() external view returns (uint64) {
         return initialTGEDate;
+    }
+
+    function getTotalFundedAmount() external view returns (uint256) {
+        return totalFundedAmount;
     }
     function getVestingInfo()
         external

@@ -226,7 +226,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             );
             vesting.setEmergencyCancelled(true);
         }
-        // This should be marked as cancel (paused === cancel)
+        // This should be marked as cancelled (paused === cancel)
         _pause();
         vesting.setClaimableStatus(false);
         emit CancelPool(address(this), _permanentDelete);
@@ -395,7 +395,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
             fundAmount
         );
 
-        vesting.setFundedStatus(true);
+        vesting.setFundedStatus(fundAmount, true);
         emit FundIDOToken(_IDOToken, fundAmount);
     }
 
@@ -409,13 +409,13 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
     function withdrawRedundantIDOToken(
         address _beneficiary
     ) external onlyOwner {
-        uint vestingIDOBalance = IERC20(vesting.getIDOToken()).balanceOf(
-            address(vesting)
-        );
         uint redundantAmount;
 
         // In case project is not funded at TGE Date
         if (isFailBeforeTGEDate()) {
+            uint vestingIDOBalance = IERC20(vesting.getIDOToken()).balanceOf(
+                address(vesting)
+            );
             redundantAmount = vestingIDOBalance;
         } else {
             (uint64 _TGEDate, , , , ) = vesting.getVestingInfo();
@@ -424,7 +424,7 @@ contract Pool is IgnitionList, IPool, PoolStorage, BasePausable, EIP712Upgradeab
                 Errors.NOT_ALLOWED_TO_TRANSFER_BEFORE_TGE_DATE
             );
             redundantAmount =
-                vestingIDOBalance -
+                vesting.getTotalFundedAmount() -
                 getIDOTokenAmountByOfferedCurrency(purchasedAmount);
         }
         vesting.withdrawRedundantIDOToken(_beneficiary, redundantAmount);

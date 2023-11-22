@@ -18,9 +18,11 @@ interface IVesting {
 
     function setIDOToken(IERC20withDec _IDOToken) external;
 
+    function getTotalFundedAmount() external view returns (uint256);
+
     function getIDOToken() external view returns (IERC20withDec);
 
-    function setFundedStatus(bool _status) external;
+    function setFundedStatus(uint256 amount, bool _status) external;
 
     function setClaimableStatus(bool _status) external;
 

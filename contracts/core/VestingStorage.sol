@@ -33,6 +33,9 @@ contract VestingStorage {
     /// @notice Number of vesting release
     uint public numberOfVestingRelease;
 
+    /// @notice Total funded amount 
+    uint public totalFundedAmount;
+
     /// @notice vesting info of each user
     mapping(address => VestingAmountInfo) public vestingAmountInfo;
 
